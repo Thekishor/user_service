@@ -7,7 +7,7 @@ const adminRouter = Router();
 
 adminRouter.get("/users",
     verifyToken,
-    roleMiddleware("/admin"),
+    roleMiddleware("admin"),
     async (req: Request, res: Response) => {
 
         try {
@@ -17,6 +17,7 @@ adminRouter.get("/users",
                     email: 1,
                     role: 1,
                     isEmailVerified: 1,
+                    isAccountActive: 1,
                     createdAt: 1
                 }
             ).sort({createdAt: -1});
@@ -27,6 +28,7 @@ adminRouter.get("/users",
                 email: user.email,
                 role: user.role,
                 isEmailVerified: user.isEmailVerified,
+                isAccountActive: user.isAccountActive,
                 createdAt: user.createdAt
             }));
 
@@ -34,6 +36,7 @@ adminRouter.get("/users",
                 status: "success",
                 users: result,
             });
+
         } catch (err) {
             console.log(err);
             return res.status(500).json({

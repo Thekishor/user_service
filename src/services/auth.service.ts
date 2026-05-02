@@ -22,7 +22,7 @@ export const register = async (data: RegisterDto) => {
     });
 
     if (isRegisteredUser) {
-        throw new AppError("An account with this user already exists!", 404);
+        throw new AppError("An account with this user already exists!", 409);
     }
 
     const passwordHash = await hashPassword(password);
@@ -71,7 +71,7 @@ export const verifyEmail = async (token: string) => {
         }
     } catch (e) {
         if (e instanceof jwt.TokenExpiredError) {
-            throw new AppError("Verification token has expired", 409);
+            throw new AppError("Expired verification token", 404);
         }
         throw new AppError("Invalid token", 400);
     }
@@ -81,7 +81,7 @@ export const verifyEmail = async (token: string) => {
     });
 
     if (!emailVerificationToken) {
-        throw new AppError("Token not found or already used", 409);
+        throw new AppError("Verification token not found", 404);
     }
 
     const user = await User.findById(decoded.sub);
@@ -95,6 +95,7 @@ export const verifyEmail = async (token: string) => {
     }
 
     user.isEmailVerified = true;
+    user.isAccountActive = true;
     const updatedUser = await user.save();
 
     await EmailVerificationModel.deleteOne({
@@ -114,22 +115,27 @@ export const login = async (data: LoginDto) => {
     });
 
     if (!user) {
-        throw new AppError("User not found", 404);
+        throw new AppError("User not found with this account", 404);
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-        throw new AppError("Invalid password", 401);
+        throw new AppError("Invalid email or password", 401);
     }
 
     if (!user.isEmailVerified) {
-        throw new AppError("Please verify your email", 403);
+        throw new AppError("Please verify your email to activate your account", 403);
+    }
+
+    if (!user.isAccountActive) {
+        throw new AppError("Your account is not activated", 401);
     }
 
     const accessToken = createAccessToken(
         user.id,
-        user.role
+        user.role,
+        user.name
     );
 
     const refreshToken = createRefreshToken(
@@ -152,7 +158,8 @@ export const refreshToken = async (token: string) => {
 
     const newAccessToken = createAccessToken(
         user.id,
-        user.role
+        user.role,
+        user.name
     );
 
     const newRefreshToken = createRefreshToken(
@@ -171,7 +178,7 @@ export const forgotPassword = async (email: string) => {
     })
 
     if (!user) {
-        throw new AppError("User not found", 404);
+        throw new AppError("User not found with this account", 404);
     }
 
     const rawToken = crypto.randomBytes(32).toString("hex");
@@ -213,7 +220,7 @@ export const resetPassword = async (token: string, data: ResetPasswordDto) => {
     });
 
     if (!passwordResetModel) {
-        throw new AppError("Token not found", 400);
+        throw new AppError("Token not found", 404);
     }
 
     const user = await User.findById(
@@ -221,7 +228,7 @@ export const resetPassword = async (token: string, data: ResetPasswordDto) => {
     );
 
     if (!user) {
-        throw new AppError("User not found", 400);
+        throw new AppError("User not found with this account", 404);
     }
 
     user.password = await hashPassword(data.newPassword);

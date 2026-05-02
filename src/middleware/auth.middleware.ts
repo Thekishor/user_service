@@ -22,7 +22,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({
+        return res.status(400).json({
             success: false,
             message: "Token is missing or invalid"
         })
@@ -36,9 +36,9 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
         const user = await User.findById(payload.sub);
 
         if (!user) {
-            return res.status(401).json({
+            return res.status(404).json({
                 success: false,
-                message: "User not found"
+                message: "User not found with this account"
             })
         }
 
@@ -53,7 +53,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
         next();
     } catch (error) {
         console.log(error);
-        throw new AppError("Unauthorized user", 401);
+        return next(new AppError("Unauthorized user", 401));
     }
 }
 

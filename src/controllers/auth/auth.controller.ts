@@ -10,7 +10,7 @@ export async function registerUserHandler(req: Request, res: Response, next: Nex
         if (!result.success) {
             return res.status(400).json({
                 message: 'Validation failed!',
-                errors: z.treeifyError(result.error)
+                errors: z.flattenError(result.error).fieldErrors
             });
         }
         const user = await register(result.data);
@@ -23,6 +23,7 @@ export async function registerUserHandler(req: Request, res: Response, next: Nex
                 name: user.name,
                 email: user.email,
                 isEmailVerified: user.isEmailVerified,
+                isAccountActive: user.isAccountActive,
             }
         });
 
@@ -51,7 +52,9 @@ export async function verifyUserEmailHandler(req: Request, res: Response, next: 
             user: {
                 name: updatedUser.name,
                 email: updatedUser.email,
+                role: updatedUser.role,
                 isEmailVerified: updatedUser.isEmailVerified,
+                isAccountActive: updatedUser.isAccountActive,
             }
         })
     } catch (err) {
@@ -68,7 +71,7 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
         if (!result.success) {
             return res.status(400).json({
                 message: 'Validation failed!',
-                errors: z.treeifyError(result.error)
+                errors: z.flattenError(result.error).fieldErrors
             })
         }
 
@@ -90,6 +93,7 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
                 email: user.email,
                 role: user.role,
                 isEmailVerified: user.isEmailVerified,
+                isAccountActive: user.isAccountActive
             }
         })
     } catch (err) {
@@ -101,7 +105,7 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
 export async function refreshTokenHandler(req: Request, res: Response, next: NextFunction) {
 
     try {
-        const token = req.cookies.refreshToken;
+        const token = req.cookies.refreshToken as string;
 
         if (!token) {
             return res.status(401).json({
@@ -126,6 +130,7 @@ export async function refreshTokenHandler(req: Request, res: Response, next: Nex
                 email: user.email,
                 role: user.role,
                 isEmailVerified: user.isEmailVerified,
+                isAccountActive: user.isAccountActive
             },
             accessToken: newAccessToken,
         })
@@ -136,23 +141,28 @@ export async function refreshTokenHandler(req: Request, res: Response, next: Nex
 
 }
 
-export async function logoutUserHandler(req: Request, res: Response) {
+export async function logoutUserHandler(req: Request, res: Response, next: NextFunction) {
 
-    const refreshToken = req.cookies.refreshToken as string;
+    try {
+        const refreshToken = req.cookies.refreshToken as string;
 
-    if (!refreshToken) {
-        return res.status(401).json({
-            status: "failure",
-            message: 'Refresh token is missing',
+        if (!refreshToken) {
+            return res.status(401).json({
+                status: "failure",
+                message: 'Refresh token is missing',
+            })
+        }
+
+        res.clearCookie("refreshToken");
+
+        res.status(200).json({
+            status: "success",
+            message: 'User logged out successfully'
         })
+    } catch (err) {
+        console.log(err);
+        next(err);
     }
-
-    res.clearCookie("refreshToken");
-
-    res.status(200).json({
-        status: "success",
-        message: 'User logged out successfully'
-    })
 }
 
 export async function forgotPasswordHandler(req: Request, res: Response, next: NextFunction) {
@@ -202,7 +212,7 @@ export async function resetPasswordHandler(req: Request, res: Response, next: Ne
         if (!result.success) {
             return res.status(400).json({
                 message: 'Validation failed!',
-                errors: z.treeifyError(result.error)
+                errors: z.flattenError(result.error).fieldErrors
             });
         }
 
