@@ -2,6 +2,7 @@ import {Router, Request, Response} from "express";
 import verifyToken from "../middleware/auth.middleware";
 import {roleMiddleware} from "../middleware/role.middleware";
 import {User} from "../models/user.model";
+import {deleteUserHandler} from "../controllers/auth/auth.controller";
 
 const adminRouter = Router();
 
@@ -47,5 +48,10 @@ adminRouter.get("/users",
 
     }
 )
+
+adminRouter.delete("/users/:id",
+    verifyToken,
+    roleMiddleware("admin"),
+    deleteUserHandler)
 
 export default adminRouter;

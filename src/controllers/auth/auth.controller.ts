@@ -1,6 +1,14 @@
 import {Request, Response, NextFunction} from 'express';
 import {loginSchema, registerSchema, resetPasswordSchema} from "./auth.schema";
-import {login, register, verifyEmail, refreshToken, forgotPassword, resetPassword} from "../../services/auth.service";
+import {
+    login,
+    register,
+    verifyEmail,
+    refreshToken,
+    forgotPassword,
+    resetPassword,
+    deleteUser
+} from "../../services/auth.service";
 import {z} from "zod";
 
 export async function registerUserHandler(req: Request, res: Response, next: NextFunction) {
@@ -225,5 +233,21 @@ export async function resetPasswordHandler(req: Request, res: Response, next: Ne
     } catch (err) {
         console.log(err);
         next(err);
+    }
+}
+
+export async function deleteUserHandler(req: Request, res: Response, next: NextFunction) {
+
+    try {
+        const userId = req.params.id;
+        await deleteUser(userId);
+
+        return res.status(200).json({
+            status: "success",
+            message: "User deleted successfully",
+        })
+    } catch (e) {
+        console.log(e)
+        next(e);
     }
 }

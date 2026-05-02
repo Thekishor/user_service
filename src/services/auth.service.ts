@@ -239,3 +239,13 @@ export const resetPassword = async (token: string, data: ResetPasswordDto) => {
     });
 
 }
+export const deleteUser = async (userId: string) => {
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+        throw new AppError("User not found with this account", 404);
+    }
+
+    await User.deleteOne({_id: userId});
+}
