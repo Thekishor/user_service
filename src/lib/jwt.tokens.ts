@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import {env} from "../config/env"
 
-export function createAccessToken(userId: string, role: string, name: string) {
-    const payload = {sub: userId, role, name};
+export function createAccessToken(userId: string, role: string, name: string, sessionId: string) {
+    const payload = {sub: userId, role, name, sessionId};
     return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
         expiresIn: "15m"
     })

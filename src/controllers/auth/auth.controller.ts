@@ -83,7 +83,11 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
             })
         }
 
-        const {accessToken, refreshToken, user} = await login(result.data);
+        const {accessToken, refreshToken, user} = await login(
+            result.data,
+            req.ip,
+            req.get("User-Agent")
+        );
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,

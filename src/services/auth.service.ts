@@ -1,6 +1,6 @@
 import {LoginDto, RegisterDto, ResetPasswordDto} from "../controllers/auth/auth.schema";
 import {User} from "../models/user.model";
-import {hashPassword} from "../lib/hash";
+import {hashPassword, hashRefreshToken} from "../lib/hash";
 import jwt from "jsonwebtoken";
 import {env} from "../config/env";
 import {EmailVerificationModel} from "../models/emailverification.model";
@@ -10,6 +10,7 @@ import * as crypto from "node:crypto";
 import {createAccessToken, createRefreshToken, verifyRefreshToken} from "../lib/jwt.tokens";
 import {PasswordResetModel} from "../models/passwordreset.model";
 import {AppError} from "../lib/AppError";
+import {SessionModel} from "../models/session.model";
 
 export const register = async (data: RegisterDto) => {
 
@@ -104,7 +105,7 @@ export const verifyEmail = async (token: string) => {
 
     return updatedUser;
 }
-export const login = async (data: LoginDto) => {
+export const login = async (data: LoginDto, ip: string | undefined, userAgent: string | undefined) => {
 
     const {email, password} = data;
 
@@ -132,15 +133,25 @@ export const login = async (data: LoginDto) => {
         throw new AppError("Your account is not activated", 401);
     }
 
-    const accessToken = createAccessToken(
-        user.id,
-        user.role,
-        user.name
-    );
-
     const refreshToken = createRefreshToken(
         user.id,
         user.role
+    );
+
+    const refreshTokenHash = await hashRefreshToken(refreshToken);
+
+    const session = await SessionModel.create({
+        user: user._id,
+        refreshTokenHash,
+        ip,
+        userAgent,
+    });
+
+    const accessToken = createAccessToken(
+        user.id,
+        user.role,
+        user.name,
+        session._id.toString()
     );
 
     return {accessToken, refreshToken, user};
@@ -149,6 +160,9 @@ export const login = async (data: LoginDto) => {
 export const refreshToken = async (token: string) => {
 
     const payload = verifyRefreshToken(token);
+
+    const refreshTokenHash = await hashPassword(token);
+
 
     const user = await User.findById(payload.sub);
 
