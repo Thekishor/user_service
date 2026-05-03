@@ -115,19 +115,13 @@ export const login = async (data: LoginDto, ip: string | undefined, userAgent: s
         email: normalizedEmail,
     });
 
-    if (!user) {
-        throw new AppError("User not found with this account", 404);
-    }
+    if (!user) throw new AppError("User not found with this account", 404);
 
     const isValidPassword = await bcrypt.compare(password, user.password);
 
-    if (!isValidPassword) {
-        throw new AppError("Invalid email or password", 401);
-    }
+    if (!isValidPassword) throw new AppError("Invalid email or password", 401);
 
-    if (!user.isEmailVerified) {
-        throw new AppError("Please verify your email to activate your account", 403);
-    }
+    if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
 
     if (!user.isAccountActive) {
         throw new AppError("Your account is not activated", 401);
@@ -161,19 +155,24 @@ export const refreshToken = async (token: string) => {
 
     const payload = verifyRefreshToken(token);
 
-    const refreshTokenHash = await hashPassword(token);
+    const refreshTokenHash = await hashRefreshToken(token);
 
+    const session = await SessionModel.findOne({
+        refreshTokenHash,
+        revoked: false
+    })
+
+    if (!session) throw new AppError("Refresh token not found!", 404);
 
     const user = await User.findById(payload.sub);
 
-    if (!user) {
-        throw new AppError("User not found", 401);
-    }
+    if (!user) throw new AppError("User not found", 401);
 
     const newAccessToken = createAccessToken(
         user.id,
         user.role,
-        user.name
+        user.name,
+        session._id.toString(),
     );
 
     const newRefreshToken = createRefreshToken(
@@ -181,7 +180,25 @@ export const refreshToken = async (token: string) => {
         user.role
     );
 
+    session.refreshTokenHash = await hashRefreshToken(newRefreshToken);
+    await session.save();
+
     return {newAccessToken, newRefreshToken, user};
+}
+export const logout = async (token: string) => {
+
+    const refreshTokenHash = await hashRefreshToken(token);
+
+    const session = await SessionModel.findOne({
+        refreshTokenHash,
+        revoked: false
+    });
+
+    if (!session) throw new AppError("Refresh token not found!", 404);
+
+    session.revoked = true;
+    await session.save();
+
 }
 export const forgotPassword = async (email: string) => {
 

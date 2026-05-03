@@ -7,7 +7,7 @@ import {
     refreshToken,
     forgotPassword,
     resetPassword,
-    deleteUser
+    deleteUser, logout
 } from "../../services/auth.service";
 import {z} from "zod";
 
@@ -164,6 +164,7 @@ export async function logoutUserHandler(req: Request, res: Response, next: NextF
                 message: 'Refresh token is missing',
             })
         }
+        await logout(refreshToken);
 
         res.clearCookie("refreshToken");
 
