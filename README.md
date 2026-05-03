@@ -8,6 +8,7 @@ email based workflow and token management.
 - Role-Based Access Control (RBAC)
 - Email Verification
 - Forgot Password Flow
+- JWT Auth with session revocation
 
 ## Tech Stack
 
@@ -22,3 +23,6 @@ email based workflow and token management.
 
 ### Database
 - Mongodb
+
+### Validation
+- Zod validation
