@@ -8,8 +8,8 @@ export function createAccessToken(userId: string, role: string, name: string, se
     })
 }
 
-export function createRefreshToken(userId: string, role: string,) {
-    const payload = {sub: userId, role};
+export function createRefreshToken(userId: string, role: string, name: string) {
+    const payload = {sub: userId, role, name};
     return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
         expiresIn: "7d"
     })

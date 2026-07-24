@@ -1,5 +1,5 @@
-import {Request, Response, NextFunction} from 'express';
-import {loginSchema, registerSchema, resetPasswordSchema} from "./auth.schema";
+import { Request, Response, NextFunction } from 'express';
+import { loginSchema, registerSchema, resetPasswordSchema } from "./auth.schema";
 import {
     login,
     register,
@@ -9,7 +9,8 @@ import {
     resetPassword,
     deleteUser, logout
 } from "../../services/auth.service";
-import {z} from "zod";
+import { z } from "zod";
+import { AppError } from "../../lib/AppError";
 
 export async function registerUserHandler(req: Request, res: Response, next: NextFunction) {
     try {
@@ -83,7 +84,7 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
             })
         }
 
-        const {accessToken, refreshToken, user} = await login(
+        const { accessToken, refreshToken, user } = await login(
             result.data,
             req.ip,
             req.get("User-Agent")
@@ -92,7 +93,7 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'lax',
+            sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -117,15 +118,13 @@ export async function loginUserHandler(req: Request, res: Response, next: NextFu
 export async function refreshTokenHandler(req: Request, res: Response, next: NextFunction) {
 
     try {
-        const token = req.cookies.refreshToken as string;
+        const token = req.cookies.refreshToken;
 
         if (!token) {
-            return res.status(401).json({
-                message: 'Refresh token is missing',
-            })
+            return next(new AppError('Refresh token is missing', 404));
         }
 
-        const {newAccessToken, newRefreshToken, user} = await refreshToken(token);
+        const { newAccessToken, newRefreshToken, user } = await refreshToken(token);
 
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
@@ -156,13 +155,10 @@ export async function refreshTokenHandler(req: Request, res: Response, next: Nex
 export async function logoutUserHandler(req: Request, res: Response, next: NextFunction) {
 
     try {
-        const refreshToken = req.cookies.refreshToken as string;
+        const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
-            return res.status(401).json({
-                status: "failure",
-                message: 'Refresh token is missing',
-            })
+            return next(new AppError('Refresh token is missing', 404));
         }
         await logout(refreshToken);
 
@@ -181,7 +177,7 @@ export async function logoutUserHandler(req: Request, res: Response, next: NextF
 export async function forgotPasswordHandler(req: Request, res: Response, next: NextFunction) {
 
     try {
-        const {email} = req.body as { email?: string };
+        const { email } = req.body as { email?: string };
 
         if (!email) {
             return res.status(400).json({
@@ -207,7 +203,7 @@ export async function resetPasswordHandler(req: Request, res: Response, next: Ne
     try {
         const token = req.query.token as string;
 
-        const {newPassword, confirmPassword} = req.body as {
+        const { newPassword, confirmPassword } = req.body as {
             newPassword?: string;
             confirmPassword?: string
         };
@@ -220,7 +216,7 @@ export async function resetPasswordHandler(req: Request, res: Response, next: Ne
         }
 
         const result = resetPasswordSchema
-            .safeParse({newPassword, confirmPassword});
+            .safeParse({ newPassword, confirmPassword });
 
         if (!result.success) {
             return res.status(400).json({

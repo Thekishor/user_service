@@ -1,20 +1,20 @@
-import {LoginDto, RegisterDto, ResetPasswordDto} from "../controllers/auth/auth.schema";
-import {User} from "../models/user.model";
-import {hashPassword, hashRefreshToken} from "../lib/hash";
+import { LoginDto, RegisterDto, ResetPasswordDto } from "../controllers/auth/auth.schema";
+import { User } from "../models/user.model";
+import { hashPassword, hashRefreshToken } from "../lib/hash";
 import jwt from "jsonwebtoken";
-import {env} from "../config/env";
-import {EmailVerificationModel} from "../models/emailverification.model";
-import {sendEmail} from "./email.service";
+import { env } from "../config/env";
+import { EmailVerificationModel } from "../models/emailverification.model";
+import { sendEmail } from "./email.service";
 import bcrypt from "bcrypt";
 import * as crypto from "node:crypto";
-import {createAccessToken, createRefreshToken, verifyRefreshToken} from "../lib/jwt.tokens";
-import {PasswordResetModel} from "../models/passwordreset.model";
-import {AppError} from "../lib/AppError";
-import {SessionModel} from "../models/session.model";
+import { createAccessToken, createRefreshToken, verifyRefreshToken } from "../lib/jwt.tokens";
+import { PasswordResetModel } from "../models/passwordreset.model";
+import { AppError } from "../lib/AppError";
+import { SessionModel } from "../models/session.model";
 
 export const register = async (data: RegisterDto) => {
 
-    const {name, email, password} = data;
+    const { name, email, password } = data;
 
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -36,7 +36,7 @@ export const register = async (data: RegisterDto) => {
 
     const verifyToken = jwt.sign({
         sub: user._id,
-    }, env.TOKEN_SECRET, {expiresIn: "1d"});
+    }, env.TOKEN_SECRET, { expiresIn: "1d" });
 
     await EmailVerificationModel.create({
         user: user._id,
@@ -107,7 +107,7 @@ export const verifyEmail = async (token: string) => {
 }
 export const login = async (data: LoginDto, ip: string | undefined, userAgent: string | undefined) => {
 
-    const {email, password} = data;
+    const { email, password } = data;
 
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -123,13 +123,12 @@ export const login = async (data: LoginDto, ip: string | undefined, userAgent: s
 
     if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
 
-    if (!user.isAccountActive) {
-        throw new AppError("Your account is not activated", 401);
-    }
+    if (!user.isAccountActive) throw new AppError("Your account is not activated", 401);
 
     const refreshToken = createRefreshToken(
         user.id,
-        user.role
+        user.role,
+        user.name
     );
 
     const refreshTokenHash = await hashRefreshToken(refreshToken);
@@ -148,14 +147,16 @@ export const login = async (data: LoginDto, ip: string | undefined, userAgent: s
         session._id.toString()
     );
 
-    return {accessToken, refreshToken, user};
+    return { accessToken, refreshToken, user };
 
 }
 export const refreshToken = async (token: string) => {
 
     const payload = verifyRefreshToken(token);
+    console.log(payload);
 
     const refreshTokenHash = await hashRefreshToken(token);
+    console.log(refreshTokenHash);
 
     const session = await SessionModel.findOne({
         refreshTokenHash,
@@ -177,13 +178,14 @@ export const refreshToken = async (token: string) => {
 
     const newRefreshToken = createRefreshToken(
         user.id,
-        user.role
+        user.role,
+        user.name
     );
 
     session.refreshTokenHash = await hashRefreshToken(newRefreshToken);
     await session.save();
 
-    return {newAccessToken, newRefreshToken, user};
+    return { newAccessToken, newRefreshToken, user };
 }
 export const logout = async (token: string) => {
 
@@ -247,7 +249,7 @@ export const resetPassword = async (token: string, data: ResetPasswordDto) => {
 
     const passwordResetModel = await PasswordResetModel.findOne({
         token: hashToken,
-        expiresAt: {$gt: new Date()},
+        expiresAt: { $gt: new Date() },
     });
 
     if (!passwordResetModel) {
@@ -278,5 +280,5 @@ export const deleteUser = async (userId: string) => {
         throw new AppError("User not found with this account", 404);
     }
 
-    await User.deleteOne({_id: userId});
+    await User.deleteOne({ _id: userId });
 }

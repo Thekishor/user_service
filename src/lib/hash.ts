@@ -5,5 +5,5 @@ export async function hashPassword(password: string) {
 }
 
 export async function hashRefreshToken(refreshToken: string) {
-    return await bcrypt.hash(refreshToken, 12);
+    return await bcrypt.hash(refreshToken, 10);
 }

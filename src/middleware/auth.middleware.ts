@@ -22,10 +22,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(400).json({
-            success: false,
-            message: "Token is missing or invalid"
-        })
+        return next(new AppError("Token is missing or invalid", 401));
     }
 
     const token = authHeader.split(" ")[1];
