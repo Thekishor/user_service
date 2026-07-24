@@ -1,7 +1,7 @@
-import {Request, Response, NextFunction} from "express";
-import {verifyAccessToken} from "../lib/jwt.tokens";
-import {User} from "../models/user.model";
-import {AppError} from "../lib/AppError";
+import { Request, Response, NextFunction } from "express";
+import { verifyAccessToken } from "../lib/jwt.tokens";
+import { User } from "../models/user.model";
+import { AppError } from "../lib/AppError";
 
 declare global {
     namespace Express {
@@ -47,7 +47,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
             isEmailVerified: user.isEmailVerified
         }
 
-        next();
+        return next();
     } catch (error) {
         console.log(error);
         return next(new AppError("Unauthorized user", 401));

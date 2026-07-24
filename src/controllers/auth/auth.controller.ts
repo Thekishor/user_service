@@ -22,6 +22,7 @@ export async function registerUserHandler(req: Request, res: Response, next: Nex
                 errors: z.flattenError(result.error).fieldErrors
             });
         }
+
         const user = await register(result.data);
 
         return res.status(200).json({

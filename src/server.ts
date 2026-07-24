@@ -5,16 +5,17 @@ import app from "./app";
 
 dotenv.config();
 
-import {env} from "./config/env"
+import { env } from "./config/env"
 
 async function startServer() {
+
   await connectToDB();
 
   const server = http.createServer(app);
 
   server.listen(process.env.PORT, () => {
     console.log(`Server is running to port ${env.PORT}`);
-    
+
   })
 }
 
