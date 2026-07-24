@@ -1,15 +1,15 @@
 import { LoginDto, RegisterDto, ResetPasswordDto } from "../controllers/auth/auth.schema";
 import { User } from "../models/user.model";
-import { hashPassword, hashRefreshToken } from "../lib/hash";
+import { hashPassword, hashRefreshToken } from "../utils/hash";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { EmailVerificationModel } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
 import bcrypt from "bcrypt";
 import * as crypto from "node:crypto";
-import { createAccessToken, createRefreshToken, verifyRefreshToken } from "../lib/jwt.tokens";
+import { createAccessToken, createRefreshToken, verifyRefreshToken } from "../utils/jwt.tokens";
 import { PasswordResetModel } from "../models/passwordreset.model";
-import { AppError } from "../lib/AppError";
+import { AppError } from "../utils/AppError";
 import { SessionModel } from "../models/session.model";
 
 export const register = async (data: RegisterDto) => {

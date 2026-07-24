@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../lib/jwt.tokens";
+import { verifyAccessToken } from "../utils/jwt.tokens";
 import { User } from "../models/user.model";
-import { AppError } from "../lib/AppError";
+import { AppError } from "../utils/AppError";
 
 declare global {
     namespace Express {

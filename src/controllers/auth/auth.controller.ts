@@ -10,7 +10,7 @@ import {
     deleteUser, logout
 } from "../../services/auth.service";
 import { z } from "zod";
-import { AppError } from "../../lib/AppError";
+import { AppError } from "../../utils/AppError";
 
 export async function registerUserHandler(req: Request, res: Response, next: NextFunction) {
     try {
