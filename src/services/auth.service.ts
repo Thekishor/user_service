@@ -12,221 +12,235 @@ import { PasswordResetModel } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
 import { SessionModel } from "../models/session.model";
 
-export const register = async (data: RegisterDto) => {
+export const register =
+    async (data: RegisterDto, imageUrl: string, imagePublicId: string) => {
 
-    const { name, email, password } = data;
+        const { name, email, password } = data;
 
-    const normalizedEmail = email.toLowerCase().trim();
+        const normalizedEmail = email.toLowerCase().trim();
 
-    const isRegisteredUser = await User.findOne({
-        email: normalizedEmail,
-    });
+        const isRegisteredUser = await User.findOne({
+            email: normalizedEmail,
+        });
 
-    if (isRegisteredUser) {
-        throw new AppError("An account with this user already exists!", 409);
-    }
-
-    const passwordHash = await hashPassword(password);
-
-    const user = await User.create({
-        name: name,
-        email: normalizedEmail,
-        password: passwordHash,
-    });
-
-    const verifyToken = jwt.sign({
-        sub: user._id,
-    }, env.TOKEN_SECRET, { expiresIn: "1d" });
-
-    await EmailVerificationModel.create({
-        user: user._id,
-        token: verifyToken,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
-
-    const verifyUrl = `${env.APP_URL}/api/users/auth/verify-email?token=${verifyToken}`;
-
-    const html = `
-       <h1>Verify Your Email</h1>
-       <p>Thanks for signing up! Please verify your email address.</p>
-       <p>Click the link below to verify your email:</p>
-       <a href="${verifyUrl}">Verify Email</a>
-       <p>This link will expire in 24 hour.</p>
-       <p>If you did not request this, please ignore this email.</p>
-       `;
-
-    await sendEmail(
-        user.email,
-        "Verify your email",
-        html,
-    );
-    return user;
-
-}
-export const verifyEmail = async (token: string) => {
-
-    let decoded = null;
-    try {
-        decoded = jwt.verify(token, env.TOKEN_SECRET) as {
-            sub: string
+        if (isRegisteredUser) {
+            throw new AppError("An account with this user already exists!", 409);
         }
-    } catch (e) {
-        if (e instanceof jwt.TokenExpiredError) {
-            throw new AppError("Expired verification token", 404);
+
+        const passwordHash = await hashPassword(password);
+
+        const user = await User.create({
+            name: name,
+            email: normalizedEmail,
+            password: passwordHash,
+            imageUrl,
+            imagePublicId
+        });
+
+        const verifyToken = jwt.sign({
+            sub: user._id,
+        }, env.TOKEN_SECRET, { expiresIn: "1d" });
+
+        await EmailVerificationModel.create({
+            user: user._id,
+            token: verifyToken,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        });
+
+        const verifyUrl = `${env.APP_URL}/api/users/auth/verify-email?token=${verifyToken}`;
+
+        const html = `
+          <h1>Verify Your Email</h1>
+          <p>Thanks for signing up! Please verify your email address.</p>
+          <p>Click the link below to verify your email:</p>
+          <a href="${verifyUrl}">Verify Email</a>
+          <p>This link will expire in 24 hour.</p>
+          <p>If you did not request this, please ignore this email.</p>
+        `;
+
+        await sendEmail(
+            user.email,
+            "Verify your email",
+            html,
+        );
+        return user;
+
+    }
+
+export const verifyEmail =
+    async (token: string) => {
+
+        let decoded = null;
+        try {
+            decoded = jwt.verify(token, env.TOKEN_SECRET) as {
+                sub: string
+            }
+        } catch (e) {
+            if (e instanceof jwt.TokenExpiredError) {
+                throw new AppError("Expired verification token", 404);
+            }
+            throw new AppError("Invalid token", 400);
         }
-        throw new AppError("Invalid token", 400);
+
+        const emailVerificationToken = await EmailVerificationModel.findOne({
+            token
+        });
+
+        if (!emailVerificationToken) {
+            throw new AppError("Verification token not found", 404);
+        }
+
+        const user = await User.findById(decoded.sub);
+
+        if (!user) {
+            throw new AppError("User not found", 404);
+        }
+
+        if (user.isEmailVerified) {
+            throw new AppError("Email already verified", 409);
+        }
+
+        user.isEmailVerified = true;
+        user.isAccountActive = true;
+
+        const updatedUser = await user.save();
+
+        await EmailVerificationModel.deleteOne({
+            token: token,
+        })
+
+        return updatedUser;
     }
 
-    const emailVerificationToken = await EmailVerificationModel.findOne({
-        token
-    });
+export const login =
+    async (data: LoginDto, ip: string | undefined, userAgent: string | undefined) => {
 
-    if (!emailVerificationToken) {
-        throw new AppError("Verification token not found", 404);
+        const { email, password } = data;
+
+        const normalizedEmail = email.toLowerCase().trim();
+
+        const user = await User.findOne({
+            email: normalizedEmail,
+        });
+
+        if (!user) throw new AppError("User not found with this account", 404);
+
+        const isValidPassword = await bcrypt.compare(password, user.password);
+
+        if (!isValidPassword) throw new AppError("Invalid email or password", 401);
+
+        if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
+
+        if (!user.isAccountActive) throw new AppError("Your account is not activated", 401);
+
+        const refreshToken = createRefreshToken(
+            user.id,
+            user.role,
+            user.name
+        );
+
+        const refreshTokenHash = await hashRefreshToken(refreshToken);
+
+        const session = await SessionModel.create({
+            user: user._id,
+            refreshTokenHash,
+            ip,
+            userAgent,
+        });
+
+        const accessToken = createAccessToken(
+            user.id,
+            user.role,
+            user.name,
+            session._id.toString()
+        );
+
+        return { accessToken, refreshToken, user };
+
     }
 
-    const user = await User.findById(decoded.sub);
+export const refreshToken =
+    async (token: string) => {
 
-    if (!user) {
-        throw new AppError("User not found", 404);
+        const payload = verifyRefreshToken(token);
+        console.log(payload);
+
+        const refreshTokenHash = await hashRefreshToken(token);
+        console.log(refreshTokenHash);
+
+        const session = await SessionModel.findOne({
+            refreshTokenHash,
+            revoked: false
+        })
+
+        if (!session) throw new AppError("Refresh token not found!", 404);
+
+        const user = await User.findById(payload.sub);
+
+        if (!user) throw new AppError("User not found", 401);
+
+        const newAccessToken = createAccessToken(
+            user.id,
+            user.role,
+            user.name,
+            session._id.toString(),
+        );
+
+        const newRefreshToken = createRefreshToken(
+            user.id,
+            user.role,
+            user.name
+        );
+
+        session.refreshTokenHash = await hashRefreshToken(newRefreshToken);
+        await session.save();
+
+        return { newAccessToken, newRefreshToken, user };
     }
 
-    if (user.isEmailVerified) {
-        throw new AppError("Email already verified", 409);
+export const logout =
+    async (token: string) => {
+
+        const refreshTokenHash = await hashRefreshToken(token);
+
+        const session = await SessionModel.findOne({
+            refreshTokenHash,
+            revoked: false
+        });
+
+        if (!session) throw new AppError("Refresh token not found!", 404);
+
+        session.revoked = true;
+        await session.save();
+
     }
 
-    user.isEmailVerified = true;
-    user.isAccountActive = true;
-    const updatedUser = await user.save();
+export const forgotPassword =
+    async (email: string) => {
 
-    await EmailVerificationModel.deleteOne({
-        token: token,
-    })
+        const normalizedEmail = email.toLowerCase().trim();
 
-    return updatedUser;
-}
-export const login = async (data: LoginDto, ip: string | undefined, userAgent: string | undefined) => {
+        const user = await User.findOne({
+            email: normalizedEmail,
+        })
 
-    const { email, password } = data;
+        if (!user) {
+            throw new AppError("User not found with this account", 404);
+        }
 
-    const normalizedEmail = email.toLowerCase().trim();
+        const rawToken = crypto.randomBytes(32).toString("hex");
 
-    const user = await User.findOne({
-        email: normalizedEmail,
-    });
+        const hashToken = crypto.createHash('sha256').update(rawToken).digest('hex');
 
-    if (!user) throw new AppError("User not found with this account", 404);
+        await PasswordResetModel.create({
+            user: user._id,
+            token: hashToken,
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        });
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+        const resetPasswordLink = `${env.APP_URL}/api/users/auth/save-password?token=${rawToken}`;
 
-    if (!isValidPassword) throw new AppError("Invalid email or password", 401);
-
-    if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
-
-    if (!user.isAccountActive) throw new AppError("Your account is not activated", 401);
-
-    const refreshToken = createRefreshToken(
-        user.id,
-        user.role,
-        user.name
-    );
-
-    const refreshTokenHash = await hashRefreshToken(refreshToken);
-
-    const session = await SessionModel.create({
-        user: user._id,
-        refreshTokenHash,
-        ip,
-        userAgent,
-    });
-
-    const accessToken = createAccessToken(
-        user.id,
-        user.role,
-        user.name,
-        session._id.toString()
-    );
-
-    return { accessToken, refreshToken, user };
-
-}
-export const refreshToken = async (token: string) => {
-
-    const payload = verifyRefreshToken(token);
-    console.log(payload);
-
-    const refreshTokenHash = await hashRefreshToken(token);
-    console.log(refreshTokenHash);
-
-    const session = await SessionModel.findOne({
-        refreshTokenHash,
-        revoked: false
-    })
-
-    if (!session) throw new AppError("Refresh token not found!", 404);
-
-    const user = await User.findById(payload.sub);
-
-    if (!user) throw new AppError("User not found", 401);
-
-    const newAccessToken = createAccessToken(
-        user.id,
-        user.role,
-        user.name,
-        session._id.toString(),
-    );
-
-    const newRefreshToken = createRefreshToken(
-        user.id,
-        user.role,
-        user.name
-    );
-
-    session.refreshTokenHash = await hashRefreshToken(newRefreshToken);
-    await session.save();
-
-    return { newAccessToken, newRefreshToken, user };
-}
-export const logout = async (token: string) => {
-
-    const refreshTokenHash = await hashRefreshToken(token);
-
-    const session = await SessionModel.findOne({
-        refreshTokenHash,
-        revoked: false
-    });
-
-    if (!session) throw new AppError("Refresh token not found!", 404);
-
-    session.revoked = true;
-    await session.save();
-
-}
-export const forgotPassword = async (email: string) => {
-
-    const normalizedEmail = email.toLowerCase().trim();
-
-    const user = await User.findOne({
-        email: normalizedEmail,
-    })
-
-    if (!user) {
-        throw new AppError("User not found with this account", 404);
-    }
-
-    const rawToken = crypto.randomBytes(32).toString("hex");
-
-    const hashToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-
-    await PasswordResetModel.create({
-        user: user._id,
-        token: hashToken,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
-    });
-
-    const resetPasswordLink = `${env.APP_URL}/api/users/auth/save-password?token=${rawToken}`;
-
-    const html = `
+        const html = `
          <h1>Reset Your Password</h1>
          <p>We received a request to reset your password.</p>
          <p>Click the link below to reset your password:</p>
@@ -234,51 +248,55 @@ export const forgotPassword = async (email: string) => {
          <p>This link will expire in 15 minute.</p>
          <p>If you did not request a password reset, please ignore this email.</p>`;
 
-    await sendEmail(
-        user.email,
-        "Reset Password",
-        html
-    );
-}
-export const resetPassword = async (token: string, data: ResetPasswordDto) => {
-
-    const hashToken = crypto
-        .createHash('sha256')
-        .update(token)
-        .digest('hex');
-
-    const passwordResetModel = await PasswordResetModel.findOne({
-        token: hashToken,
-        expiresAt: { $gt: new Date() },
-    });
-
-    if (!passwordResetModel) {
-        throw new AppError("Token not found", 404);
+        await sendEmail(
+            user.email,
+            "Reset Password",
+            html
+        );
     }
 
-    const user = await User.findById(
-        passwordResetModel.user._id
-    );
+export const resetPassword =
+    async (token: string, data: ResetPasswordDto) => {
 
-    if (!user) {
-        throw new AppError("User not found with this account", 404);
+        const hashToken = crypto
+            .createHash('sha256')
+            .update(token)
+            .digest('hex');
+
+        const passwordResetModel = await PasswordResetModel.findOne({
+            token: hashToken,
+            expiresAt: { $gt: new Date() },
+        });
+
+        if (!passwordResetModel) {
+            throw new AppError("Token not found", 404);
+        }
+
+        const user = await User.findById(
+            passwordResetModel.user._id
+        );
+
+        if (!user) {
+            throw new AppError("User not found with this account", 404);
+        }
+
+        user.password = await hashPassword(data.newPassword);
+        await user.save();
+
+        await PasswordResetModel.deleteOne({
+            token: hashToken,
+        });
+
     }
 
-    user.password = await hashPassword(data.newPassword);
-    await user.save();
+export const deleteUser =
+    async (userId: string) => {
 
-    await PasswordResetModel.deleteOne({
-        token: hashToken,
-    });
+        const user = await User.findById(userId);
 
-}
-export const deleteUser = async (userId: string) => {
+        if (!user) {
+            throw new AppError("User not found with this account", 404);
+        }
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-        throw new AppError("User not found with this account", 404);
+        await User.deleteOne({ _id: userId });
     }
-
-    await User.deleteOne({ _id: userId });
-}

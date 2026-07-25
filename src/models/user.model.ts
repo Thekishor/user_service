@@ -1,4 +1,4 @@
-import mongoose, {model} from "mongoose";
+import mongoose, { model } from "mongoose";
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -28,7 +28,15 @@ const userSchema = new mongoose.Schema({
     isAccountActive: {
         type: Boolean,
         default: false,
-    }
+    },
+    imageUrl: {
+        type: String,
+        default: null,
+    },
+    imagePublicId: {
+        type: String,
+        default: null,
+    },
 }, {
     timestamps: true
 })

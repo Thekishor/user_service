@@ -11,245 +11,266 @@ import {
 } from "../../services/auth.service";
 import { z } from "zod";
 import { AppError } from "../../utils/AppError";
+import { uploadOnCloudinary } from '../../utils/cloudinary';
 
-export async function registerUserHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const result = registerSchema.safeParse(req.body);
+export const registerUserHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            let imageUrl = '';
+            let imagePublicId = '';
 
-        if (!result.success) {
-            return res.status(400).json({
-                message: 'Validation failed!',
-                errors: z.flattenError(result.error).fieldErrors
+            if (req.file?.path) {
+                const uploadedFile = await uploadOnCloudinary(req.file.path);
+
+                if (uploadedFile) {
+                    imageUrl = uploadedFile.secure_url;
+                    imagePublicId = uploadedFile.public_id;
+                }
+            }
+
+            const result = registerSchema.safeParse(req.body);
+
+            if (!result.success) {
+                return res.status(400).json({
+                    message: 'Validation failed!',
+                    errors: z.flattenError(result.error).fieldErrors
+                });
+            }
+
+            const user = await register(result.data, imageUrl, imagePublicId);
+
+            return res.status(200).json({
+                status: "success",
+                message: "User created successfully, Please verify your email",
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isEmailVerified: user.isEmailVerified,
+                    isAccountActive: user.isAccountActive,
+                }
             });
+
+        } catch (err) {
+            console.log(err);
+            next(err);
         }
+    }
 
-        const user = await register(result.data);
+export const verifyUserEmailHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
 
-        return res.status(200).json({
-            status: "success",
-            message: "User created successfully, Please verify your email",
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                isEmailVerified: user.isEmailVerified,
-                isAccountActive: user.isAccountActive,
+        try {
+            const token = req.query.token as string;
+
+            if (!token) {
+                return res.status(400).json({
+                    message: 'Verification token is missing',
+                })
             }
-        });
 
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-}
+            const updatedUser = await verifyEmail(token);
 
-export async function verifyUserEmailHandler(req: Request, res: Response, next: NextFunction) {
-
-    try {
-        const token = req.query.token as string;
-
-        if (!token) {
-            return res.status(400).json({
-                message: 'Verification token is missing',
+            return res.status(200).json({
+                message: "Verification successfully",
+                status: "success",
+                user: {
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    role: updatedUser.role,
+                    isEmailVerified: updatedUser.isEmailVerified,
+                    isAccountActive: updatedUser.isAccountActive,
+                }
             })
+        } catch (err) {
+            console.log(err);
+            next(err);
         }
 
-        const updatedUser = await verifyEmail(token);
+    }
 
-        return res.status(200).json({
-            message: "Verification successfully",
-            status: "success",
-            user: {
-                name: updatedUser.name,
-                email: updatedUser.email,
-                role: updatedUser.role,
-                isEmailVerified: updatedUser.isEmailVerified,
-                isAccountActive: updatedUser.isAccountActive,
+export const loginUserHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = loginSchema.safeParse(req.body);
+
+            if (!result.success) {
+                return res.status(400).json({
+                    message: 'Validation failed!',
+                    errors: z.flattenError(result.error).fieldErrors
+                })
             }
-        })
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
 
-}
+            const { accessToken, refreshToken, user } = await login(
+                result.data,
+                req.ip,
+                req.get("User-Agent")
+            );
 
-export async function loginUserHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const result = loginSchema.safeParse(req.body);
-
-        if (!result.success) {
-            return res.status(400).json({
-                message: 'Validation failed!',
-                errors: z.flattenError(result.error).fieldErrors
-            })
-        }
-
-        const { accessToken, refreshToken, user } = await login(
-            result.data,
-            req.ip,
-            req.get("User-Agent")
-        );
-
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
-        return res.status(200).json({
-            status: "success",
-            message: "Login successfully",
-            accessToken: accessToken,
-            user: {
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                isEmailVerified: user.isEmailVerified,
-                isAccountActive: user.isAccountActive
-            }
-        })
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-}
-
-export async function refreshTokenHandler(req: Request, res: Response, next: NextFunction) {
-
-    try {
-        const token = req.cookies.refreshToken;
-
-        if (!token) {
-            return next(new AppError('Refresh token is missing', 404));
-        }
-
-        const { newAccessToken, newRefreshToken, user } = await refreshToken(token);
-
-        res.cookie("refreshToken", newRefreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
-
-        res.status(201).json({
-            message: 'Token generated successfully',
-            status: "success",
-            user: {
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                isEmailVerified: user.isEmailVerified,
-                isAccountActive: user.isAccountActive
-            },
-            accessToken: newAccessToken,
-        })
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-
-}
-
-export async function logoutUserHandler(req: Request, res: Response, next: NextFunction) {
-
-    try {
-        const refreshToken = req.cookies.refreshToken;
-
-        if (!refreshToken) {
-            return next(new AppError('Refresh token is missing', 404));
-        }
-        await logout(refreshToken);
-
-        res.clearCookie("refreshToken");
-
-        res.status(200).json({
-            status: "success",
-            message: 'User logged out successfully'
-        })
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-}
-
-export async function forgotPasswordHandler(req: Request, res: Response, next: NextFunction) {
-
-    try {
-        const { email } = req.body as { email?: string };
-
-        if (!email) {
-            return res.status(400).json({
-                message: 'Email is required',
-            })
-        }
-
-        await forgotPassword(email);
-
-        return res.status(200).json({
-            status: "success",
-            message: "Password reset link sent to your email"
-        })
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-
-}
-
-export async function resetPasswordHandler(req: Request, res: Response, next: NextFunction) {
-
-    try {
-        const token = req.query.token as string;
-
-        const { newPassword, confirmPassword } = req.body as {
-            newPassword?: string;
-            confirmPassword?: string
-        };
-
-        if (!token) {
-            return res.status(400).json({
-                status: "failure",
-                message: "Token is required",
-            })
-        }
-
-        const result = resetPasswordSchema
-            .safeParse({ newPassword, confirmPassword });
-
-        if (!result.success) {
-            return res.status(400).json({
-                message: 'Validation failed!',
-                errors: z.flattenError(result.error).fieldErrors
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000
             });
+
+            return res.status(200).json({
+                status: "success",
+                message: "Login successfully",
+                accessToken: accessToken,
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    isEmailVerified: user.isEmailVerified,
+                    isAccountActive: user.isAccountActive
+                }
+            })
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    }
+
+export const refreshTokenHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            const token = req.cookies.refreshToken;
+
+            if (!token) {
+                return next(new AppError('Refresh token is missing', 404));
+            }
+
+            const { newAccessToken, newRefreshToken, user } = await refreshToken(token);
+
+            res.cookie("refreshToken", newRefreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            })
+
+            res.status(201).json({
+                message: 'Token generated successfully',
+                status: "success",
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    isEmailVerified: user.isEmailVerified,
+                    isAccountActive: user.isAccountActive
+                },
+                accessToken: newAccessToken,
+            })
+        } catch (err) {
+            console.log(err);
+            next(err);
         }
 
-        await resetPassword(token, result.data);
-
-        return res.status(200).json({
-            status: "success",
-            message: "Password reset successfully",
-        })
-    } catch (err) {
-        console.log(err);
-        next(err);
     }
-}
 
-export async function deleteUserHandler(req: Request, res: Response, next: NextFunction) {
+export const logoutUserHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
 
-    try {
-        const userId = req.params.id;
-        await deleteUser(userId);
+        try {
+            const refreshToken = req.cookies.refreshToken;
 
-        return res.status(200).json({
-            status: "success",
-            message: "User deleted successfully",
-        })
-    } catch (e) {
-        console.log(e)
-        next(e);
+            if (!refreshToken) {
+                return next(new AppError('Refresh token is missing', 404));
+            }
+            await logout(refreshToken);
+
+            res.clearCookie("refreshToken");
+
+            res.status(200).json({
+                status: "success",
+                message: 'User logged out successfully'
+            })
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
     }
-}
+
+export const forgotPasswordHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            const { email } = req.body as { email?: string };
+
+            if (!email) {
+                return res.status(400).json({
+                    message: 'Email is required',
+                })
+            }
+
+            await forgotPassword(email);
+
+            return res.status(200).json({
+                status: "success",
+                message: "Password reset link sent to your email"
+            })
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+
+    }
+
+export const resetPasswordHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            const token = req.query.token as string;
+
+            const { newPassword, confirmPassword } = req.body as {
+                newPassword?: string;
+                confirmPassword?: string
+            };
+
+            if (!token) {
+                return res.status(400).json({
+                    status: "failure",
+                    message: "Token is required",
+                })
+            }
+
+            const result = resetPasswordSchema
+                .safeParse({ newPassword, confirmPassword });
+
+            if (!result.success) {
+                return res.status(400).json({
+                    message: 'Validation failed!',
+                    errors: z.flattenError(result.error).fieldErrors
+                });
+            }
+
+            await resetPassword(token, result.data);
+
+            return res.status(200).json({
+                status: "success",
+                message: "Password reset successfully",
+            })
+        } catch (err) {
+            console.log(err);
+            next(err);
+        }
+    }
+
+export const deleteUserHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            const userId = req.params.id;
+            await deleteUser(userId);
+
+            return res.status(200).json({
+                status: "success",
+                message: "User deleted successfully",
+            })
+        } catch (e) {
+            console.log(e)
+            next(e);
+        }
+    }

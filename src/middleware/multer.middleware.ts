@@ -1,4 +1,5 @@
 import multer from "multer";
+import path from "node:path";
 import crypto from "node:crypto";
 
 const storage = multer.diskStorage({
@@ -7,8 +8,8 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         // Use a cryptographically secure random suffix
-        const uniqueSuffix = Date.now() + '-' + crypto.randomBytes(8).toString('hex');
-        cb(null, file.fieldname + '-' + uniqueSuffix);
+        const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}`;
+        cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
     },
 });
 
