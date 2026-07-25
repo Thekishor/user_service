@@ -9,6 +9,7 @@ email based workflow and token management.
 - Email Verification
 - Forgot Password Flow
 - JWT Auth with session revocation
+- Cloudinary image storage
 
 ## Tech Stack
 
@@ -26,3 +27,6 @@ email based workflow and token management.
 
 ### Validation
 - Zod validation
+
+### Cloud
+- Cloudinary 
