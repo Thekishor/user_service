@@ -5,7 +5,7 @@ import app from "./app";
 
 dotenv.config();
 
-import { env } from "./config/env"
+import { env } from "./config/env";
 
 async function startServer() {
 
@@ -16,7 +16,7 @@ async function startServer() {
   server.listen(process.env.PORT, () => {
     console.log(`Server is running to port ${env.PORT}`);
 
-  })
+  });
 }
 
 startServer().catch(err => {

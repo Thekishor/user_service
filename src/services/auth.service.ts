@@ -1,4 +1,4 @@
-import { LoginDto, RegisterDto, ResetPasswordDto } from "../controllers/auth/auth.schema";
+import { LoginDto, RegisterDto, ResetPasswordDto } from "../schema/auth.schema";
 import { User } from "../models/user.model";
 import { hashPassword, hashRefreshToken } from "../utils/hash";
 import jwt from "jsonwebtoken";
@@ -7,20 +7,19 @@ import { EmailVerificationModel } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
 import bcrypt from "bcrypt";
 import * as crypto from "node:crypto";
-import { createAccessToken, createRefreshToken, verifyRefreshToken } from "../utils/jwt.tokens";
+import { createAccessToken, createRefreshToken, verifyRefreshToken, verifyToken } from "../utils/jwt.tokens";
 import { PasswordResetModel } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
 import { SessionModel } from "../models/session.model";
+import { verifyEmailTemplate } from "../utils/templates";
 
 export const register =
     async (data: RegisterDto, imageUrl: string, imagePublicId: string) => {
 
-        const { name, email, password } = data;
-
-        const normalizedEmail = email.toLowerCase().trim();
+        const { fullName, phone, email, password } = data;
 
         const isRegisteredUser = await User.findOne({
-            email: normalizedEmail,
+            email,
         });
 
         if (isRegisteredUser) {
@@ -30,8 +29,9 @@ export const register =
         const passwordHash = await hashPassword(password);
 
         const user = await User.create({
-            name: name,
-            email: normalizedEmail,
+            fullName,
+            phone: Number(phone),  
+            email,
             password: passwordHash,
             imageUrl,
             imagePublicId
@@ -39,6 +39,7 @@ export const register =
 
         const verifyToken = jwt.sign({
             sub: user._id,
+            version: crypto.randomUUID().toString(),
         }, env.TOKEN_SECRET, { expiresIn: "1d" });
 
         await EmailVerificationModel.create({
@@ -49,38 +50,24 @@ export const register =
 
         const verifyUrl = `${env.APP_URL}/api/users/auth/verify-email?token=${verifyToken}`;
 
-        const html = `
-          <h1>Verify Your Email</h1>
-          <p>Thanks for signing up! Please verify your email address.</p>
-          <p>Click the link below to verify your email:</p>
-          <a href="${verifyUrl}">Verify Email</a>
-          <p>This link will expire in 24 hour.</p>
-          <p>If you did not request this, please ignore this email.</p>
-        `;
+        const html = verifyEmailTemplate(verifyUrl);
 
         await sendEmail(
             user.email,
-            "Verify your email",
+            "Verify Your Email Address",
             html,
         );
-        return user;
+        
+        return {
+            user: mapUserToUserResponse(user)
+        };
 
     }
 
 export const verifyEmail =
     async (token: string) => {
 
-        let decoded = null;
-        try {
-            decoded = jwt.verify(token, env.TOKEN_SECRET) as {
-                sub: string
-            }
-        } catch (e) {
-            if (e instanceof jwt.TokenExpiredError) {
-                throw new AppError("Expired verification token", 404);
-            }
-            throw new AppError("Invalid token", 400);
-        }
+        const { sub } = verifyToken(token);
 
         const emailVerificationToken = await EmailVerificationModel.findOne({
             token
@@ -90,7 +77,7 @@ export const verifyEmail =
             throw new AppError("Verification token not found", 404);
         }
 
-        const user = await User.findById(decoded.sub);
+        const user = await User.findById(sub);
 
         if (!user) {
             throw new AppError("User not found", 404);
@@ -117,13 +104,11 @@ export const login =
 
         const { email, password } = data;
 
-        const normalizedEmail = email.toLowerCase().trim();
-
         const user = await User.findOne({
-            email: normalizedEmail,
+            email,
         });
 
-        if (!user) throw new AppError("User not found with this account", 404);
+        if (!user) throw new AppError("User not found", 404);
 
         const isValidPassword = await bcrypt.compare(password, user.password);
 
@@ -136,10 +121,10 @@ export const login =
         const refreshToken = createRefreshToken(
             user.id,
             user.role,
-            user.name
+            user.fullName
         );
 
-        const refreshTokenHash = await hashRefreshToken(refreshToken);
+        const refreshTokenHash = hashRefreshToken(refreshToken);
 
         const session = await SessionModel.create({
             user: user._id,
@@ -151,7 +136,7 @@ export const login =
         const accessToken = createAccessToken(
             user.id,
             user.role,
-            user.name,
+            user.fullName,
             session._id.toString()
         );
 
@@ -163,10 +148,8 @@ export const refreshToken =
     async (token: string) => {
 
         const payload = verifyRefreshToken(token);
-        console.log(payload);
 
-        const refreshTokenHash = await hashRefreshToken(token);
-        console.log(refreshTokenHash);
+        const refreshTokenHash = hashRefreshToken(token);
 
         const session = await SessionModel.findOne({
             refreshTokenHash,
@@ -182,17 +165,17 @@ export const refreshToken =
         const newAccessToken = createAccessToken(
             user.id,
             user.role,
-            user.name,
+            user.fullName,
             session._id.toString(),
         );
 
         const newRefreshToken = createRefreshToken(
             user.id,
             user.role,
-            user.name
+            user.fullName
         );
 
-        session.refreshTokenHash = await hashRefreshToken(newRefreshToken);
+        session.refreshTokenHash = hashRefreshToken(newRefreshToken);
         await session.save();
 
         return { newAccessToken, newRefreshToken, user };
@@ -201,7 +184,7 @@ export const refreshToken =
 export const logout =
     async (token: string) => {
 
-        const refreshTokenHash = await hashRefreshToken(token);
+        const refreshTokenHash = hashRefreshToken(token);
 
         const session = await SessionModel.findOne({
             refreshTokenHash,
@@ -210,6 +193,7 @@ export const logout =
 
         if (!session) throw new AppError("Refresh token not found!", 404);
 
+        session.refreshTokenHash = "";
         session.revoked = true;
         await session.save();
 
@@ -300,3 +284,15 @@ export const deleteUser =
 
         await User.deleteOne({ _id: userId });
     }
+
+export function mapUserToUserResponse(user: any) {
+    return {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        isAccountActive: user.isAccountActive,
+    }   
+}

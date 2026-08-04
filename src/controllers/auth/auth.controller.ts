@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginSchema, registerSchema, resetPasswordSchema } from "./auth.schema";
+import { loginSchema, registerSchema, resetPasswordSchema } from "../../schema/auth.schema";
 import {
     login,
     register,
@@ -13,7 +13,7 @@ import { z } from "zod";
 import { AppError } from "../../utils/AppError";
 import { uploadOnCloudinary } from '../../utils/cloudinary';
 
-export const registerUserHandler =
+export const registerUserHandler =  
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             let imageUrl = '';
@@ -37,22 +37,15 @@ export const registerUserHandler =
                 });
             }
 
-            const user = await register(result.data, imageUrl, imagePublicId);
+            const { user } = await register(result.data, imageUrl, imagePublicId);
 
             return res.status(200).json({
                 status: "success",
                 message: "User created successfully, Please verify your email",
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    isEmailVerified: user.isEmailVerified,
-                    isAccountActive: user.isAccountActive,
-                }
+                user
             });
 
         } catch (err) {
-            console.log(err);
             next(err);
         }
     }
@@ -75,7 +68,7 @@ export const verifyUserEmailHandler =
                 message: "Verification successfully",
                 status: "success",
                 user: {
-                    name: updatedUser.name,
+                    name: updatedUser.fullName,
                     email: updatedUser.email,
                     role: updatedUser.role,
                     isEmailVerified: updatedUser.isEmailVerified,
@@ -117,9 +110,9 @@ export const loginUserHandler =
             return res.status(200).json({
                 status: "success",
                 message: "Login successfully",
-                accessToken: accessToken,
+                token: accessToken,
                 user: {
-                    name: user.name,
+                    name: user.fullName,
                     email: user.email,
                     role: user.role,
                     isEmailVerified: user.isEmailVerified,
@@ -155,13 +148,13 @@ export const refreshTokenHandler =
                 message: 'Token generated successfully',
                 status: "success",
                 user: {
-                    name: user.name,
+                    name: user.fullName,
                     email: user.email,
                     role: user.role,
                     isEmailVerified: user.isEmailVerified,
                     isAccountActive: user.isAccountActive
                 },
-                accessToken: newAccessToken,
+                token: newAccessToken,
             })
         } catch (err) {
             console.log(err);
@@ -179,6 +172,7 @@ export const logoutUserHandler =
             if (!refreshToken) {
                 return next(new AppError('Refresh token is missing', 404));
             }
+
             await logout(refreshToken);
 
             res.clearCookie("refreshToken");

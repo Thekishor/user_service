@@ -11,10 +11,7 @@ const envSchema = z.object({
     JWT_REFRESH_SECRET: z.string(),
     TOKEN_SECRET: z.string(),
     COOKIE_REFRESH_MAX_AGE: z.string().transform(Number),
-    SMTP_HOST: z.string(),
-    SMTP_PORT: z.string(),
-    SMTP_USER: z.string(),
-    SMTP_PASS: z.string(),
+    RESEND_API_KEY: z.string(),
     EMAIL_FROM: z.string(),
     APP_URL: z.string(),
 })

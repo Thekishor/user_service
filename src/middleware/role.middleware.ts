@@ -6,11 +6,11 @@ export const roleMiddleware = (role: string) => {
         const user = req.user;
 
         if (!user) {
-            return next(new AppError("User not found with this account", 404));
+            throw new AppError("User not found", 404);
         }
 
         if (user.role !== role) {
-            return next(new AppError("You do not have permission to access this resources", 403));
+            throw new AppError("You do not have permission to access this resources", 403);
         }
 
         return next();

@@ -9,8 +9,9 @@ declare global {
             user?: {
                 id: string;
                 email: string;
+                phone: number;
                 role: string;
-                name: string;
+                fullName: string;
                 isEmailVerified: boolean;
             };
         }
@@ -22,7 +23,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
-        return next(new AppError("Token is missing or invalid", 401));
+        throw new AppError("Token is missing or invalid", 401);
     }
 
     const token = authHeader.split(" ")[1];
@@ -33,23 +34,20 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
         const user = await User.findById(payload.sub);
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found with this account"
-            })
+            throw new AppError("User not found", 404);
         }
 
         req.user = {
             id: user.id,
             email: user.email,
             role: user.role,
-            name: user.name,
+            phone: user.phone,
+            fullName: user.fullName,
             isEmailVerified: user.isEmailVerified
         }
 
         return next();
     } catch (error) {
-        console.log(error);
         return next(new AppError("Unauthorized user", 401));
     }
 }
