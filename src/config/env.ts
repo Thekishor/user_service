@@ -9,10 +9,8 @@ const envSchema = z.object({
     MONGO_URI: z.string(),
     JWT_ACCESS_SECRET: z.string(),
     JWT_REFRESH_SECRET: z.string(),
-    TOKEN_SECRET: z.string(),
     COOKIE_REFRESH_MAX_AGE: z.string().transform(Number),
     RESEND_API_KEY: z.string(),
-    EMAIL_FROM: z.string(),
     APP_URL: z.string(),
 })
 

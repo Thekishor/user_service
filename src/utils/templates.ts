@@ -21,4 +21,29 @@ export const verifyEmailTemplate = (verifyUrl: string) => {
 
     </div>
     `;
-};   
+};
+
+export const resetPasswordTemplate = (resetPasswordUrl: string) => {
+    return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; color: #333;">
+
+      <h2>Reset Your Password</h2>
+
+      <p>We received a request to reset your password. Click the button below to create a new password.</p>
+
+      <p style="margin: 24px 0;">
+        <a href="${resetPasswordUrl}" target="_blank" rel="noopener noreferrer"
+           style="background-color: #dc2626; color: #fff; padding: 10px 18px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">
+          Reset Password
+        </a>
+      </p>
+
+      <p style="color: #666; font-size: 14px;">This link will expire in 15 minutes.</p>
+
+      <p style="color: #666; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email.</p>
+
+      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+
+    </div>
+    `;
+};

@@ -1,7 +1,7 @@
 export class AppError extends Error {
     constructor(
-        public message: string,
-        public statusCode: number
+        public readonly message: string,
+        public readonly statusCode: number
     ) {
         super(message);
         Object.setPrototypeOf(this, AppError.prototype);

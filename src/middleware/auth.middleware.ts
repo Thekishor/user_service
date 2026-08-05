@@ -13,6 +13,7 @@ declare global {
                 role: string;
                 fullName: string;
                 isEmailVerified: boolean;
+                isAccountActive: boolean;
             };
         }
     }
@@ -37,13 +38,18 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
             throw new AppError("User not found", 404);
         }
 
+        if (!user.isAccountActive) {
+            throw new AppError("Your account is deactivated", 403);
+        }
+
         req.user = {
             id: user.id,
             email: user.email,
             role: user.role,
             phone: user.phone,
             fullName: user.fullName,
-            isEmailVerified: user.isEmailVerified
+            isEmailVerified: user.isEmailVerified,
+            isAccountActive: user.isAccountActive
         }
 
         return next();

@@ -3,6 +3,7 @@ import { AppError } from "../utils/AppError";
 
 export const roleMiddleware = (role: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
+        
         const user = req.user;
 
         if (!user) {

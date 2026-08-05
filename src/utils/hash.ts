@@ -5,6 +5,6 @@ export async function hashPassword(password: string) {
     return await bcrypt.hash(password, 14);
 }
 
-export function hashRefreshToken(refreshToken: string) {
-    return crypto.createHash("sha256").update(refreshToken).digest("hex");
+export function hashToken(token: string) {
+    return crypto.createHash("sha256").update(token).digest("hex");
 }

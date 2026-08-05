@@ -1,17 +1,15 @@
 import { LoginDto, RegisterDto, ResetPasswordDto } from "../schema/auth.schema";
 import { User } from "../models/user.model";
-import { hashPassword, hashRefreshToken } from "../utils/hash";
-import jwt from "jsonwebtoken";
+import { hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
 import { EmailVerificationModel } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
 import bcrypt from "bcrypt";
-import * as crypto from "node:crypto";
-import { createAccessToken, createRefreshToken, verifyRefreshToken, verifyToken } from "../utils/jwt.tokens";
+import { createAccessToken, createRefreshToken, generateToken, verifyRefreshToken } from "../utils/jwt.tokens";
 import { PasswordResetModel } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
 import { SessionModel } from "../models/session.model";
-import { verifyEmailTemplate } from "../utils/templates";
+import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
 
 export const register =
     async (data: RegisterDto, imageUrl: string, imagePublicId: string) => {
@@ -37,18 +35,16 @@ export const register =
             imagePublicId
         });
 
-        const verifyToken = jwt.sign({
-            sub: user._id,
-            version: crypto.randomUUID().toString(),
-        }, env.TOKEN_SECRET, { expiresIn: "1d" });
+        const rawToken = generateToken();
+        const token = hashToken(rawToken);
 
         await EmailVerificationModel.create({
             user: user._id,
-            token: verifyToken,
+            token: token,
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         });
 
-        const verifyUrl = `${env.APP_URL}/api/users/auth/verify-email?token=${verifyToken}`;
+        const verifyUrl = `${env.APP_URL}/api/users/auth/verify-email?token=${rawToken}`;
 
         const html = verifyEmailTemplate(verifyUrl);
 
@@ -67,17 +63,26 @@ export const register =
 export const verifyEmail =
     async (token: string) => {
 
-        const { sub } = verifyToken(token);
+        const hashedToken = hashToken(token);
 
         const emailVerificationToken = await EmailVerificationModel.findOne({
-            token
+            token: hashedToken
         });
 
         if (!emailVerificationToken) {
-            throw new AppError("Verification token not found", 404);
+            throw new AppError("Invalid or expired verification link", 401);    
         }
 
-        const user = await User.findById(sub);
+        if (emailVerificationToken.expiresAt < new Date()) {
+
+            await EmailVerificationModel.deleteOne({
+                token
+            });
+
+            throw new AppError("Your verification link has expired. Please request a new verification email.", 401);
+        }
+
+        const user = await User.findById(emailVerificationToken.user._id);
 
         if (!user) {
             throw new AppError("User not found", 404);
@@ -96,7 +101,9 @@ export const verifyEmail =
             token: token,
         })
 
-        return updatedUser;
+        return {
+            user: mapUserToUserResponse(updatedUser)
+        };
     }
 
 export const login =
@@ -124,7 +131,7 @@ export const login =
             user.fullName
         );
 
-        const refreshTokenHash = hashRefreshToken(refreshToken);
+        const refreshTokenHash = hashToken(refreshToken);
 
         const session = await SessionModel.create({
             user: user._id,
@@ -140,7 +147,11 @@ export const login =
             session._id.toString()
         );
 
-        return { accessToken, refreshToken, user };
+        return { 
+            accessToken, 
+            refreshToken, 
+            user: mapUserToUserResponse(user) 
+        };
 
     }
 
@@ -149,7 +160,7 @@ export const refreshToken =
 
         const payload = verifyRefreshToken(token);
 
-        const refreshTokenHash = hashRefreshToken(token);
+        const refreshTokenHash = hashToken(token);
 
         const session = await SessionModel.findOne({
             refreshTokenHash,
@@ -175,16 +186,22 @@ export const refreshToken =
             user.fullName
         );
 
-        session.refreshTokenHash = hashRefreshToken(newRefreshToken);
+        session.refreshTokenHash = hashToken(newRefreshToken);
         await session.save();
 
-        return { newAccessToken, newRefreshToken, user };
+        return { 
+            newAccessToken, 
+            newRefreshToken, 
+            user: mapUserToUserResponse(user) 
+        };
     }
 
 export const logout =
     async (token: string) => {
 
-        const refreshTokenHash = hashRefreshToken(token);
+        verifyRefreshToken(token);
+
+        const refreshTokenHash = hashToken(token);
 
         const session = await SessionModel.findOne({
             refreshTokenHash,
@@ -209,28 +226,25 @@ export const forgotPassword =
         })
 
         if (!user) {
-            throw new AppError("User not found with this account", 404);
+            throw new AppError("User not found", 404);
         }
 
-        const rawToken = crypto.randomBytes(32).toString("hex");
+        if (!user.isAccountActive) {
+            throw new AppError("Your account is not activated", 401);   
+        }
 
-        const hashToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+        const rawToken = generateToken();
+        const tokenHash = hashToken(rawToken);
 
         await PasswordResetModel.create({
             user: user._id,
-            token: hashToken,
+            token: tokenHash,
             expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         });
 
         const resetPasswordLink = `${env.APP_URL}/api/users/auth/save-password?token=${rawToken}`;
 
-        const html = `
-         <h1>Reset Your Password</h1>
-         <p>We received a request to reset your password.</p>
-         <p>Click the link below to reset your password:</p>
-         <a href="${resetPasswordLink}">Reset Password</a>
-         <p>This link will expire in 15 minute.</p>
-         <p>If you did not request a password reset, please ignore this email.</p>`;
+        const html = resetPasswordTemplate(resetPasswordLink);
 
         await sendEmail(
             user.email,
@@ -242,47 +256,46 @@ export const forgotPassword =
 export const resetPassword =
     async (token: string, data: ResetPasswordDto) => {
 
-        const hashToken = crypto
-            .createHash('sha256')
-            .update(token)
-            .digest('hex');
+        const tokenHash = hashToken(token);
 
-        const passwordResetModel = await PasswordResetModel.findOne({
-            token: hashToken,
-            expiresAt: { $gt: new Date() },
-        });
+        const passwordResetToken = await PasswordResetModel.findOne({
+            token: tokenHash
+        }); 
 
-        if (!passwordResetModel) {
+        if (!passwordResetToken) {
             throw new AppError("Token not found", 404);
         }
 
-        const user = await User.findById(
-            passwordResetModel.user._id
-        );
+        if (passwordResetToken.expiresAt < new Date()) {
+            await PasswordResetModel.deleteOne({
+                token: tokenHash
+            });
+            throw new AppError("Token expired", 401);
+        }
+
+        const user = await User.findById(passwordResetToken.user);
 
         if (!user) {
-            throw new AppError("User not found with this account", 404);
+            throw new AppError("User not found", 404);
         }
+
+        if (!user.isAccountActive) {
+            throw new AppError("Your account is not activated", 401);
+        }
+
+        const isPasswordSame = await bcrypt.compare(data.newPassword, user.password);
+
+        if (isPasswordSame) {
+            throw new AppError("New password cannot be same as old password", 400);
+        }   
 
         user.password = await hashPassword(data.newPassword);
         await user.save();
 
         await PasswordResetModel.deleteOne({
-            token: hashToken,
+            token: tokenHash,
         });
 
-    }
-
-export const deleteUser =
-    async (userId: string) => {
-
-        const user = await User.findById(userId);
-
-        if (!user) {
-            throw new AppError("User not found with this account", 404);
-        }
-
-        await User.deleteOne({ _id: userId });
     }
 
 export function mapUserToUserResponse(user: any) {

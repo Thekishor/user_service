@@ -4,29 +4,35 @@ A backend application built using node and express that provides secure authenti
 email based workflow and token management.
 
 ## Features
+
 - JWT-based Authentication (Access + Refresh Token)
 - Role-Based Access Control (RBAC)
 - Email Verification
 - Forgot Password Flow
 - JWT Auth with session revocation
-- Cloudinary image storage
 
 ## Tech Stack
 
 ### Backend
+
 - Typescript
 - Node/Express
-- Node mail sender
+- Node mail sender (Resend)
 
 ### Security
+
 - JWT (Access Token, Refresh Token)
 - Role-Based Access Control
 
 ### Database
+
 - Mongodb
 
 ### Validation
+
 - Zod validation
 
 ### Cloud
-- Cloudinary 
+
+- Cloudinary
+- Profile image store

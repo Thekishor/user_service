@@ -1,16 +1,9 @@
 import { Resend } from 'resend';
-import { AppError } from '../utils/AppError';
 import { env } from '../config/env';
 
 const resend = new Resend(env.RESEND_API_KEY);  
 
 export async function sendEmail(to: string, subject: string, html: string) {
-
-    const emailFrom = env.EMAIL_FROM;
-
-    if (!emailFrom) {
-        throw new AppError("Domain not found", 404);
-    }
     
     try {
         const { data, error } = await resend.emails.send({
@@ -26,9 +19,10 @@ export async function sendEmail(to: string, subject: string, html: string) {
         }
 
         console.log("Email sent successfully", data);
-        return { success: true, data };
+        return { success: true };
 
     } catch(error) {
+        console.log("Failed to send email", error);
         return { success: false };
     }
 }

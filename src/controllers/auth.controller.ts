@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginSchema, registerSchema, resetPasswordSchema } from "../../schema/auth.schema";
+import { loginSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
 import {
     login,
     register,
@@ -7,11 +7,11 @@ import {
     refreshToken,
     forgotPassword,
     resetPassword,
-    deleteUser, logout
-} from "../../services/auth.service";
+    logout
+} from "../services/auth.service";
 import { z } from "zod";
-import { AppError } from "../../utils/AppError";
-import { uploadOnCloudinary } from '../../utils/cloudinary';
+import { AppError } from "../utils/AppError";
+import { uploadOnCloudinary } from '../utils/cloudinary';
 
 export const registerUserHandler =  
     async (req: Request, res: Response, next: NextFunction) => {
@@ -62,18 +62,12 @@ export const verifyUserEmailHandler =
                 })
             }
 
-            const updatedUser = await verifyEmail(token);
+            const { user } = await verifyEmail(token);
 
             return res.status(200).json({
-                message: "Verification successfully",
+                message: "User verified successfully",
                 status: "success",
-                user: {
-                    name: updatedUser.fullName,
-                    email: updatedUser.email,
-                    role: updatedUser.role,
-                    isEmailVerified: updatedUser.isEmailVerified,
-                    isAccountActive: updatedUser.isAccountActive,
-                }
+                user
             })
         } catch (err) {
             console.log(err);
@@ -109,15 +103,9 @@ export const loginUserHandler =
 
             return res.status(200).json({
                 status: "success",
-                message: "Login successfully",
+                message: "User logged in successfully",
                 token: accessToken,
-                user: {
-                    name: user.fullName,
-                    email: user.email,
-                    role: user.role,
-                    isEmailVerified: user.isEmailVerified,
-                    isAccountActive: user.isAccountActive
-                }
+                user
             })
         } catch (err) {
             console.log(err);
@@ -145,16 +133,10 @@ export const refreshTokenHandler =
             })
 
             res.status(201).json({
-                message: 'Token generated successfully',
-                status: "success",
-                user: {
-                    name: user.fullName,
-                    email: user.email,
-                    role: user.role,
-                    isEmailVerified: user.isEmailVerified,
-                    isAccountActive: user.isAccountActive
-                },
+                message: 'New token generated successfully',
+                status: "success",  
                 token: newAccessToken,
+                user,
             })
         } catch (err) {
             console.log(err);
@@ -191,7 +173,7 @@ export const forgotPasswordHandler =
     async (req: Request, res: Response, next: NextFunction) => {
 
         try {
-            const { email } = req.body as { email?: string };
+            const { email } = req.body;
 
             if (!email) {
                 return res.status(400).json({
@@ -218,11 +200,6 @@ export const resetPasswordHandler =
         try {
             const token = req.query.token as string;
 
-            const { newPassword, confirmPassword } = req.body as {
-                newPassword?: string;
-                confirmPassword?: string
-            };
-
             if (!token) {
                 return res.status(400).json({
                     status: "failure",
@@ -230,8 +207,7 @@ export const resetPasswordHandler =
                 })
             }
 
-            const result = resetPasswordSchema
-                .safeParse({ newPassword, confirmPassword });
+            const result = resetPasswordSchema.safeParse(req.body);
 
             if (!result.success) {
                 return res.status(400).json({
@@ -249,22 +225,5 @@ export const resetPasswordHandler =
         } catch (err) {
             console.log(err);
             next(err);
-        }
-    }
-
-export const deleteUserHandler =
-    async (req: Request, res: Response, next: NextFunction) => {
-
-        try {
-            const userId = req.params.id;
-            await deleteUser(userId);
-
-            return res.status(200).json({
-                status: "success",
-                message: "User deleted successfully",
-            })
-        } catch (e) {
-            console.log(e)
-            next(e);
         }
     }

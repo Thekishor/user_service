@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import {env} from "../config/env"
-import { AppError } from "./AppError";
 import * as crypto from "node:crypto";
 
 export function createAccessToken(userId: string, role: string, name: string, sessionId: string) {
@@ -27,19 +26,9 @@ export function verifyRefreshToken(token: string) {
 export function verifyAccessToken(token: string) {
     return jwt.verify(token, env.JWT_ACCESS_SECRET) as {
         sub: string,
-        role: string;
     }
 }
 
-export function verifyToken (token: string) {
-    try {
-        return jwt.verify(token, env.TOKEN_SECRET) as {
-            sub: string
-        }
-    } catch (e) {
-        if (e instanceof jwt.TokenExpiredError) {
-            throw new AppError("Expired verification token", 404);
-        }
-        throw new AppError("Invalid token", 400);
-    }
+export function generateToken() {
+    return crypto.randomBytes(64).toString("hex");
 }
