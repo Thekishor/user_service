@@ -44,7 +44,7 @@ export const register =
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         });
 
-        const verifyUrl = `${env.APP_URL}/api/users/auth/verify-email?token=${rawToken}`;
+        const verifyUrl = `${env.APP_URL}/api/v1/auth/verify-email?token=${rawToken}`;
 
         const html = verifyEmailTemplate(verifyUrl);
 
@@ -76,7 +76,7 @@ export const verifyEmail =
         if (emailVerificationToken.expiresAt < new Date()) {
 
             await EmailVerificationModel.deleteOne({
-                token
+                token: hashedToken
             });
 
             throw new AppError("Your verification link has expired. Please request a new verification email.", 401);
@@ -98,7 +98,7 @@ export const verifyEmail =
         const updatedUser = await user.save();
 
         await EmailVerificationModel.deleteOne({
-            token: token,
+            token: hashedToken,
         })
 
         return {
@@ -210,9 +210,7 @@ export const logout =
 
         if (!session) throw new AppError("Refresh token not found!", 404);
 
-        session.refreshTokenHash = "";
-        session.revoked = true;
-        await session.save();
+        await SessionModel.deleteOne({ refreshTokenHash });
 
     }
 
@@ -242,7 +240,7 @@ export const forgotPassword =
             expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         });
 
-        const resetPasswordLink = `${env.APP_URL}/api/users/auth/save-password?token=${rawToken}`;
+        const resetPasswordLink = `${env.APP_URL}/api/v1/auth/save-password?token=${rawToken}`;
 
         const html = resetPasswordTemplate(resetPasswordLink);
 

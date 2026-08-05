@@ -5,10 +5,12 @@ const sessionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: [true, "User is required"],
+        index: true,
     },
     refreshTokenHash: {
         type: String,
         required: [true, "Refresh token hash is required"],
+        index: true,
     },
     ip: {
         type: String,
@@ -16,7 +18,6 @@ const sessionSchema = new mongoose.Schema({
     },
     userAgent: {
         type: String,
-        required: [true, "UserAgent is required"],
     },
     revoked: {
         type: Boolean,

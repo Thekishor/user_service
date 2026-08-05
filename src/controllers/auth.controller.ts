@@ -104,8 +104,8 @@ export const loginUserHandler =
             return res.status(200).json({
                 status: "success",
                 message: "User logged in successfully",
-                token: accessToken,
-                user
+                user,
+                token: accessToken
             })
         } catch (err) {
             console.log(err);
@@ -135,8 +135,8 @@ export const refreshTokenHandler =
             res.status(201).json({
                 message: 'New token generated successfully',
                 status: "success",  
-                token: newAccessToken,
                 user,
+                token: newAccessToken,
             })
         } catch (err) {
             console.log(err);
