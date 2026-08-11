@@ -10,11 +10,12 @@ import {
     resetPasswordHandler,
 } from "../controllers/auth.controller";
 import verifyToken from "../middleware/auth.middleware";
-import { upload } from "../middleware/multer.middleware";
+//import { upload } from "../middleware/multer.middleware";
 
 const authRouter = Router();
 
-authRouter.post("/register", upload.single("image"), registerUserHandler);
+//authRouter.post("/register", upload.single("image"), registerUserHandler);
+authRouter.post("/register", registerUserHandler);
 authRouter.post("/login", loginUserHandler);
 authRouter.get("/verify-email", verifyUserEmailHandler);
 authRouter.post("/refresh", refreshTokenHandler);

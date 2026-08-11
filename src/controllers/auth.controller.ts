@@ -39,7 +39,7 @@ export const registerUserHandler =
 
             const { user } = await register(result.data, imageUrl, imagePublicId);
 
-            return res.status(200).json({
+            return res.status(201).json({
                 status: "success",
                 message: "User created successfully, Please verify your email",
                 user
