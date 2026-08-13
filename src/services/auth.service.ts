@@ -44,7 +44,7 @@ export const register =
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         });
 
-        const verifyUrl = `${env.APP_URL}/api/v1/auth/verify-email?token=${rawToken}`;
+        const verifyUrl = `${env.FRONTEND_URL}/api/v1/auth/verify-email?token=${rawToken}`;
 
         const html = verifyEmailTemplate(verifyUrl);
 

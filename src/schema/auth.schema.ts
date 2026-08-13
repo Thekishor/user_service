@@ -3,7 +3,7 @@ import { z } from "zod";
 const phoneRegex = /^(97[01456]|98[012456])\d{7}$/;
 
 export const registerSchema = z.object({
-    fullName: z.string().min(3, "Full name must be at least 3 characters").max(30, "Full name must be at most 30 characters"),
+    fullName: z.string().min(3, "Full name must be at least 3 characters").max(50, "Full name must be 50 characters or less"),
     email: z.email().trim().toLowerCase(),
     phone: z.string()
         .min(1, "Phone number is required")

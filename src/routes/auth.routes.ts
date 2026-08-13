@@ -18,10 +18,10 @@ const authRouter = Router();
 authRouter.post("/register", registerUserHandler);
 authRouter.post("/login", loginUserHandler);
 authRouter.get("/verify-email", verifyUserEmailHandler);
-authRouter.post("/refresh", refreshTokenHandler);
-authRouter.post("/logout", logoutUserHandler);
+authRouter.post("/refresh-token", refreshTokenHandler);
+authRouter.post("/logout", verifyToken, logoutUserHandler);
 authRouter.post("/forgot-password", forgotPasswordHandler);
-authRouter.post("/save-password", resetPasswordHandler);
+authRouter.post("/reset-password", resetPasswordHandler);
 authRouter.get("/me", verifyToken, getMe);
 
 export default authRouter;

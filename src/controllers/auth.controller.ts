@@ -66,7 +66,6 @@ export const verifyUserEmailHandler =
 
             return res.status(200).json({
                 message: "User verified successfully",
-                status: "success",
                 user
             })
         } catch (err) {

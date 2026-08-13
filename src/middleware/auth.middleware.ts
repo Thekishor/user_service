@@ -21,16 +21,24 @@ declare global {
 
 const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 
+    if (!req.headers.authorization) {
+        return next(new AppError("Token is missing", 401));
+    }
+
     const authHeader = req.headers.authorization;
 
-    if (!authHeader?.startsWith("Bearer ")) {
-        throw new AppError("Token is missing or invalid", 401);
+    if (!authHeader.startsWith("Bearer ")) {
+        throw new AppError("Invalid Token", 401);
     }
 
     const token = authHeader.split(" ")[1];
 
     try {
         const payload = verifyAccessToken(token);
+
+        if (!payload.sub) {
+            throw new AppError("Invalid Token", 401);
+        }   
 
         const user = await User.findById(payload.sub);
 
