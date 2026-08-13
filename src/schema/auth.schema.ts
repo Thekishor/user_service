@@ -1,6 +1,27 @@
 import { z } from "zod";
 
 const phoneRegex = /^(97[01456]|98[012456])\d{7}$/;
+const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/;
+    
+const passwordField = z
+    .string()
+    .superRefine((value, ctx) => {
+        if (value.length < 8 || value.length > 20) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Password must be between 8 and 20 characters.",
+            });
+            return;
+        }
+
+        if (!passwordRegex.test(value)) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Password must include an uppercase letter, lowercase letter, number, and special character.",
+            });
+        }
+    });
 
 export const registerSchema = z.object({
     fullName: z.string().min(3, "Full name must be at least 3 characters").max(50, "Full name must be 50 characters or less"),
@@ -11,30 +32,17 @@ export const registerSchema = z.object({
         .refine(val => phoneRegex.test(val), {
             message: "Invalid phone number",
         }),     
-    password: z.string()    
-        .min(8, "Password must be at least 8 characters")
-        .max(20, "Password must be at most 20 characters")
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/,
-            "Password must contain at least one uppercase, one lowercase, one number and one special character")
-})
+    password: passwordField
+});
 
 export const loginSchema = z.object({
     email: z.email().trim().toLowerCase(),
-    password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .max(20, "Password must be at most 20 characters")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/,
-        "Password must contain at least one uppercase, one lowercase, one number and one special character"),   
-})
+    password: z.string().min(1, "Password is required")
+});
 
 export const resetPasswordSchema = z.object({
-    newPassword: z.string()
-        .min(8)
-        .max(20)
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/,
-            "Password must contain at least one uppercase, one lowercase, one number and one special character"),
-
-    confirmPassword: z.string().min(8).max(20)
+    newPassword: passwordField,
+    confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"]

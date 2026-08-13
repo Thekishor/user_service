@@ -69,8 +69,7 @@ export const verifyUserEmailHandler =
                 user
             })
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }
 
     }
