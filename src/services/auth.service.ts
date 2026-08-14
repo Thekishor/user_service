@@ -19,7 +19,7 @@ export const register =
         const isRegisteredUser = await User.findOne({
             $or: [
                 {email},
-                {phone: Number(phone)}
+                {phone}
             ]
         });
 
@@ -31,7 +31,7 @@ export const register =
 
         const user = await User.create({
             fullName,
-            phone: Number(phone),  
+            phone,  
             email,
             password: passwordHash,
             imageUrl,
@@ -117,15 +117,15 @@ export const login =
         const user = await User.findOne({
             $or: [
                 { email: identifier },
-                { phone: Number(identifier) }
-            ],
+                { phone: identifier },
+            ]
         });
 
         if (!user) throw new AppError("User not found", 404);
 
         const isValidPassword = await bcrypt.compare(password, user.password);
 
-        if (!isValidPassword) throw new AppError("Invalid email or password", 401);
+        if (!isValidPassword) throw new AppError("Invalid credentials", 401);
 
         if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
 

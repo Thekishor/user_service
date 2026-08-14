@@ -1,26 +1,43 @@
 
 export const verifyEmailTemplate = (verifyUrl: string) => {
     return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; color: #333;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 32px 28px; color: #222; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px;">
 
-     <h2>Verify Your Email Address</h2>        
+      <h2 style="margin: 0 0 16px; font-size: 24px; text-align: center;">
+        Verify Your Email 
+      </h2>
 
-     <p>Thanks for signing up! Please verify your email address by clicking the button below:</p>
+      <p style="font-size: 15px; line-height: 1.6; color: #555;">
+        Thanks for creating your account! Please verify your email address to complete your registration.
+      </p>
 
-     <p style="margin: 24px 0;">
-       <a href="${verifyUrl}" target="_blank" rel="noopener noreferrer" style="background-color: #000; color: #fff; padding: 10px 18px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">
-         Verify Email
-       </a>
-     </p>
+      <div style="text-align: center; margin: 28px 0;">
+        <a
+          href="${verifyUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+            style="display: inline-block; background-color: #111827; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 7px; font-size: 15px; font-weight: 600;"
+          >
+            Verify Email
+          </a>
+        </div>
 
-     <p style="color: #666; font-size: 14px;">This link will expire in 24 hours.</p>
+      <p style="font-size: 13px; line-height: 1.5; color: #777;">
+        This verification link will expire in <strong>24 hours</stro  ng>.
+      </p>
 
-     <p style="color: #666; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+      <p style="font-size: 13px; line-height: 1.5; color: #777;">
+        If you didn't create this account, you can safely ignore this email.
+      </p>
 
-     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+      <hr style="border: none; border-top: 1px solid #eeeeee; margin: 28px 0;">
+
+      <p style="margin: 0; text-align: center; font-size: 12px; color: #999;">
+        This is an automated email. Please do not reply.
+      </p>
 
     </div>
-    `;
+    `;  
 };
 
 export const resetPasswordTemplate = (resetPasswordUrl: string) => {
