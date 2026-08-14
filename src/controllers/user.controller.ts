@@ -17,8 +17,7 @@ export const getAllUser =
             });
 
         } catch (err) {
-            console.log(err);
-            next(err);  
+            return next(err);  
     }
 }
 
@@ -38,8 +37,7 @@ export const getMe =
             });
 
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }   
 } 
 
@@ -54,8 +52,7 @@ export const deleteUserHandler =
                 status: "success",
                 message: "User deleted successfully",
             })
-        } catch (e) {
-            console.log(e)
-            next(e);
+        } catch (err) {
+            return next(err);
         }
     }

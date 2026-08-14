@@ -17,7 +17,10 @@ export const register =
         const { fullName, phone, email, password } = data;
 
         const isRegisteredUser = await User.findOne({
-            email,
+            $or: [
+                {email},
+                {phone: Number(phone)}
+            ]
         });
 
         if (isRegisteredUser) {
@@ -109,10 +112,13 @@ export const verifyEmail =
 export const login =
     async (data: LoginDto, ip: string | undefined, userAgent: string | undefined) => {
 
-        const { email, password } = data;
+        const { identifier, password } = data;
 
         const user = await User.findOne({
-            email,
+            $or: [
+                { email: identifier },
+                { phone: Number(identifier) }
+            ],
         });
 
         if (!user) throw new AppError("User not found", 404);

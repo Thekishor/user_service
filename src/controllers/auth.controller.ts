@@ -46,7 +46,7 @@ export const registerUserHandler =
             });
 
         } catch (err) {
-            next(err);
+            return next(err);
         }
     }
 
@@ -106,8 +106,7 @@ export const loginUserHandler =
                 token: accessToken
             })
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }
     }
 
@@ -137,8 +136,7 @@ export const refreshTokenHandler =
                 token: newAccessToken,
             })
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }
 
     }
@@ -162,8 +160,7 @@ export const logoutUserHandler =
                 message: 'User logged out successfully'
             })
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }
     }
 
@@ -186,8 +183,7 @@ export const forgotPasswordHandler =
                 message: "Password reset link sent to your email"
             })
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }
 
     }
@@ -221,7 +217,6 @@ export const resetPasswordHandler =
                 message: "Password reset successfully",
             })
         } catch (err) {
-            console.log(err);
-            next(err);
+            return next(err);
         }
     }
