@@ -9,7 +9,7 @@ declare global {
             user?: {
                 id: string;
                 email: string;
-                phone: number;
+                phone: string;
                 role: string;
                 fullName: string;
                 isEmailVerified: boolean;
@@ -47,7 +47,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
         }
 
         if (!user.isAccountActive) {
-            throw new AppError("Your account is deactivated", 403);
+            throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
         }
 
         req.user = {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
+import { loginSchema, registerSchema, resetPasswordSchema, changePasswordSchema } from "../schema/auth.schema";
 import {
     login,
     register,
@@ -7,7 +7,8 @@ import {
     refreshToken,
     forgotPassword,
     resetPassword,
-    logout
+    logout,
+    changePassword
 } from "../services/auth.service";
 import { z } from "zod";
 import { AppError } from "../utils/AppError";
@@ -220,3 +221,33 @@ export const resetPasswordHandler =
             return next(err);
         }
     }
+
+export const changePasswordHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return next(new AppError('Unauthorized', 401));
+        }
+
+        const result = changePasswordSchema.safeParse(req.body);
+
+        if (!result.success) {
+            return res.status(400).json({
+                message: 'Validation failed!',
+                errors: z.flattenError(result.error).fieldErrors
+            });
+        }
+
+        await changePassword(userId, result.data);
+
+        return res.status(200).json({
+            status: "success",
+            message: "Password changed successfully",
+        });
+
+    } catch (err) {
+        return next(err);
+    }
+}

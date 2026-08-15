@@ -1,6 +1,6 @@
-import { LoginDto, RegisterDto, ResetPasswordDto } from "../schema/auth.schema";
+import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto } from "../schema/auth.schema";
 import { User } from "../models/user.model";
-import { hashPassword, hashToken } from "../utils/hash";
+import { comparePassword, hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
 import { EmailVerificationModel } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
@@ -16,15 +16,22 @@ export const register =
 
         const { fullName, phone, email, password } = data;
 
-        const isRegisteredUser = await User.findOne({
+        const existingUser = await User.findOne({
             $or: [
-                {email},
-                {phone}
+                { email },
+                { phone }
             ]
         });
 
-        if (isRegisteredUser) {
-            throw new AppError("An account with this user already exists!", 409);
+        if (existingUser) {
+
+            if (existingUser.email === email) {
+                throw new AppError("An account with this email already exists!", 409);
+            }
+
+            if (existingUser.phone === phone) {
+                throw new AppError("An account with this phone number already exists!", 409);
+            }
         }
 
         const passwordHash = await hashPassword(password);
@@ -300,6 +307,30 @@ export const resetPassword =
             token: tokenHash,
         });
 
+    }
+
+export const changePassword = 
+    async (userId: string, data: ChangePasswordDto) => {
+        const { oldPassword, newPassword } = data;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new AppError("User not found", 404);
+        }
+
+        const isPasswordSame = await comparePassword(oldPassword, user.password);
+
+        if (!isPasswordSame) {
+            throw new AppError("Invalid old password", 400);
+        }
+
+        if (newPassword === oldPassword) {
+            throw new AppError("New password cannot be same as old password", 400);
+        }
+
+        user.password = await hashPassword(newPassword);
+        await user.save();
     }
 
 export function mapUserToUserResponse(user: any) {
