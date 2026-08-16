@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginSchema, registerSchema, resetPasswordSchema, changePasswordSchema } from "../schema/auth.schema";
+import {
+    loginSchema,
+    registerSchema,
+    resetPasswordSchema,
+    changePasswordSchema
+} from "../schema/auth.schema";
 import {
     login,
     register,

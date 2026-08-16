@@ -22,6 +22,9 @@ const sessionSchema = new mongoose.Schema({
     revoked: {
         type: Boolean,
         default: false,
+    },
+    revokedAt: {
+        type: Date,
     }
 }, {
     timestamps: true

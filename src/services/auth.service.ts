@@ -4,7 +4,6 @@ import { comparePassword, hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
 import { EmailVerificationModel } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
-import bcrypt from "bcrypt";
 import { createAccessToken, createRefreshToken, generateToken, verifyRefreshToken } from "../utils/jwt.tokens";
 import { PasswordResetModel } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
@@ -128,37 +127,35 @@ export const login =
             ]
         });
 
-        if (!user) throw new AppError("User not found", 404);
-
-        const isValidPassword = await bcrypt.compare(password, user.password);
-
-        if (!isValidPassword) throw new AppError("Invalid credentials", 401);
+        if (!user) throw new AppError("Invalid credentials", 401);
 
         if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
 
-        if (!user.isAccountActive) throw new AppError("Your account is not activated", 401);
+        if (!user.isAccountActive) throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
 
-        const refreshToken = createRefreshToken(
-            user.id,
-            user.role,
-            user.fullName
-        );
+        const isValidPassword = await comparePassword(password, user.password);
 
-        const refreshTokenHash = hashToken(refreshToken);
+        if (!isValidPassword) throw new AppError("Invalid credentials", 401);
 
-        const session = await SessionModel.create({
+        const session = new SessionModel({
             user: user._id,
-            refreshTokenHash,
             ip,
-            userAgent,
+            userAgent
         });
 
         const accessToken = createAccessToken(
-            user.id,
+            user._id.toString(),
             user.role,
-            user.fullName,
-            session._id.toString()
         );
+
+        const refreshToken = createRefreshToken(
+            user._id.toString(),
+            session._id.toString()  
+        );
+
+        session.refreshTokenHash = hashToken(refreshToken);
+
+        await session.save();
 
         return { 
             accessToken, 
@@ -176,27 +173,39 @@ export const refreshToken =
         const refreshTokenHash = hashToken(token);
 
         const session = await SessionModel.findOne({
+            _id: payload.sid,
             refreshTokenHash,
+            user: payload.sub,
             revoked: false
-        })
+        });
 
-        if (!session) throw new AppError("Refresh token not found!", 404);
+        if (!session) throw new AppError("Invalid session. Please log in again.", 401);
 
         const user = await User.findById(payload.sub);
 
-        if (!user) throw new AppError("User not found", 401);
+        if (!user || !user.isAccountActive) {
+
+            await SessionModel.updateOne({  
+                user: payload.sub,
+                refreshTokenHash 
+            }, {
+                $set: {
+                    revoked: true,
+                    revokedAt: new Date(),
+                }
+            });
+
+            throw new AppError("Your account is no longer available. Please log in again.", 401);
+        }
 
         const newAccessToken = createAccessToken(
-            user.id,
+            user._id.toString(),
             user.role,
-            user.fullName,
-            session._id.toString(),
         );
 
         const newRefreshToken = createRefreshToken(
-            user.id,
-            user.role,
-            user.fullName
+            user._id.toString(),
+            session._id.toString()
         );
 
         session.refreshTokenHash = hashToken(newRefreshToken);
@@ -212,18 +221,27 @@ export const refreshToken =
 export const logout =
     async (token: string) => {
 
-        verifyRefreshToken(token);
+        const payload =  verifyRefreshToken(token);
 
         const refreshTokenHash = hashToken(token);
 
         const session = await SessionModel.findOne({
+            _id: payload.sid,
             refreshTokenHash,
+            user: payload.sub,
             revoked: false
         });
 
-        if (!session) throw new AppError("Refresh token not found!", 404);
+        if (!session) throw new AppError("Invalid session", 401);
 
-        await SessionModel.deleteOne({ refreshTokenHash });
+        await SessionModel.updateOne({ 
+            refreshTokenHash 
+        }, {
+            $set: {
+                revoked: true,
+                revokedAt: new Date(),
+            }
+        });
 
     }
 
@@ -241,7 +259,7 @@ export const forgotPassword =
         }
 
         if (!user.isAccountActive) {
-            throw new AppError("Your account is not activated", 401);   
+            throw new AppError("Your account is inactive, please contact admin to activate your account", 403);   
         }
 
         const rawToken = generateToken();
@@ -253,7 +271,7 @@ export const forgotPassword =
             expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         });
 
-        const resetPasswordLink = `${env.APP_URL}/api/v1/auth/save-password?token=${rawToken}`;
+        const resetPasswordLink = `${env.FRONTEND_URL}/save-password?token=${rawToken}`;
 
         const html = resetPasswordTemplate(resetPasswordLink);
 
@@ -274,14 +292,16 @@ export const resetPassword =
         }); 
 
         if (!passwordResetToken) {
-            throw new AppError("Token not found", 404);
+            throw new AppError("Invalid or expired reset password link", 401);
         }
 
         if (passwordResetToken.expiresAt < new Date()) {
+
             await PasswordResetModel.deleteOne({
                 token: tokenHash
             });
-            throw new AppError("Token expired", 401);
+
+            throw new AppError("Your reset password link has expired. Please request a new reset password link.", 401);
         }
 
         const user = await User.findById(passwordResetToken.user);
@@ -291,10 +311,10 @@ export const resetPassword =
         }
 
         if (!user.isAccountActive) {
-            throw new AppError("Your account is not activated", 401);
+            throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
         }
 
-        const isPasswordSame = await bcrypt.compare(data.newPassword, user.password);
+        const isPasswordSame = await comparePassword(data.newPassword, user.password);
 
         if (isPasswordSame) {
             throw new AppError("New password cannot be same as old password", 400);
@@ -335,7 +355,7 @@ export const changePassword =
 
 export function mapUserToUserResponse(user: any) {
     return {
-        id: user._id,
+        id: user._id.toString(),
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
