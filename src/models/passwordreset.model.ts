@@ -18,4 +18,4 @@ const passwordResetModel = new mongoose.Schema({
     timestamps: true,
 })
 
-export const PasswordResetModel = model("PasswordResetModel", passwordResetModel);
+export const PasswordReset = model("PasswordReset", passwordResetModel);

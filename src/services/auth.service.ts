@@ -2,12 +2,12 @@ import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto } from "../s
 import { User } from "../models/user.model";
 import { comparePassword, hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
-import { EmailVerificationModel } from "../models/emailverification.model";
+import { EmailVerification } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
 import { createAccessToken, createRefreshToken, generateToken, verifyRefreshToken } from "../utils/jwt.tokens";
-import { PasswordResetModel } from "../models/passwordreset.model";
+import { PasswordReset } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
-import { SessionModel } from "../models/session.model";
+import { Session } from "../models/session.model";
 import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
 
 export const register =
@@ -47,7 +47,7 @@ export const register =
         const rawToken = generateToken();
         const token = hashToken(rawToken);
 
-        await EmailVerificationModel.create({
+        await EmailVerification.create({
             user: user._id,
             token: token,
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -74,7 +74,7 @@ export const verifyEmail =
 
         const hashedToken = hashToken(token);
 
-        const emailVerificationToken = await EmailVerificationModel.findOne({
+        const emailVerificationToken = await EmailVerification.findOne({
             token: hashedToken
         });
 
@@ -84,7 +84,7 @@ export const verifyEmail =
 
         if (emailVerificationToken.expiresAt < new Date()) {
 
-            await EmailVerificationModel.deleteOne({
+            await EmailVerification.deleteOne({
                 token: hashedToken
             });
 
@@ -106,7 +106,7 @@ export const verifyEmail =
 
         const updatedUser = await user.save();
 
-        await EmailVerificationModel.deleteOne({
+        await EmailVerification.deleteOne({
             token: hashedToken,
         })
 
@@ -137,7 +137,7 @@ export const login =
 
         if (!isValidPassword) throw new AppError("Invalid credentials", 401);
 
-        const session = new SessionModel({
+        const session = new Session({
             user: user._id,
             ip,
             userAgent
@@ -172,7 +172,7 @@ export const refreshToken =
 
         const refreshTokenHash = hashToken(token);
 
-        const session = await SessionModel.findOne({
+        const session = await Session.findOne({
             _id: payload.sid,
             refreshTokenHash,
             user: payload.sub,
@@ -185,7 +185,7 @@ export const refreshToken =
 
         if (!user || !user.isAccountActive) {
 
-            await SessionModel.updateOne({  
+            await Session.updateOne({  
                 user: payload.sub,
                 refreshTokenHash 
             }, {
@@ -225,7 +225,7 @@ export const logout =
 
         const refreshTokenHash = hashToken(token);
 
-        const session = await SessionModel.findOne({
+        const session = await Session.findOne({
             _id: payload.sid,
             refreshTokenHash,
             user: payload.sub,
@@ -234,7 +234,7 @@ export const logout =
 
         if (!session) throw new AppError("Invalid session", 401);
 
-        await SessionModel.updateOne({ 
+        await Session.updateOne({ 
             refreshTokenHash 
         }, {
             $set: {
@@ -265,7 +265,7 @@ export const forgotPassword =
         const rawToken = generateToken();
         const tokenHash = hashToken(rawToken);
 
-        await PasswordResetModel.create({
+        await PasswordReset.create({
             user: user._id,
             token: tokenHash,
             expiresAt: new Date(Date.now() + 15 * 60 * 1000),
@@ -287,7 +287,7 @@ export const resetPassword =
 
         const tokenHash = hashToken(token);
 
-        const passwordResetToken = await PasswordResetModel.findOne({
+        const passwordResetToken = await PasswordReset.findOne({
             token: tokenHash
         }); 
 
@@ -297,7 +297,7 @@ export const resetPassword =
 
         if (passwordResetToken.expiresAt < new Date()) {
 
-            await PasswordResetModel.deleteOne({
+            await PasswordReset.deleteOne({
                 token: tokenHash
             });
 
@@ -323,7 +323,7 @@ export const resetPassword =
         user.password = await hashPassword(data.newPassword);
         await user.save();
 
-        await PasswordResetModel.deleteOne({
+        await PasswordReset.deleteOne({
             token: tokenHash,
         });
 

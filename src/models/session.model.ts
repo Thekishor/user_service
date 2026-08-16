@@ -30,4 +30,4 @@ const sessionSchema = new mongoose.Schema({
     timestamps: true
 })
 
-export const SessionModel = model("SessionModel", sessionSchema);
+export const Session = model("Session", sessionSchema);

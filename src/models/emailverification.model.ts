@@ -18,4 +18,4 @@ const emailVerificationSchema = new mongoose.Schema({
     timestamps: true,
 })
 
-export const EmailVerificationModel = model("EmailVerificationModel", emailVerificationSchema)
+export const EmailVerification = model("EmailVerification", emailVerificationSchema)
