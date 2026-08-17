@@ -52,7 +52,7 @@ export const loginSchema = z.object({
 
 export const resetPasswordSchema = z.object({
     newPassword: passwordField,
-    confirmPassword: z.string(),
+    confirmPassword: z.string().min(1, "Confirm password is required"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"]

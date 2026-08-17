@@ -336,12 +336,6 @@ export const resetPassword =
             throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
         }
 
-        const isPasswordSame = await comparePassword(data.newPassword, user.password);
-
-        if (isPasswordSame) {
-            throw new AppError("New password cannot be same as old password", 400);
-        }   
-
         user.password = await hashPassword(data.newPassword);
         await user.save();
 

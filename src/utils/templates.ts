@@ -23,7 +23,7 @@ export const verifyEmailTemplate = (verifyUrl: string) => {
         </div>
 
       <p style="font-size: 13px; line-height: 1.5; color: #777;">
-        This verification link will expire in <strong>24 hours</stro  ng>.
+        This verification link will expire in <strong>24 hours</strong>.
       </p>
 
       <p style="font-size: 13px; line-height: 1.5; color: #777;">
@@ -55,11 +55,15 @@ export const resetPasswordTemplate = (resetPasswordUrl: string) => {
         </a>
       </p>
 
-      <p style="color: #666; font-size: 14px;">This link will expire in 15 minutes.</p>
+      <p style="color: #666; font-size: 14px;">This link will expire in <strong>15 minutes</strong>.</p>
 
       <p style="color: #666; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email.</p>
 
       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+
+      <p style="margin: 0; text-align: center; font-size: 12px; color: #999;">
+        This is an automated email. Please do not reply.
+      </p>
 
     </div>
     `;

@@ -235,7 +235,7 @@ export const resetPasswordHandler =
             if (!token) {
                 return res.status(400).json({
                     status: "failure",
-                    message: "Token is required",
+                    message: "Invalid password reset token",
                 })
             }
 
@@ -252,7 +252,7 @@ export const resetPasswordHandler =
 
             return res.status(200).json({
                 status: "success",
-                message: "Password reset successfully",
+                message: "Password reset successfully. Please log in again",
             })
         } catch (err) {
             return next(err);
