@@ -13,6 +13,7 @@ import {
     forgotPassword,
     resetPassword,
     logout,
+    logoutAll,
     changePassword
 } from "../services/auth.service";
 import { z } from "zod";
@@ -170,6 +171,33 @@ export const logoutUserHandler =
         }
     }
 
+export const logoutAllHandler = async(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+
+        try{
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return next(new AppError('Unauthorized', 401));
+            }
+
+            await logoutAll(userId);
+
+            res.clearCookie("refreshToken");
+
+            return res.status(200).json({
+                status: "success",
+                message: "Logged out from all devices successfully",
+            });
+            
+        }catch(err){
+            return next(err);
+        }
+    }
+
 export const forgotPasswordHandler =
     async (req: Request, res: Response, next: NextFunction) => {
 
@@ -247,9 +275,11 @@ export const changePasswordHandler = async (req: Request, res: Response, next: N
 
         await changePassword(userId, result.data);
 
+        res.clearCookie("refreshToken");
+
         return res.status(200).json({
             status: "success",
-            message: "Password changed successfully",
+            message: "Password changed successfully, please log in again",  
         });
 
     } catch (err) {

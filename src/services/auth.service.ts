@@ -245,6 +245,28 @@ export const logout =
 
     }
 
+export const logoutAll = async(userId: string) => {
+
+    await Session.updateMany({
+        user: userId,
+        revoked: false,
+    }, {
+        $set: {
+            revoked: true,
+            revokedAt: new Date(),
+        }
+    });
+
+    await User.updateOne({
+        _id: userId,
+    }, {
+        $inc: {
+            tokenVersion: 1
+        },
+    });
+
+}
+
 export const forgotPassword =
     async (email: string) => {
 
@@ -271,7 +293,7 @@ export const forgotPassword =
             expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         });
 
-        const resetPasswordLink = `${env.FRONTEND_URL}/save-password?token=${rawToken}`;
+        const resetPasswordLink = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`;
 
         const html = resetPasswordTemplate(resetPasswordLink);
 
@@ -351,6 +373,16 @@ export const changePassword =
 
         user.password = await hashPassword(newPassword);
         await user.save();
+
+        await Session.updateMany({  
+            user: userId,
+            revoked: false,
+        }, {
+            $set: {
+                revoked: true,
+                revokedAt: new Date(),
+            }
+        });
     }
 
 export function mapUserToUserResponse(user: any) {

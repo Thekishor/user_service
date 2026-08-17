@@ -8,7 +8,8 @@ import {
     logoutUserHandler,
     forgotPasswordHandler,
     resetPasswordHandler,
-    changePasswordHandler
+    changePasswordHandler,
+    logoutAllHandler
 } from "../controllers/auth.controller";
 import verifyToken from "../middleware/auth.middleware";
 //import { upload } from "../middleware/multer.middleware";
@@ -21,6 +22,7 @@ authRouter.post("/login", loginUserHandler);
 authRouter.get("/verify-email", verifyUserEmailHandler);
 authRouter.post("/refresh-token", refreshTokenHandler);
 authRouter.post("/logout", verifyToken, logoutUserHandler);
+authRouter.post("/logout-all", verifyToken, logoutAllHandler);
 authRouter.post("/forgot-password", forgotPasswordHandler);
 authRouter.post("/reset-password", resetPasswordHandler);
 authRouter.post("/change-password", verifyToken, changePasswordHandler);
