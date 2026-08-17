@@ -186,7 +186,11 @@ export const logoutAllHandler = async(
 
             await logoutAll(userId);
 
-            res.clearCookie("refreshToken");
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict'
+            });
 
             return res.status(200).json({
                 status: "success",

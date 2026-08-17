@@ -21,8 +21,12 @@ email based workflow and token management.
 
 ### Security
 
+- Cookie based Authentication
 - JWT (Access Token, Refresh Token)
 - Role-Based Access Control
+- Custom Error handler for better error handling and debugging
+- JWT Auth with session revocation
+- Logout and Logout from all devices (Using tokenversion for security)
 
 ### Database
 
