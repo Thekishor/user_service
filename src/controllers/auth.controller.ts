@@ -1,11 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import {
-    loginSchema,
-    registerSchema,
-    resetPasswordSchema,
-    changePasswordSchema
-} from "../schema/auth.schema";
-import {
     login,
     register,
     verifyEmail,
@@ -16,7 +10,6 @@ import {
     logoutAll,
     changePassword
 } from "../services/auth.service";
-import { z } from "zod";
 import { AppError } from "../utils/AppError";
 import { uploadOnCloudinary } from '../utils/cloudinary';
 
@@ -35,20 +28,13 @@ export const registerUserHandler =
                 }
             }
 
-            const result = registerSchema.safeParse(req.body);
+            const metadata = getRequestMetadata(req);
 
-            if (!result.success) {
-                return res.status(400).json({
-                    message: 'Validation failed!',
-                    errors: z.flattenError(result.error).fieldErrors
-                });
-            }
-
-            const { user } = await register(result.data, imageUrl, imagePublicId);
+            const { user } = await register(req.body, imageUrl, imagePublicId, metadata);
 
             return res.status(201).json({
-                status: "success",
-                message: "User created successfully, Please verify your email",
+                status: "success",  
+                message: "Account created successfully. Please verify your email to continue.",
                 user
             });
 
@@ -59,22 +45,22 @@ export const registerUserHandler =
 
 export const verifyUserEmailHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-
         try {
             const token = req.query.token as string;
 
             if (!token) {
-                return res.status(400).json({
-                    message: 'Verification token is missing',
-                })
+                return next(new AppError('Verification token is missing', 404, "TOKEN_NOT_FOUND"));
             }
 
-            const { user } = await verifyEmail(token);
+            const metadata = getRequestMetadata(req);
+            const { user } = await verifyEmail(token, metadata);  
 
             return res.status(200).json({
+                status: "success",  
                 message: "User verified successfully",
                 user
-            })
+            });
+
         } catch (err) {
             return next(err);
         }
@@ -84,20 +70,9 @@ export const verifyUserEmailHandler =
 export const loginUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = loginSchema.safeParse(req.body);
 
-            if (!result.success) {
-                return res.status(400).json({
-                    message: 'Validation failed!',
-                    errors: z.flattenError(result.error).fieldErrors
-                })
-            }
-
-            const { accessToken, refreshToken, user } = await login(
-                result.data,
-                req.ip,
-                req.get("User-Agent")
-            );
+            const metadata = getRequestMetadata(req);
+            const { accessToken, refreshToken, user } = await login(req.body, metadata);
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
@@ -107,11 +82,12 @@ export const loginUserHandler =
             });
 
             return res.status(200).json({
-                status: "success",
-                message: "User logged in successfully",
+                status: "success",  
+                message: "User logged in successfully",  
                 user,
                 token: accessToken
-            })
+            });
+            
         } catch (err) {
             return next(err);
         }
@@ -124,7 +100,7 @@ export const refreshTokenHandler =
             const token = req.cookies.refreshToken;
 
             if (!token) {
-                return next(new AppError('Refresh token is missing', 404));
+                return next(new AppError('Refresh token is missing', 404, "REFRESH_TOKEN_MISSING"));
             }
 
             const { newAccessToken, newRefreshToken, user } = await refreshToken(token);
@@ -136,55 +112,55 @@ export const refreshTokenHandler =
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: 'New token generated successfully',
                 status: "success",  
                 user,
                 token: newAccessToken,
-            })
+            });
+
         } catch (err) {
             return next(err);
         }
-
     }
 
 export const logoutUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-
         try {
             const refreshToken = req.cookies.refreshToken;
 
             if (!refreshToken) {
-                return next(new AppError('Refresh token is missing', 404));
+                return next(new AppError('Refresh token is missing', 404, "REFRESH_TOKEN_MISSING"));
             }
 
-            await logout(refreshToken);
+            const metadata = getRequestMetadata(req);
+
+            await logout(refreshToken, metadata);
 
             res.clearCookie("refreshToken");
 
-            res.status(200).json({
+            return res.status(200).json({
                 status: "success",
                 message: 'User logged out successfully'
-            })
+            });
+
         } catch (err) {
             return next(err);
         }
     }
 
-export const logoutAllHandler = async(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => {
-
+export const logoutAllHandler = 
+    async(req: Request, res: Response, next: NextFunction) => {
         try{
             const userId = req.user?.id;
 
             if (!userId) {
-                return next(new AppError('Unauthorized', 401));
+                return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
             }
 
-            await logoutAll(userId);
+            const metadata = getRequestMetadata(req);
+
+            await logoutAll(userId, metadata);
 
             res.clearCookie("refreshToken", {
                 httpOnly: true,
@@ -197,24 +173,22 @@ export const logoutAllHandler = async(
                 message: "Logged out from all devices successfully",
             });
             
-        }catch(err){
+        } catch(err){
             return next(err);
         }
     }
 
 export const forgotPasswordHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-
         try {
             const { email } = req.body;
 
             if (!email) {
-                return res.status(400).json({
-                    message: 'Email is required',
-                })
+                return next(new AppError('Email is required', 400, "EMAIL_REQUIRED"));
             }
 
-            await forgotPassword(email);
+            const metadata = getRequestMetadata(req);
+            await forgotPassword(email, metadata);
 
             return res.status(200).json({
                 status: "success",
@@ -228,65 +202,54 @@ export const forgotPasswordHandler =
 
 export const resetPasswordHandler =
     async (req: Request, res: Response, next: NextFunction) => {
-
         try {
             const token = req.query.token as string;
 
             if (!token) {
-                return res.status(400).json({
-                    status: "failure",
-                    message: "Invalid password reset token",
-                })
+                return next(new AppError('Password reset token is missing', 404, "TOKEN_NOT_FOUND"));
             }
 
-            const result = resetPasswordSchema.safeParse(req.body);
+            const metadata = getRequestMetadata(req);
 
-            if (!result.success) {
-                return res.status(400).json({
-                    message: 'Validation failed!',
-                    errors: z.flattenError(result.error).fieldErrors
-                });
-            }
-
-            await resetPassword(token, result.data);
+            await resetPassword(token, req.body, metadata);
 
             return res.status(200).json({
                 status: "success",
-                message: "Password reset successfully. Please log in again",
-            })
+                message: "Password reset successfully. Please log in again.",
+            });
+
         } catch (err) {
             return next(err);
         }
     }
 
-export const changePasswordHandler = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-
+export const changePasswordHandler = 
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
         const userId = req.user?.id;
 
         if (!userId) {
-            return next(new AppError('Unauthorized', 401));
+            return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
         }
 
-        const result = changePasswordSchema.safeParse(req.body);
-
-        if (!result.success) {
-            return res.status(400).json({
-                message: 'Validation failed!',
-                errors: z.flattenError(result.error).fieldErrors
-            });
-        }
-
-        await changePassword(userId, result.data);
+        const metadata = getRequestMetadata(req);
+        await changePassword(userId, req.body, metadata);
 
         res.clearCookie("refreshToken");
 
         return res.status(200).json({
             status: "success",
-            message: "Password changed successfully, please log in again",  
+            message: "Password changed successfully. Please log in again.",  
         });
 
     } catch (err) {
         return next(err);
+    }
+}
+
+export const getRequestMetadata = (req: Request) => {
+    return {
+        ipAddress: req.ip || "unknown",
+        userAgent: req.get("User-Agent") || "unknown"
     }
 }

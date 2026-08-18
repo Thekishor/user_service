@@ -9,9 +9,11 @@ import { PasswordReset } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
 import { Session } from "../models/session.model";
 import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
+import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model";
+import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
 
 export const register =
-    async (data: RegisterDto, imageUrl: string, imagePublicId: string) => {
+    async (data: RegisterDto, imageUrl: string, imagePublicId: string, metadata: AuditMetadata) => {
 
         const { fullName, phone, email, password } = data;
 
@@ -25,11 +27,19 @@ export const register =
         if (existingUser) {
 
             if (existingUser.email === email) {
-                throw new AppError("An account with this email already exists!", 409);
+                throw new AppError(
+                    "An account with this email already exists!",
+                    409,
+                    "EMAIL_ALREADY_EXISTS"
+                );
             }
 
             if (existingUser.phone === phone) {
-                throw new AppError("An account with this phone number already exists!", 409);
+                throw new AppError(
+                    "An account with this phone number already exists!",
+                    409,
+                    "PHONE_ALREADY_EXISTS"
+                );
             }
         }
 
@@ -42,6 +52,15 @@ export const register =
             password: passwordHash,
             imageUrl,
             imagePublicId
+        });
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.REGISTER,
+            user: user._id,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: user._id,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent
         });
 
         const rawToken = generateToken();
@@ -70,7 +89,7 @@ export const register =
     }
 
 export const verifyEmail =
-    async (token: string) => {
+    async (token: string, metadata: AuditMetadata) => {
 
         const hashedToken = hashToken(token);
 
@@ -79,7 +98,7 @@ export const verifyEmail =
         });
 
         if (!emailVerificationToken) {
-            throw new AppError("Invalid or expired verification link", 401);    
+            throw new AppError("Invalid or expired verification link", 401, "INVALID_TOKEN");    
         }
 
         if (emailVerificationToken.expiresAt < new Date()) {
@@ -88,17 +107,21 @@ export const verifyEmail =
                 token: hashedToken
             });
 
-            throw new AppError("Your verification link has expired. Please request a new verification email.", 401);
+            throw new AppError(
+                "Your verification link has expired. Please request a new verification email.", 
+                401,    
+                "LINK_EXPIRED"
+            );
         }
 
         const user = await User.findById(emailVerificationToken.user._id);
 
         if (!user) {
-            throw new AppError("User not found", 404);
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
         if (user.isEmailVerified) {
-            throw new AppError("Email already verified", 409);
+            throw new AppError("Email already verified", 409, "ALREADY_VERIFIED");
         }
 
         user.isEmailVerified = true;
@@ -110,13 +133,22 @@ export const verifyEmail =
             token: hashedToken,
         })
 
+        await AuditLog.create({
+            action: AUDIT_ACTION.EMAIL_VERIFIED,
+            user: updatedUser._id,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: updatedUser._id,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent
+        });
+
         return {
             user: mapUserToUserResponse(updatedUser)
         };
     }
 
 export const login =
-    async (data: LoginDto, ip: string | undefined, userAgent: string | undefined) => {
+    async (data: LoginDto, metadata: AuditMetadata) => {
 
         const { identifier, password } = data;
 
@@ -127,20 +159,36 @@ export const login =
             ]
         });
 
-        if (!user) throw new AppError("Invalid credentials", 401);
+        if (!user) {
+            throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
+        }
 
-        if (!user.isEmailVerified) throw new AppError("Please verify your email to activate your account", 403);
+        if (!user.isEmailVerified) {
+            throw new AppError(
+                "Please verify your email to activate your account", 
+                403, 
+                "EMAIL_NOT_VERIFIED"
+            );
+        }
 
-        if (!user.isAccountActive) throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
+        if (!user.isAccountActive) {    
+            throw new AppError(
+                "Your account is inactive, please contact admin to activate your account", 
+                403, 
+                "ACCOUNT_INACTIVE"
+            );
+        }
 
         const isValidPassword = await comparePassword(password, user.password);
 
-        if (!isValidPassword) throw new AppError("Invalid credentials", 401);
+        if (!isValidPassword) {
+            throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
+        }
 
         const session = new Session({
             user: user._id,
-            ip,
-            userAgent
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent
         });
 
         const accessToken = createAccessToken(
@@ -156,6 +204,15 @@ export const login =
         session.refreshTokenHash = hashToken(refreshToken);
 
         await session.save();
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.LOGIN,
+            user: user._id,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: user._id,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent
+        });
 
         return { 
             accessToken, 
@@ -179,7 +236,9 @@ export const refreshToken =
             revoked: false
         });
 
-        if (!session) throw new AppError("Invalid session. Please log in again.", 401);
+        if (!session) {
+            throw new AppError("Invalid session. Please log in again.", 401, "INVALID_SESSION");
+        }
 
         const user = await User.findById(payload.sub);
 
@@ -195,7 +254,11 @@ export const refreshToken =
                 }
             });
 
-            throw new AppError("Your account is no longer available. Please log in again.", 401);
+            throw new AppError(
+                "Your account is no longer available. Please log in again.", 
+                401, 
+                "ACCOUNT_INACTIVE"
+            );
         }
 
         const newAccessToken = createAccessToken(
@@ -219,7 +282,7 @@ export const refreshToken =
     }
 
 export const logout =
-    async (token: string) => {
+    async (token: string, metadata: AuditMetadata) => {
 
         const payload =  verifyRefreshToken(token);
 
@@ -232,7 +295,9 @@ export const logout =
             revoked: false
         });
 
-        if (!session) throw new AppError("Invalid session", 401);
+        if (!session) {
+            throw new AppError("Invalid session", 401, "INVALID_SESSION");
+        }   
 
         await Session.updateOne({ 
             refreshTokenHash 
@@ -243,9 +308,18 @@ export const logout =
             }
         });
 
+        await AuditLog.create({
+            action: AUDIT_ACTION.LOGOUT,
+            user: payload.sub,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: payload.sub,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent
+        });
+
     }
 
-export const logoutAll = async(userId: string) => {
+export const logoutAll = async(userId: string, metadata: AuditMetadata) => {
 
     await Session.updateMany({
         user: userId,
@@ -265,10 +339,19 @@ export const logoutAll = async(userId: string) => {
         },
     });
 
+    await AuditLog.create({
+        action: AUDIT_ACTION.LOGOUT_ALL,
+        user: userId,
+        resource: AUDIT_RESOURCE.USER,
+        resourceId: userId,
+        ip: metadata.ipAddress,
+        userAgent: metadata.userAgent,
+    });
+
 }
 
 export const forgotPassword =
-    async (email: string) => {
+    async (email: string, metadata: AuditMetadata) => {
 
         const normalizedEmail = email.toLowerCase().trim();
 
@@ -277,11 +360,15 @@ export const forgotPassword =
         })
 
         if (!user) {
-            throw new AppError("User not found", 404);
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
         if (!user.isAccountActive) {
-            throw new AppError("Your account is inactive, please contact admin to activate your account", 403);   
+            throw new AppError(
+                "Your account is inactive, please contact admin to activate your account", 
+                403, 
+                "ACCOUNT_INACTIVE"
+            );   
         }
 
         const rawToken = generateToken();
@@ -302,10 +389,20 @@ export const forgotPassword =
             "Reset Password",
             html
         );
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.FORGOT_PASSWORD,
+            user: user._id,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: user._id,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent,
+        });
+
     }
 
 export const resetPassword =
-    async (token: string, data: ResetPasswordDto) => {
+    async (token: string, data: ResetPasswordDto, metadata: AuditMetadata) => {
 
         const tokenHash = hashToken(token);
 
@@ -314,7 +411,7 @@ export const resetPassword =
         }); 
 
         if (!passwordResetToken) {
-            throw new AppError("Invalid or expired reset password link", 401);
+            throw new AppError("Invalid or expired reset password link", 401, "INVALID_OR_EXPIRED_RESET_PASSWORD_LINK");
         }
 
         if (passwordResetToken.expiresAt < new Date()) {
@@ -323,17 +420,31 @@ export const resetPassword =
                 token: tokenHash
             });
 
-            throw new AppError("Your reset password link has expired. Please request a new reset password link.", 401);
+            throw new AppError(
+                "Your reset password link has expired. Please request a new reset password link.", 
+                401, 
+                "EXPIRED_RESET_PASSWORD_LINK"
+            );
         }
 
         const user = await User.findById(passwordResetToken.user);
 
         if (!user) {
-            throw new AppError("User not found", 404);
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
         if (!user.isAccountActive) {
-            throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
+            throw new AppError(
+                "Your account is inactive, please contact admin to activate your account", 
+                403,
+                "ACCOUNT_INACTIVE"
+            );
+        }
+
+        const isPasswordValid = await comparePassword(data.newPassword, user.password);
+
+        if (isPasswordValid) {
+            throw new AppError("New password cannot be same as your old password", 400, "PASSWORD_ALREADY_USED");
         }
 
         user.password = await hashPassword(data.newPassword);
@@ -343,32 +454,45 @@ export const resetPassword =
             token: tokenHash,
         });
 
+        await AuditLog.create({
+            action: AUDIT_ACTION.RESET_PASSWORD,
+            user: user._id,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: user._id,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent,
+        });
+
     }
 
 export const changePassword = 
-    async (userId: string, data: ChangePasswordDto) => {
+    async (userId: string, data: ChangePasswordDto, metadata: AuditMetadata) => {
         const { oldPassword, newPassword } = data;
 
         const user = await User.findById(userId);
 
         if (!user) {
-            throw new AppError("User not found", 404);
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
         const isPasswordSame = await comparePassword(oldPassword, user.password);
 
         if (!isPasswordSame) {
-            throw new AppError("Invalid old password", 400);
+            throw new AppError("Invalid old password", 400, "INVALID_OLD_PASSWORD");
         }
 
         if (newPassword === oldPassword) {
-            throw new AppError("New password cannot be same as old password", 400);
+            throw new AppError(
+                "New password cannot be same as old password", 
+                400, 
+                "PASSWORD_ALREADY_USED"
+            );
         }
 
         user.password = await hashPassword(newPassword);
         await user.save();
 
-        await Session.updateMany({  
+        await Session.updateMany({
             user: userId,
             revoked: false,
         }, {
@@ -377,6 +501,16 @@ export const changePassword =
                 revokedAt: new Date(),
             }
         });
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.PASSWORD_CHANGED,
+            user: userId,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: userId,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent,
+        });
+
     }
 
 export function mapUserToUserResponse(user: any) {
