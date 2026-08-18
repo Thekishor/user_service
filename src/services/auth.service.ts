@@ -4,7 +4,7 @@ import { comparePassword, hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
 import { EmailVerification } from "../models/emailverification.model";
 import { sendEmail } from "./email.service";
-import { createAccessToken, createRefreshToken, generateToken, verifyRefreshToken } from "../utils/jwt.tokens";
+import { createAccessToken, createRefreshToken, generateToken, verifyJwtToken } from "../utils/jwt.tokens";
 import { PasswordReset } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
 import { Session } from "../models/session.model";
@@ -225,7 +225,7 @@ export const login =
 export const refreshToken =
     async (token: string) => {
 
-        const payload = verifyRefreshToken(token);
+        const payload = verifyJwtToken(token, env.JWT_REFRESH_SECRET);
 
         const refreshTokenHash = hashToken(token);
 
@@ -284,7 +284,7 @@ export const refreshToken =
 export const logout =
     async (token: string, metadata: AuditMetadata) => {
 
-        const payload =  verifyRefreshToken(token);
+        const payload =  verifyJwtToken(token, env.JWT_REFRESH_SECRET);
 
         const refreshTokenHash = hashToken(token);
 

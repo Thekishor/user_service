@@ -2,10 +2,10 @@ import dotenv from "dotenv";
 import { connectToDB } from "./config/database";
 import http from "node:http";
 import app from "./app";
+import { env } from "./config/env";
+import logger, { logError } from "./config/logger";
 
 dotenv.config();
-
-import { env } from "./config/env";
 
 async function startServer() {
 
@@ -14,12 +14,12 @@ async function startServer() {
   const server = http.createServer(app);
 
   server.listen(process.env.PORT, () => {
-    console.log(`Server is running to port ${env.PORT}`);
+    logger.info(`Server is running to port ${env.PORT}`);
 
   });
 }
 
 startServer().catch(err => {
-  console.error("Error occurs while starting the server" + err);
+  logError("Error occurs while starting the server", err);
   process.exit(1);
 })

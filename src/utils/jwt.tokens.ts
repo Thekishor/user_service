@@ -1,6 +1,7 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import {env} from "../config/env"
 import * as crypto from "node:crypto";
+import { AppError } from "./AppError";
 
 export function createAccessToken(userId: string, role: string) {
     const payload = {sub: userId, role, jti: crypto.randomUUID().toString()};
@@ -16,18 +17,20 @@ export function createRefreshToken(userId: string, sessionId: string) {
     })
 }
 
+export function verifyJwtToken(token: string, jwtSecret: string): JwtPayload {
+    try {
+        return jwt.verify(token, jwtSecret) as JwtPayload;
+    } catch (error) {
 
-export function verifyRefreshToken(token: string) {
-    return jwt.verify(token, env.JWT_REFRESH_SECRET) as {
-        sub: string,
-        sid: string
-    }
-}
+        if (error instanceof jwt.TokenExpiredError) {
+            throw new AppError("Token expired", 401, "TOKEN_EXPIRED");
+        }
 
-export function verifyAccessToken(token: string) {
-    return jwt.verify(token, env.JWT_ACCESS_SECRET) as {
-        sub: string,
-        jti: string
+        if (error instanceof jwt.JsonWebTokenError) {
+            throw new AppError("Invalid token", 401, "INVALID_TOKEN");
+        }
+
+        throw new AppError("Authentication failed", 401, "AUTH_FAILED");
     }
 }
 

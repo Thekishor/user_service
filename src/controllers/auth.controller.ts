@@ -12,6 +12,7 @@ import {
 } from "../services/auth.service";
 import { AppError } from "../utils/AppError";
 import { uploadOnCloudinary } from '../utils/cloudinary';
+import { logError } from '../config/logger';
 
 export const registerUserHandler =  
     async (req: Request, res: Response, next: NextFunction) => {
@@ -39,6 +40,7 @@ export const registerUserHandler =
             });
 
         } catch (err) {
+            logError("Failed to register an account", err);
             return next(err);
         }
     }
@@ -62,6 +64,7 @@ export const verifyUserEmailHandler =
             });
 
         } catch (err) {
+            logError("Failed to verify account", err);
             return next(err);
         }
 
@@ -89,6 +92,7 @@ export const loginUserHandler =
             });
             
         } catch (err) {
+            logError("Failed to login user", err);
             return next(err);
         }
     }
@@ -120,6 +124,7 @@ export const refreshTokenHandler =
             });
 
         } catch (err) {
+            logError("Failed to generate new token", err);
             return next(err);
         }
     }
@@ -145,6 +150,7 @@ export const logoutUserHandler =
             });
 
         } catch (err) {
+            logError("Failed to logout user", err);
             return next(err);
         }
     }
@@ -174,6 +180,7 @@ export const logoutAllHandler =
             });
             
         } catch(err){
+            logError("Failed to logout from all devices", err);
             return next(err);
         }
     }
@@ -195,6 +202,7 @@ export const forgotPasswordHandler =
                 message: "Password reset link sent to your email"
             })
         } catch (err) {
+            logError("Failed to send password reset link", err);
             return next(err);
         }
 
@@ -219,6 +227,7 @@ export const resetPasswordHandler =
             });
 
         } catch (err) {
+            logError("Failed to reset password", err);
             return next(err);
         }
     }
@@ -243,6 +252,7 @@ export const changePasswordHandler =
         });
 
     } catch (err) {
+        logError("Failed to change password", err);
         return next(err);
     }
 }

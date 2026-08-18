@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../utils/jwt.tokens";
+import { verifyJwtToken } from "../utils/jwt.tokens";
 import { User } from "../models/user.model";
 import { AppError } from "../utils/AppError";
+import { logError } from "../config/logger";
+import {env} from "../config/env";
 
 declare global {
     namespace Express {
@@ -22,6 +24,7 @@ declare global {
 const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 
     if (!req.headers.authorization) {
+        logError("Token is missing", null);
         return next(new AppError("Token is missing", 401, "TOKEN_MISSING"));
     }
 
@@ -34,7 +37,7 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
     const token = authHeader.split(" ")[1];
 
     try {
-        const payload = verifyAccessToken(token);
+        const payload = verifyJwtToken(token, env.JWT_ACCESS_SECRET);
 
         if (!payload.sub) {
             throw new AppError("Invalid Token", 401, "INVALID_TOKEN");
@@ -66,6 +69,7 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 
         return next();
     } catch (error) {
+        logError("Failed to verify token", error);
         return next(new AppError("Invalid or expired token", 401, "INVALID_OR_EXPIRED_TOKEN"));
     }
 }

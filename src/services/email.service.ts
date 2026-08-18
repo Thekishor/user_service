@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { env } from '../config/env';
+import logger, { logError } from '../config/logger';
 
 const resend = new Resend(env.RESEND_API_KEY);  
 
@@ -14,15 +15,15 @@ export async function sendEmail(to: string, subject: string, html: string) {
         });
 
         if (error) {
-            console.log("Failed to send email", error.message);
+            logError("Failed to send email", error);
             return { success: false };
         }
 
-        console.log("Email sent successfully", data);
+        logger.info("Email sent successfully", {data});
         return { success: true };
 
     } catch(error) {
-        console.log("Failed to send email", error);
+        logError("Failed to send email", error);
         return { success: false };
     }
 }

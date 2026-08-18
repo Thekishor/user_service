@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { getUsersService } from "../services/user.service";
 import { AppError } from "../utils/AppError";
 import { deleteUser } from "../services/user.service";
+import { logError } from "../config/logger";
 
 export const getAllUser =
     async (_req: Request, res: Response, next: NextFunction) => {
@@ -17,6 +18,7 @@ export const getAllUser =
             });
 
         } catch (err) {
+            logError("Failed to get all users", err);
             return next(err);  
     }
 }
@@ -37,6 +39,7 @@ export const getMe =
             });
 
         } catch (err) {
+            logError("Failed to get current user", err);
             return next(err);
         }   
 } 
@@ -53,6 +56,7 @@ export const deleteUserHandler =
                 message: "User deleted successfully",
             })
         } catch (err) {
+            logError("Failed to delete user", err);
             return next(err);
         }
     }
