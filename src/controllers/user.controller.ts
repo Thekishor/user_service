@@ -27,7 +27,7 @@ export const getMe =
             const user = req.user;
 
             if (!user) {
-                throw new AppError("User not found", 404);
+                throw new AppError("User not found", 404, "USER_NOT_FOUND");
             }
 
             return res.status(200).json({

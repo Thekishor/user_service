@@ -37,7 +37,7 @@ export const deleteUser =
         const user = await User.findById(userId);
 
         if (!user) {
-            throw new AppError("User not found", 404);
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
         await User.deleteOne({ _id: userId });

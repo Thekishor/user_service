@@ -19,16 +19,16 @@ declare global {
     }
 }
 
-const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 
     if (!req.headers.authorization) {
-        return next(new AppError("Token is missing", 401));
+        return next(new AppError("Token is missing", 401, "TOKEN_MISSING"));
     }
 
     const authHeader = req.headers.authorization;
 
     if (!authHeader.startsWith("Bearer ")) {
-        throw new AppError("Invalid Token", 401);
+        throw new AppError("Invalid Token", 401, "INVALID_TOKEN");
     }
 
     const token = authHeader.split(" ")[1];
@@ -37,17 +37,21 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
         const payload = verifyAccessToken(token);
 
         if (!payload.sub) {
-            throw new AppError("Invalid Token", 401);
+            throw new AppError("Invalid Token", 401, "INVALID_TOKEN");
         }   
 
         const user = await User.findById(payload.sub);
 
         if (!user) {
-            throw new AppError("User not found", 404);
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
-        if (!user.isAccountActive) {
-            throw new AppError("Your account is inactive, please contact admin to activate your account", 403);
+        if (!user.isAccountActive) {    
+            throw new AppError(
+                "Your account is inactive, please contact admin to activate your account", 
+                403, 
+                "ACCOUNT_INACTIVE"
+            );
         }
 
         req.user = {
@@ -62,7 +66,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 
         return next();
     } catch (error) {
-        return next(new AppError("Invalid or expired token", 401));
+        return next(new AppError("Invalid or expired token", 401, "INVALID_OR_EXPIRED_TOKEN"));
     }
 }
 
