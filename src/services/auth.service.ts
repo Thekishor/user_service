@@ -3,14 +3,13 @@ import { User } from "../models/user.model";
 import { comparePassword, hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
 import { EmailVerification } from "../models/emailverification.model";
-import { sendEmail } from "./email.service";
-import { createAccessToken, createRefreshToken, generateToken, verifyJwtToken } from "../utils/jwt.tokens";
+import { createAccessToken, createRefreshToken, verifyJwtToken } from "../utils/jwt.tokens";
 import { PasswordReset } from "../models/passwordreset.model";
 import { AppError } from "../utils/AppError";
 import { Session } from "../models/session.model";
-import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
 import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
+import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service";
 
 export const register =
     async (data: RegisterDto, imageUrl: string, imagePublicId: string, metadata: AuditMetadata) => {
@@ -63,24 +62,7 @@ export const register =
             userAgent: metadata.userAgent
         });
 
-        const rawToken = generateToken();
-        const token = hashToken(rawToken);
-
-        await EmailVerification.create({
-            user: user._id,
-            token: token,
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        });
-
-        const verifyUrl = `${env.FRONTEND_URL}/verify-email?token=${rawToken}`;
-
-        const html = verifyEmailTemplate(verifyUrl);
-
-        await sendEmail(
-            user.email,
-            "Verify Your Email Address",
-            html,
-        );
+        await sendVerificationEmail(user);
         
         return {
             user: mapUserToUserResponse(user)
@@ -101,20 +83,7 @@ export const verifyEmail =
             throw new AppError("Invalid or expired verification link", 401, "INVALID_TOKEN");    
         }
 
-        if (emailVerificationToken.expiresAt < new Date()) {
-
-            await EmailVerification.deleteOne({
-                token: hashedToken
-            });
-
-            throw new AppError(
-                "Your verification link has expired. Please request a new verification email.", 
-                401,    
-                "LINK_EXPIRED"
-            );
-        }
-
-        const user = await User.findById(emailVerificationToken.user._id);
+        const user = await User.findById(emailVerificationToken.user);
 
         if (!user) {
             throw new AppError("User not found", 404, "USER_NOT_FOUND");
@@ -122,6 +91,22 @@ export const verifyEmail =
 
         if (user.isEmailVerified) {
             throw new AppError("Email already verified", 409, "ALREADY_VERIFIED");
+        }
+
+        if (emailVerificationToken.expiresAt <= new Date()) {
+
+            await EmailVerification.deleteOne({
+                token: hashedToken,
+                user: user._id
+            });
+
+            await sendVerificationEmail(user);
+
+            throw new AppError(
+                "Your verification link has expired. A new verification email has been sent to your registered email address.", 
+                400,    
+                "LINK_EXPIRED"
+            );
         }
 
         user.isEmailVerified = true;
@@ -198,7 +183,7 @@ export const login =
 
         const refreshToken = createRefreshToken(
             user._id.toString(),
-            session._id.toString()  
+            session._id.toString(),  
         );
 
         session.refreshTokenHash = hashToken(refreshToken);
@@ -371,24 +356,23 @@ export const forgotPassword =
             );   
         }
 
-        const rawToken = generateToken();
-        const tokenHash = hashToken(rawToken);
-
-        await PasswordReset.create({
+        const existingToken = await PasswordReset.findOne({
             user: user._id,
-            token: tokenHash,
-            expiresAt: new Date(Date.now() + 15 * 60 * 1000),
         });
+        
+        if (existingToken && existingToken.expiresAt > new Date()) {
+            throw new AppError(
+                "You already have an active reset password link. Please check your email to reset your password.",
+                400,
+                "RESET_PASSWORD_LINK_ALREADY_EXISTS",
+            );
+        } else {
+            await PasswordReset.deleteMany({
+                user: user._id,
+            });
+        }
 
-        const resetPasswordLink = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`;
-
-        const html = resetPasswordTemplate(resetPasswordLink);
-
-        await sendEmail(
-            user.email,
-            "Reset Password",
-            html
-        );
+        await sendResetPasswordEmail(user);
 
         await AuditLog.create({
             action: AUDIT_ACTION.FORGOT_PASSWORD,
@@ -411,19 +395,10 @@ export const resetPassword =
         }); 
 
         if (!passwordResetToken) {
-            throw new AppError("Invalid or expired reset password link", 401, "INVALID_OR_EXPIRED_RESET_PASSWORD_LINK");
-        }
-
-        if (passwordResetToken.expiresAt < new Date()) {
-
-            await PasswordReset.deleteOne({
-                token: tokenHash
-            });
-
             throw new AppError(
-                "Your reset password link has expired. Please request a new reset password link.", 
+                "Invalid or expired reset password link",   
                 401, 
-                "EXPIRED_RESET_PASSWORD_LINK"
+                "INVALID_OR_EXPIRED_RESET_PASSWORD_LINK"
             );
         }
 
@@ -438,6 +413,19 @@ export const resetPassword =
                 "Your account is inactive, please contact admin to activate your account", 
                 403,
                 "ACCOUNT_INACTIVE"
+            );
+        }
+
+        if (passwordResetToken.expiresAt <= new Date()) {
+
+            await PasswordReset.deleteOne({
+                _id: passwordResetToken._id,
+            });
+
+            throw new AppError(
+                "Your reset password link has expired", 
+                401, 
+                "EXPIRED_RESET_PASSWORD_LINK"
             );
         }
 
