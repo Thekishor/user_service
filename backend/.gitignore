@@ -2,6 +2,7 @@ node_modules
 .env
 .idea
 logs
+logs/*.log
 npm-debug.log
 yarn-debug.log
 yarn-error.log
@@ -9,3 +10,6 @@ yarn-error.log
 .pnp.js
 .DS_Store
 .vscode
+build
+dist
+out
