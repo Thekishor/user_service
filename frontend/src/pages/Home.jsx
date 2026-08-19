@@ -1,11 +1,13 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AppContext";
+import HeroSection from "../components/home/HeroSection";
+import FeaturesSection from "../components/home/FeaturesSection";
 
 const Home = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div></div>;
+    return <div className="ml-2">Loading...</div>;
   }
 
   if (user) {
@@ -13,10 +15,10 @@ const Home = () => {
   }
 
   return (
-    <div>
-      <h1>Home Page</h1>
-      <p>Welcome to the home page.</p>
-    </div>
+    <>
+      <HeroSection />
+      <FeaturesSection />
+    </>
   );
 };
 
