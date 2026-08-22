@@ -13,6 +13,7 @@ const envSchema = z.object({
     RESEND_API_KEY: z.string(),
     APP_URL: z.string(),
     FRONTEND_URL: z.string(),
+    DOMAIN: z.string(),
 })
 
 export const env = envSchema.parse(process.env);

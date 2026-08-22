@@ -93,7 +93,7 @@ const Login = () => {
         <button
           disabled={isLoading}
           type="submit"
-          className="flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? (
             <>

@@ -8,7 +8,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
     
     try {
         const { data, error } = await resend.emails.send({
-            from: "Acme <onboarding@resend.dev>",
+            from: env.DOMAIN,
             to: [to],
             subject: subject,
             html: html,
