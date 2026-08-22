@@ -1,21 +1,19 @@
 const About = () => {
   return (
-    <section className="px-8 py-16 text-center">
-      <h1 className="mt-10 text-2xl font-bold sm:text-3xl">
-        About This Application
-      </h1>
-      <p className="mx-auto mt-4 max-w-2xl text-slate-500">
-        This application is a user management system built to provide secure
-        authentication and account management.
-      </p>
-      <p className="mx-auto mt-4 max-w-2xl text-sm text-slate-500">
-        It includes features such as user registration, login, email
-        verification, password recovery, profile management, and secure session
-        handling.
-      </p>
-      <p className="font-semibold mt-6 text-slate-700">
-        Built with: React • Tailwind CSS • Node.js • Express • MongoDB
-      </p>
+    <section className="min-h-screen px-6 py-20">
+      <div className="mx-auto max-w-2xl">
+        <h1 className="text-center text-3xl font-bold text-slate-800">
+          About This Application
+        </h1>
+
+        <p className="mt-6 rounded-xl border px-6 py-5 leading-7 text-slate-600">
+          This application is a user management system built to provide secure
+          authentication and account management. Users can register, log in,
+          verify their email, recover their password, and manage their profile.
+          The application is designed to provide a simple, secure, and reliable
+          experience for managing user accounts.
+        </p>
+      </div>
     </section>
   );
 };

@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ChangePassword from "./pages/ChangePassword";
+import PageNotFound from "./pages/PageNotFound";
 
 const App = () => {
   return (
@@ -42,7 +43,7 @@ const App = () => {
         </Route>
 
         {/* 404 not found */}
-        <Route path="*" element={<h2>404 Not Found</h2>} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
   );
