@@ -1,14 +1,14 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import AuthLayout from "../layouts/AuthLayout";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { changePasswordSchema } from "../schema/changePasswordSchema";
 import { InputField } from "../components/InputField";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, LockKeyhole } from "lucide-react";
 import { changePassword } from "../services/authService";
 import { handleApiError } from "../utils/handleApiError";
+import AuthLayout from "../layouts/AuthLayout";
 
 const ChangePassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +48,9 @@ const ChangePassword = () => {
 
   return (
     <AuthLayout>
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+        <LockKeyhole className="h-6 w-6 text-blue-600" />
+      </div>
       <h1 className="font-bold text-2xl text-center text-slate-600 mb-6">
         Change Password
       </h1>
