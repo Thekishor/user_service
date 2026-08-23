@@ -220,6 +220,7 @@ export const resetPasswordHandler =
             const metadata = getRequestMetadata(req);
 
             await resetPassword(token, req.body, metadata);
+            res.clearCookie("refreshToken");
 
             return res.status(200).json({
                 status: "success",

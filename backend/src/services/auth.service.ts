@@ -227,7 +227,7 @@ export const refreshToken =
 
         const user = await User.findById(payload.sub);
 
-        if (!user || !user.isAccountActive) {
+        if (!user?.isAccountActive) {
 
             await Session.updateOne({  
                 user: payload.sub,
@@ -440,6 +440,16 @@ export const resetPassword =
 
         await PasswordReset.deleteOne({
             token: tokenHash,
+        });
+
+        await Session.updateMany({
+            user: user._id,
+            revoked: false,
+        }, {
+            $set: {
+                revoked: true,
+                revokedAt: new Date(),
+            }
         });
 
         await AuditLog.create({
