@@ -18,7 +18,15 @@ import PageNotFound from "./pages/PageNotFound";
 const App = () => {
   return (
     <>
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        duration={4000}
+        expand={false}
+        visibleToasts={3}
+        gap={8}
+      />
       <Routes>
         {/* authentication pages - no navbar */}
         <Route path="/register" element={<Register />} />
