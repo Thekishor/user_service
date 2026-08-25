@@ -43,9 +43,9 @@ export function InputField({
           text-slate-400 hover:text-slate-600"
           >
             {showPassword ? (
-              <Eye className="h-5 w-5" />
-            ) : (
               <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
             )}
           </button>
         )}

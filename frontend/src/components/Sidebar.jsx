@@ -74,7 +74,7 @@ const Sidebar = () => {
           onClick={logoutAll}
           className="block w-full rounded-lg px-4 py-2.5 text-left text-gray-700 hover:bg-gray-100"
         >
-          Log out all devices
+          Log out all
         </button>
       </nav>
     </aside>

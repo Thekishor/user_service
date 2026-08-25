@@ -7,7 +7,7 @@ export const handleApiError = (error, setError) => {
       Object.entries(error.response.data.errors).forEach(
         ([field, messages]) => {
           setError(field, {
-            type: "server",
+            type: "error",
             message: messages[0],
           });
         },
