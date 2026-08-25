@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "sonner";
 
 export const handleApiError = (error, setError) => {
   if (axios.isAxiosError(error)) {
@@ -15,11 +14,8 @@ export const handleApiError = (error, setError) => {
       return;
     }
 
-    toast.error(
-      error.response?.data?.message || "Unable to process your request.",
-    );
-    return;
+    return error.response?.data?.message || "Unable to process your request.";
   }
 
-  toast.error("Something went wrong. Please try again.");
+  return "Something went wrong. Please try again.";
 };

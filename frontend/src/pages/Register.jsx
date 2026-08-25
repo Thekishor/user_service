@@ -12,6 +12,7 @@ import { handleApiError } from "../utils/handleApiError";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorResponse, setErrorResponse] = useState("");
   const navigate = useNavigate();
 
   const {
@@ -32,6 +33,7 @@ const Register = () => {
   });
 
   const onSubmit = async (data) => {
+    setErrorResponse("");
     setIsLoading(true);
 
     try {
@@ -39,7 +41,8 @@ const Register = () => {
       toast.success(response.data.message);
       navigate("/login");
     } catch (error) {
-      handleApiError(error, setError);
+      const errors = handleApiError(error, setError);
+      setErrorResponse(errors);
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +53,11 @@ const Register = () => {
       <h1 className="font-bold text-2xl text-center text-slate-600 mb-5">
         Register
       </h1>
+      {errorResponse && (
+        <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-600">
+          {errorResponse}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <InputField
           label="Full Name"

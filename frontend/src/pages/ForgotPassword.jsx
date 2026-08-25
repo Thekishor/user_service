@@ -12,6 +12,7 @@ import { handleApiError } from "../utils/handleApiError";
 
 const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorResponse, setErrorResponse] = useState("");
   const navigate = useNavigate();
 
   const {
@@ -29,6 +30,7 @@ const ForgotPassword = () => {
   });
 
   const onSubmit = async (data) => {
+    setErrorResponse("");
     setIsLoading(true);
 
     try {
@@ -39,7 +41,8 @@ const ForgotPassword = () => {
         navigate("/login");
       }
     } catch (error) {
-      handleApiError(error, setError);
+      const errors = handleApiError(error, setError);
+      setErrorResponse(errors);
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +56,11 @@ const ForgotPassword = () => {
       <p className="mb-6 text-center text-sm text-slate-600">
         Enter your email to receive a password reset link.
       </p>
-
+      {errorResponse && (
+        <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-600">
+          {errorResponse}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <InputField
           label="Email"

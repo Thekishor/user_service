@@ -24,6 +24,7 @@ const Sidebar = () => {
         >
           Dashboard
         </NavLink>
+
         <NavLink
           to="/dashboard/profile"
           className={({ isActive }) =>
@@ -62,6 +63,7 @@ const Sidebar = () => {
         >
           Change Password
         </NavLink>
+
         <button
           type="button"
           onClick={logout}

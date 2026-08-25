@@ -37,9 +37,11 @@ const Navbar = () => {
                 >
                   Contact
                 </Link>
+
                 <Link to="/login" className="text-gray-600 hover:text-blue-600">
                   Login
                 </Link>
+
                 <Link
                   to="/register"
                   className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
@@ -75,7 +77,7 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {open && (
           <div className="flex flex-col gap-4 p-4 sm:hidden">
-            {!user ? (
+            {!user && (
               <>
                 <Link to="/" className="text-gray-600 hover:text-blue-600">
                   Home
@@ -91,26 +93,17 @@ const Navbar = () => {
                 >
                   Contact
                 </Link>
+
                 <Link to="/login" className="text-gray-600 hover:text-blue-600">
                   Login
                 </Link>
+
                 <Link
                   to="/register"
                   className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 >
                   Sign Up
                 </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="text-gray-600 hover:text-blue-600"
-                >
-                  Dashboard
-                </Link>
-
-                <span className="text-gray-700">Welcome, {user.fullName}</span>
               </>
             )}
           </div>
