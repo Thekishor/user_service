@@ -4,13 +4,15 @@ const Dashboard = () => {
   const { user } = useAuth();
 
   return (
-    <div className="p-8">
-      <h1 className="mb-2 text-2xl font-semibold text-gray-800">
-        Welcome, {user.fullName}
-      </h1>
-      <p className="mb-6 text-gray-500">Here is your account Information.</p>
+    <main className="p-8">
+      <header>
+        <h1 className="mb-2 text-2xl font-semibold text-gray-800">
+          Welcome, {user.fullName}
+        </h1>
+        <p className="mb-6 text-gray-500">Here is your account Information.</p>
+      </header>
 
-      <div className="max-w-xl rounded-xl bg-white p-6 shadow-sm">
+      <section className="max-w-xl rounded-xl bg-white p-6 shadow-sm">
         <h2 className="mb-5 text-lg font-semibold text-gray-800">
           Account Information
         </h2>
@@ -32,9 +34,15 @@ const Dashboard = () => {
             <p className="text-sm text-gray-500">Role</p>
             <p className="text-gray-800">{user.role}</p>
           </div>
+          <div>
+            <p className="text-sm text-gray-500">createdAt</p>
+            <p className="text-gray-800">
+              {new Date(user.createdAt).toLocaleDateString()}
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

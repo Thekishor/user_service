@@ -14,6 +14,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ChangePassword from "./pages/ChangePassword";
 import PageNotFound from "./pages/PageNotFound";
+import Profile from "./pages/Profile";
+import UserActivity from "./pages/UserActivity";
 
 const App = () => {
   return (
@@ -46,6 +48,8 @@ const App = () => {
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="change-password" element={<ChangePassword />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="user-activity" element={<UserActivity />} />
             </Route>
           </Route>
         </Route>

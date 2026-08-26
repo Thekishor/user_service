@@ -520,5 +520,6 @@ export function mapUserToUserResponse(user: any) {
         role: user.role,
         isEmailVerified: user.isEmailVerified,
         isAccountActive: user.isAccountActive,
+        createdAt: user.createdAt
     }   
 }

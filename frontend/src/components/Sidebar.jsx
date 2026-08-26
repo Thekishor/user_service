@@ -39,19 +39,6 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/dashboard/user-info"
-          className={({ isActive }) =>
-            `block rounded-lg px-4 py-3 font-medium transition ${
-              isActive
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`
-          }
-        >
-          User Information
-        </NavLink>
-
-        <NavLink
           to="/dashboard/change-password"
           className={({ isActive }) =>
             `block rounded-lg px-4 py-3 text-sm font-medium transition ${
@@ -62,6 +49,19 @@ const Sidebar = () => {
           }
         >
           Change Password
+        </NavLink>
+
+        <NavLink
+          to="/dashboard/user-activity"
+          className={({ isActive }) =>
+            `block rounded-lg px-4 py-3 font-medium transition ${
+              isActive
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            }`
+          }
+        >
+          User Activity
         </NavLink>
 
         <button
