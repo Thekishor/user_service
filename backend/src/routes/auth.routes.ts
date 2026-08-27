@@ -14,6 +14,7 @@ import {
 import verifyToken from "../middleware/auth.middleware";
 import { validateRequest } from "../middleware/validate.middleware";
 import { changePasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
+import { getAllAuditLogs } from "../controllers/auditLogs.controller";
 //import { upload } from "../middleware/multer.middleware";
 
 const authRouter = Router();
@@ -29,5 +30,6 @@ authRouter.post("/forgot-password", forgotPasswordHandler);
 authRouter.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
 authRouter.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
 authRouter.get("/me", verifyToken, getMe);
+authRouter.get("/audit-logs", verifyToken, getAllAuditLogs);
 
 export default authRouter;

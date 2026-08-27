@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { getUsersService } from "../services/user.service";
+import { getUsersService, deleteUser } from "../services/user.service";
 import { AppError } from "../utils/AppError";
-import { deleteUser } from "../services/user.service";
 import { logError } from "../config/logger";
 
 export const getAllUser =

@@ -68,6 +68,7 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
         }
 
         return next();
+        
     } catch (error) {
         logError("Failed to verify token", error);
         return next(new AppError("Invalid or expired token", 401, "INVALID_OR_EXPIRED_TOKEN"));

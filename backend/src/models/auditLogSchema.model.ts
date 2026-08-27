@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
 
-
 const auditLogSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
