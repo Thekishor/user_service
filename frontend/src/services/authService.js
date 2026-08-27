@@ -66,3 +66,10 @@ export const logoutUserFromAllDevices = async () => {
         {},
     )
 }
+
+export const getUserAuditLogs = async () => {
+    return await axiosConfig.get(
+        API_ENDPOINTS.AUDIT_LOGS,
+        {},
+    )
+}

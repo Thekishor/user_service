@@ -18,7 +18,8 @@ export const API_ENDPOINTS = {
     LOGOUT_ALL: "/auth/logout-all",
     CHANGE_PASSWORD: "/auth/change-password",
     RESET_PASSWORD: "/auth/reset-password",
-    FORGOT_PASSWORD: "/auth/forgot-password"
+    FORGOT_PASSWORD: "/auth/forgot-password",
+    AUDIT_LOGS: "/auth/audit-logs",
 }
 
 export default axiosConfig;

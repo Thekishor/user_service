@@ -6,18 +6,19 @@ import { getAllUserAuditLogs } from '../services/auditLogs.service';
 export const getAllAuditLogs =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = req.user?.id;
+            const user = req.user;
 
-            if (!userId) {
+            if (!user) {
                 return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
             }
 
-            const auditLogs = await getAllUserAuditLogs(userId);
+            const auditLogs = await getAllUserAuditLogs(user.id);
 
             return res.status(200).json({
                 status: "success",
                 message: "User audit logs retrieved successfully",
-                data: auditLogs
+                auditLogs,
+                user
             });
             
         } catch (error) {

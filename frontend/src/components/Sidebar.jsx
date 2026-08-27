@@ -52,7 +52,7 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/dashboard/user-activity"
+          to="/dashboard/audit-logs"
           className={({ isActive }) =>
             `block rounded-lg px-4 py-3 font-medium transition ${
               isActive

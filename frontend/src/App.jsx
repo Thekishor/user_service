@@ -49,7 +49,7 @@ const App = () => {
               <Route index element={<Dashboard />} />
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="profile" element={<Profile />} />
-              <Route path="user-activity" element={<UserActivity />} />
+              <Route path="audit-logs" element={<UserActivity />} />
             </Route>
           </Route>
         </Route>
