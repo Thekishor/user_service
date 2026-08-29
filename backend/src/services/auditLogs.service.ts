@@ -10,7 +10,8 @@ export const getAllUserAuditLogs = async(userId: string) => {
             createdAt: 1,
         }
     )
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .limit(10);
 
     if (!auditLogs) {
         return {auditLogs: []};

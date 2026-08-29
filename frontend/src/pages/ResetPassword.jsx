@@ -13,6 +13,7 @@ import { handleApiError } from "../utils/handleApiError";
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorResponse, setErrorResponse] = useState("");
   const navigate = useNavigate();
 
   const token = searchParams.get("token");
@@ -33,6 +34,7 @@ const ResetPassword = () => {
   });
 
   const onSubmit = async (data) => {
+    setErrorResponse("");
     if (!token) {
       toast.error("Invalid or expired password reset link.");
       return;
@@ -48,7 +50,8 @@ const ResetPassword = () => {
         navigate("/login");
       }
     } catch (error) {
-      handleApiError(error, setError);
+      const errors = handleApiError(error, setError);
+      setErrorResponse(errors);
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +62,11 @@ const ResetPassword = () => {
       <h1 className="font-bold text-2xl text-center text-slate-600 mb-5">
         Reset Password
       </h1>
+      {errorResponse && (
+        <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
+          {errorResponse}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <InputField
           label="New Password"

@@ -344,16 +344,24 @@ export const forgotPassword =
             email: normalizedEmail,
         })
 
-        if (!user) {
-            throw new AppError("User not found", 404, "USER_NOT_FOUND");
+         if (!user) {
+            throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
         }
 
-        if (!user.isAccountActive) {
+        if (!user.isEmailVerified) {
+            throw new AppError(
+                "Please verify your email to activate your account", 
+                403, 
+                "EMAIL_NOT_VERIFIED"
+            );
+        }
+
+        if (!user.isAccountActive) {    
             throw new AppError(
                 "Your account is inactive, please contact admin to activate your account", 
                 403, 
                 "ACCOUNT_INACTIVE"
-            );   
+            );
         }
 
         const existingToken = await PasswordReset.findOne({

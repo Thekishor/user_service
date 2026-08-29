@@ -54,7 +54,7 @@ const Register = () => {
         Register
       </h1>
       {errorResponse && (
-        <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-600">
+        <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
           {errorResponse}
         </div>
       )}
