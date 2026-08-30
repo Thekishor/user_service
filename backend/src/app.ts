@@ -3,45 +3,59 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes";
 import { errorHandler } from "./middleware/errorHandler.middleware";
 import adminRouter from "./routes/admin.routes";
+import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
 import { env } from "./config/env";
 import logger from "./config/logger";
+import { createRateLimiters } from "./config/rate-limiter";
 
-const app = express();
-app.disable("x-powered-by");
+export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) => {
 
-app.use(cors({
-    origin: [env.FRONTEND_URL],
-    credentials: true,
-}));
+    const app = express();
 
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+    app.disable("x-powered-by");
 
-//request logging
-app.use((req: Request, res: Response, next: NextFunction) => {
+    app.use(cors({
+        origin: [env.FRONTEND_URL],
+        credentials: true,
+    }));
 
-    const start = Date.now();
+    // helmet after cors so it doesn't interfere with CORS headers
+    app.use(helmet());
+    app.use(compression());
+    app.use(express.json({
+        limit: "20kb",
+    }));
+    app.use(express.urlencoded({ extended: false }));
+    app.use(cookieParser());
 
-    res.on("finish", () => {
-        logger.info("HTTP Request Completed", {
-            method: req.method,
-            url: req.url,
-            statusCode: res.statusCode,
-            duration: `${Date.now() - start}ms`,
-            ip: req.ip,
-        })
+    //request logging
+    app.use((req: Request, res: Response, next: NextFunction) => {
+
+        const start = Date.now();
+
+        res.on("finish", () => {
+            logger.info("HTTP Request Completed", {
+                method: req.method,
+                url: req.url,
+                statusCode: res.statusCode,
+                duration: `${Date.now() - start}ms`,
+                ip: req.ip,
+            })
+        });
+
+        next();
     });
 
-    next();
-});
+    // global rate limiting first
+    // protects every single route under /api/v1
+    app.use("/api/v1", rateLimiters.globalRateLimiter);
 
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/admin", adminRouter);
+    app.use("/api/v1/auth", authRouter);
+    app.use("/api/v1/admin", adminRouter);
 
-app.use(errorHandler);
+    app.use(errorHandler);
 
-export default app;
+    return app;
+}

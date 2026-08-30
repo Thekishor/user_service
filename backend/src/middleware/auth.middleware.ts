@@ -5,22 +5,6 @@ import { AppError } from "../utils/AppError";
 import { logError } from "../config/logger";
 import {env} from "../config/env";
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: {
-                id: string;
-                email: string;
-                phone: string;
-                role: string;
-                fullName: string;
-                isEmailVerified: boolean;
-                isAccountActive: boolean;
-            };
-        }
-    }
-}
-
 const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 
     if (!req.headers.authorization) {
