@@ -15,21 +15,24 @@ import verifyToken from "../middleware/auth.middleware";
 import { validateRequest } from "../middleware/validate.middleware";
 import { changePasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
 import { getAllAuditLogs } from "../controllers/auditLogs.controller";
+import { createRateLimiters } from "../config/rate-limiter";
 //import { upload } from "../middleware/multer.middleware";
 
-const authRouter = Router();
+export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) {
+    const router = Router();
 
-//authRouter.post("/register", upload.single("image"), registerUserHandler);
-authRouter.post("/register", validateRequest(registerSchema), registerUserHandler);
-authRouter.post("/login", validateRequest(loginSchema), loginUserHandler);
-authRouter.get("/verify-email", verifyUserEmailHandler);
-authRouter.post("/refresh-token", refreshTokenHandler);
-authRouter.post("/logout", verifyToken, logoutUserHandler);
-authRouter.post("/logout-all", verifyToken, logoutAllHandler);
-authRouter.post("/forgot-password", forgotPasswordHandler);
-authRouter.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
-authRouter.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
-authRouter.get("/me", verifyToken, getMe);
-authRouter.get("/audit-logs", verifyToken, getAllAuditLogs);
+    //router.post("/register", upload.single("image"), registerUserHandler);
+    router.post("/register", validateRequest(registerSchema), registerUserHandler);
+    router.post("/login", rateLimiters.loginRateLimiter, validateRequest(loginSchema), loginUserHandler);
+    router.get("/verify-email", verifyUserEmailHandler);
+    router.post("/refresh-token", refreshTokenHandler);
+    router.post("/logout", verifyToken, logoutUserHandler);
+    router.post("/logout-all", verifyToken, logoutAllHandler);
+    router.post("/forgot-password", forgotPasswordHandler);
+    router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
+    router.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
+    router.get("/me", verifyToken, getMe);
+    router.get("/audit-logs", verifyToken, getAllAuditLogs);
 
-export default authRouter;
+    return router;
+};

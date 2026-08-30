@@ -11,9 +11,10 @@ const createRateLimitHandler = (message: string) => {
             Math.ceil((resetTime.getTime() - Date.now()) / 1000)
             : 60;
 
+        const retryAfterMin = Math.ceil(retryAfterSec / 60);
+
         return res.status(429).json({
-            message,
-            retryAfterSeconds: retryAfterSec,
+            message: `${message} Please try again in ${retryAfterMin} minute${retryAfterMin > 1 ? "s" : ""}.`,
         });
     }
 };
@@ -31,7 +32,7 @@ export function createRateLimiters() {
             store: new RedisStore({
                 sendCommand: (...args: string[]) => redis.sendCommand(args)
             }),
-            handler: createRateLimitHandler("Too many requests. Please try again later."),
+            handler: createRateLimitHandler("Too many requests."),
         }),
 
         // login rate limiter
@@ -46,7 +47,7 @@ export function createRateLimiters() {
                 prefix: "rl:login:",
             }),
             handler: createRateLimitHandler(
-                "Too many login attempts. Please try again later.",
+                "Too many login attempts.",
             ),
         }),
     }

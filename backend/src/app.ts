@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
-import authRouter from "./routes/auth.routes";
+import { authRoutes } from "./routes/auth.routes";
 import { errorHandler } from "./middleware/errorHandler.middleware";
 import adminRouter from "./routes/admin.routes";
 import helmet from "helmet";
@@ -52,7 +52,7 @@ export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) =
     // protects every single route under /api/v1
     app.use("/api/v1", rateLimiters.globalRateLimiter);
 
-    app.use("/api/v1/auth", authRouter);
+    app.use("/api/v1/auth", authRoutes(rateLimiters));
     app.use("/api/v1/admin", adminRouter);
 
     app.use(errorHandler);

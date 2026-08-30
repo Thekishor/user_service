@@ -6,6 +6,9 @@ import logger, { logError } from "./config/logger";
 import { connectRedis, disconnectRedis } from "./config/redis.config";
 import { createRateLimiters } from "./config/rate-limiter";
 import { connectDB, disconnectDB } from "./config/database";
+import dns from 'node:dns';
+
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 dotenv.config();
 
