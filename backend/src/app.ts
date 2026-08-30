@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes";
-import { errorHandler } from "./middleware/error.handler";
+import { errorHandler } from "./middleware/errorHandler.middleware";
 import adminRouter from "./routes/admin.routes";
 import compression from "compression";
 import cors from "cors";
