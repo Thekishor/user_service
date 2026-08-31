@@ -10,6 +10,7 @@ import { Session } from "../models/session.model";
 import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
 import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service";
+import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts";
 
 export const register =
     async (data: RegisterDto, imageUrl: string, imagePublicId: string, metadata: AuditMetadata) => {
@@ -46,7 +47,7 @@ export const register =
 
         const user = await User.create({
             fullName,
-            phone,  
+            phone,
             email,
             password: passwordHash,
             imageUrl,
@@ -63,7 +64,7 @@ export const register =
         });
 
         await sendVerificationEmail(user);
-        
+
         return {
             user: mapUserToUserResponse(user)
         };
@@ -80,7 +81,7 @@ export const verifyEmail =
         });
 
         if (!emailVerificationToken) {
-            throw new AppError("Invalid or expired verification link", 401, "INVALID_TOKEN");    
+            throw new AppError("Invalid or expired verification link", 401, "INVALID_TOKEN");
         }
 
         const user = await User.findById(emailVerificationToken.user);
@@ -103,8 +104,8 @@ export const verifyEmail =
             await sendVerificationEmail(user);
 
             throw new AppError(
-                "Your verification link has expired. A new verification email has been sent to your registered email address.", 
-                400,    
+                "Your verification link has expired. A new verification email has been sent to your registered email address.",
+                400,
                 "LINK_EXPIRED"
             );
         }
@@ -150,25 +151,33 @@ export const login =
 
         if (!user.isEmailVerified) {
             throw new AppError(
-                "Please verify your email to activate your account", 
-                403, 
+                "Please verify your email to activate your account",
+                403,
                 "EMAIL_NOT_VERIFIED"
             );
         }
 
-        if (!user.isAccountActive) {    
+        if (!user.isAccountActive) {
             throw new AppError(
-                "Your account is inactive, please contact admin to activate your account", 
-                403, 
+                "Your account is inactive, please contact admin to activate your account",
+                403,
                 "ACCOUNT_INACTIVE"
             );
         }
 
+        // Is user already locked out due to too many failed login attempts
+        await isUserLockedOut(user._id.toString());
+
         const isValidPassword = await comparePassword(password, user.password);
 
         if (!isValidPassword) {
+            //login failed attempts
+            await loginFailed(user._id.toString());
             throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
         }
+
+        //del from redis after login success
+        await loginSuccess(user._id.toString());
 
         const session = new Session({
             user: user._id,
@@ -183,7 +192,7 @@ export const login =
 
         const refreshToken = createRefreshToken(
             user._id.toString(),
-            session._id.toString(),  
+            session._id.toString(),
         );
 
         session.refreshTokenHash = hashToken(refreshToken);
@@ -199,10 +208,10 @@ export const login =
             userAgent: metadata.userAgent
         });
 
-        return { 
-            accessToken, 
-            refreshToken, 
-            user: mapUserToUserResponse(user) 
+        return {
+            accessToken,
+            refreshToken,
+            user: mapUserToUserResponse(user)
         };
 
     }
@@ -229,9 +238,9 @@ export const refreshToken =
 
         if (!user?.isAccountActive) {
 
-            await Session.updateOne({  
+            await Session.updateOne({
                 user: payload.sub,
-                refreshTokenHash 
+                refreshTokenHash
             }, {
                 $set: {
                     revoked: true,
@@ -240,8 +249,8 @@ export const refreshToken =
             });
 
             throw new AppError(
-                "Your account is no longer available. Please log in again.", 
-                401, 
+                "Your account is no longer available. Please log in again.",
+                401,
                 "ACCOUNT_INACTIVE"
             );
         }
@@ -259,17 +268,17 @@ export const refreshToken =
         session.refreshTokenHash = hashToken(newRefreshToken);
         await session.save();
 
-        return { 
-            newAccessToken, 
-            newRefreshToken, 
-            user: mapUserToUserResponse(user) 
+        return {
+            newAccessToken,
+            newRefreshToken,
+            user: mapUserToUserResponse(user)
         };
     }
 
 export const logout =
     async (token: string, metadata: AuditMetadata) => {
 
-        const payload =  verifyJwtToken(token, env.JWT_REFRESH_SECRET);
+        const payload = verifyJwtToken(token, env.JWT_REFRESH_SECRET);
 
         const refreshTokenHash = hashToken(token);
 
@@ -282,10 +291,10 @@ export const logout =
 
         if (!session) {
             throw new AppError("Invalid session", 401, "INVALID_SESSION");
-        }   
+        }
 
-        await Session.updateOne({ 
-            refreshTokenHash 
+        await Session.updateOne({
+            refreshTokenHash
         }, {
             $set: {
                 revoked: true,
@@ -304,7 +313,7 @@ export const logout =
 
     }
 
-export const logoutAll = async(userId: string, metadata: AuditMetadata) => {
+export const logoutAll = async (userId: string, metadata: AuditMetadata) => {
 
     await Session.updateMany({
         user: userId,
@@ -344,22 +353,22 @@ export const forgotPassword =
             email: normalizedEmail,
         })
 
-         if (!user) {
+        if (!user) {
             throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
         }
 
         if (!user.isEmailVerified) {
             throw new AppError(
-                "Please verify your email to activate your account", 
-                403, 
+                "Please verify your email to activate your account",
+                403,
                 "EMAIL_NOT_VERIFIED"
             );
         }
 
-        if (!user.isAccountActive) {    
+        if (!user.isAccountActive) {
             throw new AppError(
-                "Your account is inactive, please contact admin to activate your account", 
-                403, 
+                "Your account is inactive, please contact admin to activate your account",
+                403,
                 "ACCOUNT_INACTIVE"
             );
         }
@@ -367,7 +376,7 @@ export const forgotPassword =
         const existingToken = await PasswordReset.findOne({
             user: user._id,
         });
-        
+
         if (existingToken && existingToken.expiresAt > new Date()) {
             throw new AppError(
                 "You already have an active reset password link. Please check your email to reset your password.",
@@ -400,12 +409,12 @@ export const resetPassword =
 
         const passwordResetToken = await PasswordReset.findOne({
             token: tokenHash
-        }); 
+        });
 
         if (!passwordResetToken) {
             throw new AppError(
-                "Invalid or expired reset password link",   
-                401, 
+                "Invalid or expired reset password link",
+                401,
                 "INVALID_OR_EXPIRED_RESET_PASSWORD_LINK"
             );
         }
@@ -418,7 +427,7 @@ export const resetPassword =
 
         if (!user.isAccountActive) {
             throw new AppError(
-                "Your account is inactive, please contact admin to activate your account", 
+                "Your account is inactive, please contact admin to activate your account",
                 403,
                 "ACCOUNT_INACTIVE"
             );
@@ -431,8 +440,8 @@ export const resetPassword =
             });
 
             throw new AppError(
-                "Your reset password link has expired", 
-                401, 
+                "Your reset password link has expired",
+                401,
                 "EXPIRED_RESET_PASSWORD_LINK"
             );
         }
@@ -471,7 +480,7 @@ export const resetPassword =
 
     }
 
-export const changePassword = 
+export const changePassword =
     async (userId: string, data: ChangePasswordDto, metadata: AuditMetadata) => {
         const { oldPassword, newPassword } = data;
 
@@ -489,8 +498,8 @@ export const changePassword =
 
         if (newPassword === oldPassword) {
             throw new AppError(
-                "New password cannot be same as old password", 
-                400, 
+                "New password cannot be same as old password",
+                400,
                 "PASSWORD_ALREADY_USED"
             );
         }
@@ -529,5 +538,5 @@ export function mapUserToUserResponse(user: any) {
         isEmailVerified: user.isEmailVerified,
         isAccountActive: user.isAccountActive,
         createdAt: user.createdAt
-    }   
+    }
 }
