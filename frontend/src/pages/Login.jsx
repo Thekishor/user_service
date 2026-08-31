@@ -105,10 +105,7 @@ const Login = () => {
           hover:bg-blue-700 py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? (
-            <>
-              <LoaderCircle className="animate-spin w-5 h-5" />
-              <span>Logging in...</span>
-            </>
+            <LoaderCircle className="animate-spin w-6 h-6" />
           ) : (
             "Login"
           )}

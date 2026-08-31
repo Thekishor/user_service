@@ -31,6 +31,7 @@ export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) 
     router.post("/forgot-password", forgotPasswordHandler);
     router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
     router.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
+    router.put("/update-profile", verifyToken,)
     router.get("/me", verifyToken, getMe);
     router.get("/audit-logs", verifyToken, getAllAuditLogs);
 

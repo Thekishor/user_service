@@ -14,20 +14,8 @@ export const redis = createClient({
     }
 });
 
-redis.on("connect", () => {
-    logger.info("Redis connected...");
-})
-
 redis.on("error", (err) => {
     logError("Redis error...", err);
-});
-
-redis.on("ready", () => {
-    logger.info("Redis is ready...");
-});
-
-redis.on("reconnecting", () => {
-    logger.warn("Redis reconnecting...");
 });
 
 redis.on("end", () => {
@@ -39,7 +27,7 @@ export const connectRedis = async () => {
         await redis.connect();
         logger.info("Redis connected successfully");
     } catch (error) {
-       logError("Redis failed to connect...", error);
+        logError("Redis failed to connect...", error);
     }
 }
 

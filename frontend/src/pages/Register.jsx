@@ -101,10 +101,7 @@ const Register = () => {
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? (
-            <>
-              <LoaderCircle className="animate-spin w-5 h-5" />
-              <span>Signing Up...</span>
-            </>
+            <LoaderCircle className="animate-spin w-6 h-6" />
           ) : (
             "Sign Up"
           )}

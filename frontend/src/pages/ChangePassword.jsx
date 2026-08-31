@@ -94,10 +94,7 @@ const ChangePassword = () => {
           py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
-              <>
-                <LoaderCircle className="h-5 w-5 animate-spin" />
-                <span>Updating Password...</span>
-              </>
+              <LoaderCircle className="animate-spin w-6 h-6" />
             ) : (
               "Update Password"
             )}
