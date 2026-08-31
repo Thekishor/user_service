@@ -73,7 +73,7 @@ user-service/
 
 - **Runtime**: Node.js
 - **Framework**: Express (with TypeScript compilation via `tsx`)
-- **Database**: MongoDB (via Mongoose ORM)
+- **Database**: MongoDB (via Mongoose ORM), Redis Cloud
 - **File Storage**: Cloudinary
 - **Emails**: Resend API
 - **Logging**: Winston & Winston Daily Rotate File
@@ -98,6 +98,7 @@ user-service/
 - [MongoDB](https://www.mongodb.com/) (Local instance or Atlas cloud URI)
 - [Cloudinary](https://cloudinary.com/) Account (for profile image uploads)
 - [Resend](https://resend.com/) API Key
+- [Redis Cloud](https://redis.io/cloud/) Redis Cloud
 
 ---
 
@@ -128,19 +129,23 @@ user-service/
    PORT=5000
    APP_URL=http://localhost:5000
    FRONTEND_URL=http://localhost:5173
-   MONGO_URI=mongodb://localhost:27017/user_service
+   MONGO_URI=MONGO_URI="mongodb+srv://<username>:<password>@<cluster>/<database>"
+   
+   # Redis cloud config
+   REDIS_URL="redis://default:<password>@<host>:<port>"
 
    JWT_ACCESS_SECRET=your_jwt_access_token_secret
    JWT_REFRESH_SECRET=your_jwt_refresh_token_secret
-   COOKIE_REFRESH_MAX_AGE=604800000
+   COOKIE_REFRESH_MAX_AGE=""
 
-   # Cloudinary config
-   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-   CLOUDINARY_API_KEY=your_cloudinary_api_key
-   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+   # cloudinary config
+   CLOUDINARY_CLOUD_NAME=""
+   CLOUDINARY_API_KEY=""
+   CLOUDINARY_API_SECRET=""
 
-   # Resend / Email config
-   RESEND_API_KEY=your_resend_api_key
+   # resend api key/ domain
+   RESEND_API_KEY=""
+   DOMAIN=""
    ```
 
 4. Start the backend in development mode (with hot reloading):
