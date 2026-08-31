@@ -1,6 +1,6 @@
 # User Service & Authentication Portal
 
-A production-ready full-stack user authentication and management system. This application consists of a **React + Vite + Tailwind CSS (v4)** frontend and a **Node.js + Express + TypeScript + MongoDB** backend.
+A production-ready full-stack user authentication system. This application consists of a **React + Vite + Tailwind CSS (v4)** frontend and a **Node.js + Express + TypeScript + MongoDB** backend.
 
 ---
 
@@ -8,11 +8,16 @@ A production-ready full-stack user authentication and management system. This ap
 
 ### Security & Authentication
 
-- **Dual JWT Token Authentication**: Uses brief Access Tokens and longer-lived Refresh Tokens.
-- **Secure Cookie Storage**: Refresh tokens are stored in secure `httpOnly` and `sameSite` cookies to prevent XSS attacks.
-- **Session Revocation**: Tracks token versions (`tokenVersion`) allowing users to log out from a single device or revoke access from **all active devices**.
-- **Role-Based Access Control (RBAC)**: Middleware handles standard user vs. administrator routes.
-- **Zod Data Validation**: Incoming requests on the backend and user inputs on the frontend are validated using Zod.
+- **Dual JWT Token Authentication****: Uses brief Access Tokens and longer-lived Refresh Tokens.
+- **Secure Cookie Storage****: Refresh Tokens are stored in secure `httpOnly` and `sameSite` cookies to reduce the risk of token theft.
+- **Session Revocation****: Tracks token versions (`tokenVersion`) allowing users to log out from a single device or revoke access from **all active devices**.
+- **Role-Based Access Control (RBAC)****: Middleware handles standard user vs. administrator routes.
+- **Zod Data Validation****: Incoming requests on the backend and user inputs on the frontend are validated using Zod.
+- **Global API Rate Limiting****: Protects the API from excessive requests, abuse, and basic denial-of-service attacks.
+- **Route-Specific Rate Limiting****: Applies stricter limits to sensitive endpoints such as login and registration to help prevent brute-force attacks.
+- **Redis-Based Rate Limiting****: Uses Redis as a shared rate-limit store for consistent rate limiting across server instances.
+- **Helmet Security****: Uses Helmet to add security-related HTTP headers and improve the application's security posture.
+- **CORS Protection****: Restricts API access to trusted origins and helps prevent unauthorized cross-origin requests.
 
 ### Email Workflows
 
@@ -129,7 +134,7 @@ user-service/
    PORT=5000
    APP_URL=http://localhost:5000
    FRONTEND_URL=http://localhost:5173
-   MONGO_URI=MONGO_URI="mongodb+srv://<username>:<password>@<cluster>/<database>"
+   MONGO_URI="mongodb+srv://<username>:<password>@<cluster>/<database>"
    
    # Redis cloud config
    REDIS_URL="redis://default:<password>@<host>:<port>"
