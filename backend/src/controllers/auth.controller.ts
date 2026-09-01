@@ -13,8 +13,9 @@ import {
 import { AppError } from "../utils/AppError";
 import { uploadOnCloudinary } from '../utils/cloudinary';
 import { logError } from '../config/logger';
+import { redisOperation } from '../utils/redis.operation';
 
-export const registerUserHandler =  
+export const registerUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             let imageUrl = '';
@@ -34,7 +35,7 @@ export const registerUserHandler =
             const { user } = await register(req.body, imageUrl, imagePublicId, metadata);
 
             return res.status(201).json({
-                status: "success",  
+                status: "success",
                 message: "Account created successfully. Please verify your email to continue.",
                 user
             });
@@ -55,10 +56,10 @@ export const verifyUserEmailHandler =
             }
 
             const metadata = getRequestMetadata(req);
-            const { user } = await verifyEmail(token, metadata);  
+            const { user } = await verifyEmail(token, metadata);
 
             return res.status(200).json({
-                status: "success",  
+                status: "success",
                 message: "User verified successfully",
                 user
             });
@@ -85,12 +86,12 @@ export const loginUserHandler =
             });
 
             return res.status(200).json({
-                status: "success",  
-                message: "User logged in successfully",  
+                status: "success",
+                message: "User logged in successfully",
                 user,
                 token: accessToken
             });
-            
+
         } catch (err) {
             logError("Failed to login user", err);
             return next(err);
@@ -118,7 +119,7 @@ export const refreshTokenHandler =
 
             return res.status(201).json({
                 message: 'New token generated successfully',
-                status: "success",  
+                status: "success",
                 user,
                 token: newAccessToken,
             });
@@ -144,6 +145,18 @@ export const logoutUserHandler =
 
             res.clearCookie("refreshToken");
 
+            // blacklisted access token
+            if (req.tokenInfo) {
+                const { jti, expires } = req.tokenInfo;
+                const ttl = Math.ceil(expires - Date.now() / 1000);
+
+                await redisOperation.setEx(
+                    `jwt:blacklisted:${jti}`,
+                    ttl,
+                    "access token"
+                );
+            }
+
             return res.status(200).json({
                 status: "success",
                 message: 'User logged out successfully'
@@ -155,9 +168,9 @@ export const logoutUserHandler =
         }
     }
 
-export const logoutAllHandler = 
-    async(req: Request, res: Response, next: NextFunction) => {
-        try{
+export const logoutAllHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
             const userId = req.user?.id;
 
             if (!userId) {
@@ -178,8 +191,8 @@ export const logoutAllHandler =
                 status: "success",
                 message: "Logged out from all devices successfully",
             });
-            
-        } catch(err){
+
+        } catch (err) {
             logError("Failed to logout from all devices", err);
             return next(err);
         }
@@ -233,30 +246,30 @@ export const resetPasswordHandler =
         }
     }
 
-export const changePasswordHandler = 
+export const changePasswordHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-        const userId = req.user?.id;
+            const userId = req.user?.id;
 
-        if (!userId) {
-            return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
+            if (!userId) {
+                return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
+            }
+
+            const metadata = getRequestMetadata(req);
+            await changePassword(userId, req.body, metadata);
+
+            res.clearCookie("refreshToken");
+
+            return res.status(200).json({
+                status: "success",
+                message: "Password changed successfully. Please log in again.",
+            });
+
+        } catch (err) {
+            logError("Failed to change password", err);
+            return next(err);
         }
-
-        const metadata = getRequestMetadata(req);
-        await changePassword(userId, req.body, metadata);
-
-        res.clearCookie("refreshToken");
-
-        return res.status(200).json({
-            status: "success",
-            message: "Password changed successfully. Please log in again.",  
-        });
-
-    } catch (err) {
-        logError("Failed to change password", err);
-        return next(err);
     }
-}
 
 export const getRequestMetadata = (req: Request) => {
     return {

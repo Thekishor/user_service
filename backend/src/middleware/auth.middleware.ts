@@ -3,7 +3,8 @@ import { verifyJwtToken } from "../utils/jwt.tokens";
 import { User } from "../models/user.model";
 import { AppError } from "../utils/AppError";
 import { logError } from "../config/logger";
-import {env} from "../config/env";
+import { env } from "../config/env";
+import { redisOperation } from "../utils/redis.operation";
 
 const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 
@@ -23,20 +24,29 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
     try {
         const payload = verifyJwtToken(token, env.JWT_ACCESS_SECRET);
 
-        if (!payload.sub) {
+        if (!payload.sub || !payload.jti) {
             throw new AppError("Invalid Token", 401, "INVALID_TOKEN");
-        }   
+        }
+
+        // check token is blacklisted or not
+        const key = `jwt:blacklisted:${payload.jti}`;
+
+        const isBlacklisted = await redisOperation.get(key);
+
+        if (isBlacklisted) {
+            throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
+        }
 
         const user = await User.findById(payload.sub);
 
-        if (!user) {
-            throw new AppError("User not found", 404, "USER_NOT_FOUND");
+        if (!user || user.tokenVersion !== payload.tokenVersion) {
+            throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
         }
 
-        if (!user.isAccountActive) {    
+        if (!user.isAccountActive) {
             throw new AppError(
-                "Your account is inactive, please contact admin to activate your account", 
-                403, 
+                "Your account is inactive, please contact admin to activate your account",
+                403,
                 "ACCOUNT_INACTIVE"
             );
         }
@@ -51,11 +61,17 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
             isAccountActive: user.isAccountActive
         }
 
+        req.tokenInfo = {
+            token: token,
+            jti: payload.jti,
+            expires: payload.exp ?? 0
+        }
+
         return next();
-        
+
     } catch (error) {
         logError("Failed to verify token", error);
-        return next(new AppError("Invalid or expired token", 401, "INVALID_OR_EXPIRED_TOKEN"));
+        return next(error);
     }
 }
 

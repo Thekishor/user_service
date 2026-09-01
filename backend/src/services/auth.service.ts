@@ -188,6 +188,7 @@ export const login =
         const accessToken = createAccessToken(
             user._id.toString(),
             user.role,
+            user.tokenVersion
         );
 
         const refreshToken = createRefreshToken(
@@ -258,6 +259,7 @@ export const refreshToken =
         const newAccessToken = createAccessToken(
             user._id.toString(),
             user.role,
+            user.tokenVersion
         );
 
         const newRefreshToken = createRefreshToken(

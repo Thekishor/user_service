@@ -1,4 +1,4 @@
-import mongoose, {model} from "mongoose";
+import mongoose, { model } from "mongoose";
 
 const sessionSchema = new mongoose.Schema({
     user: {

@@ -1,17 +1,17 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import {env} from "../config/env"
+import { env } from "../config/env"
 import * as crypto from "node:crypto";
 import { AppError } from "./AppError";
 
-export function createAccessToken(userId: string, role: string) {
-    const payload = {sub: userId, role, jti: crypto.randomUUID().toString()};
-    return jwt.sign(payload, env.JWT_ACCESS_SECRET, {   
+export function createAccessToken(userId: string, role: string, tokenVersion: number) {
+    const payload = { sub: userId, role, tokenVersion, jti: crypto.randomUUID().toString() };
+    return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
         expiresIn: "15m"
     })
 }
 
 export function createRefreshToken(userId: string, sessionId: string) {
-    const payload = {sub: userId, sid: sessionId, jti: crypto.randomUUID().toString()};
+    const payload = { sub: userId, sid: sessionId, jti: crypto.randomUUID().toString() };
     return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
         expiresIn: "7d"
     })
