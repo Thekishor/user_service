@@ -4,7 +4,6 @@ const axiosConfig = axios.create({
     baseURL: "http://localhost:5000/api/v1",
     headers: {
         "Accept": "application/json",
-        "Content-Type": "application/json",
     },
     withCredentials: true
 });
@@ -20,6 +19,7 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: "/auth/reset-password",
     FORGOT_PASSWORD: "/auth/forgot-password",
     AUDIT_LOGS: "/auth/audit-logs",
+    PROFILE: "/auth/profile",
 }
 
 export default axiosConfig;

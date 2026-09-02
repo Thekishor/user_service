@@ -3,7 +3,7 @@ import { z } from "zod";
 const phoneRegex = /^(97[01456]|98[012456])\d{7}$/;
 const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,20}$/;
-    
+
 const passwordField = z
     .string()
     .superRefine((value, ctx) => {
@@ -31,22 +31,22 @@ export const registerSchema = z.object({
         .transform(val => val.trim().replace(/[\s-]/g, ""))
         .refine(val => phoneRegex.test(val), {
             message: "Invalid phone number",
-        }),     
+        }),
     password: passwordField
 });
 
 export const loginSchema = z.object({
     identifier: z.string()
-    .trim()
-    .min(1, "Email or phone is required")
-    .refine((value) => {
-        const email = z.email().safeParse(value.toLowerCase()).success;
-        const phone = phoneRegex.test(value);
+        .trim()
+        .min(1, "Email or phone is required")
+        .refine((value) => {
+            const email = z.email().safeParse(value.toLowerCase()).success;
+            const phone = phoneRegex.test(value);
 
-        return email || phone;
-    }, {
-        message: "Invalid email or phone number",
-    }),
+            return email || phone;
+        }, {
+            message: "Invalid email or phone number",
+        }),
     password: z.string().min(1, "Password is required")
 });
 
@@ -63,11 +63,18 @@ export const changePasswordSchema = z.object({
     newPassword: passwordField,
     confirmPassword: z.string()
 }).refine((data) => data.newPassword === data.confirmPassword, {
-        message: "Password do not match",
-        path: ["confirmPassword"]
-    })
+    message: "Password do not match",
+    path: ["confirmPassword"]
+})
+
+export const profileSchema = z.object({
+    fullName: z.string()
+        .min(3, "Full name must be at least 3 characters")
+        .max(50, "Full name must be 50 characters or less"),
+})
 
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type LoginDto = z.infer<typeof loginSchema>;
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordDto = z.infer<typeof changePasswordSchema>;
+export type ProfileSchemaDto = z.infer<typeof profileSchema>;

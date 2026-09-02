@@ -1,4 +1,4 @@
-import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto } from "../schema/auth.schema";
+import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto, ProfileSchemaDto } from "../schema/auth.schema";
 import { User } from "../models/user.model";
 import { comparePassword, hashPassword, hashToken } from "../utils/hash";
 import { env } from "../config/env";
@@ -13,7 +13,7 @@ import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service";
 import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts";
 
 export const register =
-    async (data: RegisterDto, imageUrl: string, imagePublicId: string, metadata: AuditMetadata) => {
+    async (data: RegisterDto, metadata: AuditMetadata) => {
 
         const { fullName, phone, email, password } = data;
 
@@ -49,9 +49,7 @@ export const register =
             fullName,
             phone,
             email,
-            password: passwordHash,
-            imageUrl,
-            imagePublicId
+            password: passwordHash
         });
 
         await AuditLog.create({
@@ -530,9 +528,44 @@ export const changePassword =
 
     }
 
+export const profileUpdate =
+    async (data: ProfileSchemaDto, userId: string, imageUrl: string, imagePublicId: string, metadata: AuditMetadata) => {
+        const { fullName, } = data;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+
+        const updatedUser = await User.updateOne({
+            _id: userId
+        }, {
+            $set: {
+                fullName,
+                imageUrl,
+                imagePublicId
+            }
+        });
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.PROFILE_UPDATED,
+            user: user._id,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: user._id,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent,
+        });
+
+        return {
+            user: mapUserToUserResponse(updatedUser),
+        };
+    }
+
+
 export function mapUserToUserResponse(user: any) {
     return {
-        id: user._id.toString(),
+        id: user._id,
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,

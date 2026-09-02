@@ -8,7 +8,8 @@ import {
     resetPassword,
     logout,
     logoutAll,
-    changePassword
+    changePassword,
+    profileUpdate
 } from "../services/auth.service";
 import { AppError } from "../utils/AppError";
 import { uploadOnCloudinary } from '../utils/cloudinary';
@@ -18,21 +19,9 @@ import { redisOperation } from '../utils/redis.operation';
 export const registerUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            let imageUrl = '';
-            let imagePublicId = '';
-
-            if (req.file?.path) {
-                const uploadedFile = await uploadOnCloudinary(req.file.path);
-
-                if (uploadedFile) {
-                    imageUrl = uploadedFile.secure_url;
-                    imagePublicId = uploadedFile.public_id;
-                }
-            }
-
             const metadata = getRequestMetadata(req);
 
-            const { user } = await register(req.body, imageUrl, imagePublicId, metadata);
+            const { user } = await register(req.body, metadata);
 
             return res.status(201).json({
                 status: "success",
@@ -267,6 +256,51 @@ export const changePasswordHandler =
 
         } catch (err) {
             logError("Failed to change password", err);
+            return next(err);
+        }
+    }
+
+export const updateProfileHandler =
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.user?.id;
+
+            if (!userId) {
+                return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
+            }
+
+            let imageUrl = '';
+            let imagePublicId = '';
+
+            if (!req.file) {
+                throw new AppError("Profile image is required", 400, "PROFILE_IMAGE_REQUIRED");
+            }
+
+            if (!req.file.mimetype.startsWith("image/")) {
+                throw new AppError("Only image files are allowed", 400, "INVALID_FILE_TYPE");
+            }
+
+            if (req.file?.path) {
+                const uploadedFile = await uploadOnCloudinary(req.file.path);
+
+                if (uploadedFile) {
+                    imageUrl = uploadedFile.secure_url;
+                    imagePublicId = uploadedFile.public_id;
+                }
+            }
+
+            const metadata = getRequestMetadata(req);
+
+            const { user } = await profileUpdate(req.body, userId, imageUrl, imagePublicId, metadata);
+
+            return res.status(201).json({
+                message: 'User profile updated successfully',
+                status: "success",
+                user,
+            });
+
+        } catch (err) {
+            logError("Failed to update user profile", err);
             return next(err);
         }
     }

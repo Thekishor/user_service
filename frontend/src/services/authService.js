@@ -73,3 +73,10 @@ export const getUserAuditLogs = async () => {
         {},
     )
 }
+
+export const profileUpdate = async (data) => {
+    return await axiosConfig.put(
+        API_ENDPOINTS.PROFILE,
+        data
+    );
+}

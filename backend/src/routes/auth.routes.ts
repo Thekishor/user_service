@@ -9,19 +9,19 @@ import {
     forgotPasswordHandler,
     resetPasswordHandler,
     changePasswordHandler,
-    logoutAllHandler
+    logoutAllHandler,
+    updateProfileHandler
 } from "../controllers/auth.controller";
 import verifyToken from "../middleware/auth.middleware";
 import { validateRequest } from "../middleware/validate.middleware";
-import { changePasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
+import { changePasswordSchema, loginSchema, profileSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
 import { getAllAuditLogs } from "../controllers/auditLogs.controller";
 import { createRateLimiters } from "../config/rate-limiter";
-//import { upload } from "../middleware/multer.middleware";
+import { upload } from "../middleware/multer.middleware";
 
 export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) {
     const router = Router();
 
-    //router.post("/register", upload.single("image"), registerUserHandler);
     router.post("/register", validateRequest(registerSchema), registerUserHandler);
     router.post("/login", rateLimiters.loginRateLimiter, validateRequest(loginSchema), loginUserHandler);
     router.get("/verify-email", verifyUserEmailHandler);
@@ -31,7 +31,7 @@ export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) 
     router.post("/forgot-password", forgotPasswordHandler);
     router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
     router.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
-    router.put("/update-profile", verifyToken,)
+    router.put("/profile", verifyToken, upload.single("image"), validateRequest(profileSchema), updateProfileHandler);
     router.get("/me", verifyToken, getMe);
     router.get("/audit-logs", verifyToken, getAllAuditLogs);
 
