@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "node:fs";
+import { unlink } from "node:fs/promises";
 import { logError } from "../config/logger";
 
 cloudinary.config({
@@ -20,10 +20,21 @@ const uploadOnCloudinary = async (localFilePath: string) => {
         logError("Cloudinary upload failed:", error);
         return null;
     } finally {
-        if (localFilePath && fs.existsSync(localFilePath)) {
-            fs.unlinkSync(localFilePath);
+        if (localFilePath) {
+            await unlink(localFilePath).catch(() => { });
         }
     }
 }
 
-export { uploadOnCloudinary }
+const deleteFromCloudinary = async (publicId: string) => {
+    try {
+        if (!publicId) return null;
+
+        return await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        logError("Cloudinary deletion failed:", error);
+        return null;
+    }
+}
+
+export { uploadOnCloudinary, deleteFromCloudinary }

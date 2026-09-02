@@ -13,7 +13,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorResponse, setErrorResponse] = useState("");
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const {
     register,
@@ -44,7 +44,9 @@ const Profile = () => {
       }
 
       const response = await profileUpdate(formData);
+      setUser(response.data.user);
       toast.success(response.data.message);
+      setIsEditing(false);
     } catch (error) {
       const errors = handleApiError(error, setError);
       setErrorResponse(errors);
@@ -100,7 +102,7 @@ const Profile = () => {
                 <button
                   disabled={isLoading}
                   type="submit"
-                  className="rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-32 items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isLoading ? (
                     <LoaderCircle className="animate-spin w-6 h-6" />

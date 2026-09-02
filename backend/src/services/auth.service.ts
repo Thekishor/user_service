@@ -11,6 +11,7 @@ import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
 import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service";
 import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts";
+import { fileService } from "./file.service";
 
 export const register =
     async (data: RegisterDto, metadata: AuditMetadata) => {
@@ -529,7 +530,7 @@ export const changePassword =
     }
 
 export const profileUpdate =
-    async (data: ProfileSchemaDto, userId: string, imageUrl: string, imagePublicId: string, metadata: AuditMetadata) => {
+    async (data: ProfileSchemaDto, file: Express.Multer.File, userId: string, metadata: AuditMetadata) => {
         const { fullName, } = data;
 
         const user = await User.findById(userId);
@@ -537,6 +538,10 @@ export const profileUpdate =
         if (!user) {
             throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
+
+        const userImagePublicId = user.imagePublicId ?? null;
+
+        const { imageUrl, imagePublicId } = await fileService(file, userImagePublicId);
 
         const updatedUser = await User.updateOne({
             _id: userId

@@ -12,7 +12,6 @@ import {
     profileUpdate
 } from "../services/auth.service";
 import { AppError } from "../utils/AppError";
-import { uploadOnCloudinary } from '../utils/cloudinary';
 import { logError } from '../config/logger';
 import { redisOperation } from '../utils/redis.operation';
 
@@ -269,29 +268,9 @@ export const updateProfileHandler =
                 return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
             }
 
-            let imageUrl = '';
-            let imagePublicId = '';
-
-            if (!req.file) {
-                throw new AppError("Profile image is required", 400, "PROFILE_IMAGE_REQUIRED");
-            }
-
-            if (!req.file.mimetype.startsWith("image/")) {
-                throw new AppError("Only image files are allowed", 400, "INVALID_FILE_TYPE");
-            }
-
-            if (req.file?.path) {
-                const uploadedFile = await uploadOnCloudinary(req.file.path);
-
-                if (uploadedFile) {
-                    imageUrl = uploadedFile.secure_url;
-                    imagePublicId = uploadedFile.public_id;
-                }
-            }
-
             const metadata = getRequestMetadata(req);
 
-            const { user } = await profileUpdate(req.body, userId, imageUrl, imagePublicId, metadata);
+            const { user } = await profileUpdate(req.body, req.file, userId, metadata);
 
             return res.status(201).json({
                 message: 'User profile updated successfully',
