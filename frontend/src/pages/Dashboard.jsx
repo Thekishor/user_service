@@ -27,14 +27,6 @@ const Dashboard = () => {
             <p className="text-gray-800">{String(user.isEmailVerified)}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Account Active</p>
-            <p className="text-gray-800">{String(user.isAccountActive)}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Role</p>
-            <p className="text-gray-800">{user.role}</p>
-          </div>
-          <div>
             <p className="text-sm text-gray-500">createdAt</p>
             <p className="text-gray-800">
               {new Date(user.createdAt).toLocaleDateString()}
