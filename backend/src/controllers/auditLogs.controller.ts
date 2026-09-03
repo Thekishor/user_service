@@ -12,7 +12,9 @@ export const getAllAuditLogs =
                 return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
             }
 
-            const auditLogs = await getAllUserAuditLogs(user.id);
+            const userId = user._id.toString();
+
+            const auditLogs = await getAllUserAuditLogs(userId);
 
             return res.status(200).json({
                 status: "success",
@@ -20,7 +22,7 @@ export const getAllAuditLogs =
                 auditLogs,
                 user
             });
-            
+
         } catch (error) {
             logError("Failed to retrieve audit logs", error);
             return next(error);

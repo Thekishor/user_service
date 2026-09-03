@@ -10,6 +10,7 @@ import { profileSchema } from "../schema/changedProfile.schema";
 import { toast } from "sonner";
 
 const Profile = () => {
+  const [fileName, setFileName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorResponse, setErrorResponse] = useState("");
@@ -84,9 +85,9 @@ const Profile = () => {
               <div>
                 <label
                   htmlFor="image"
-                  className="inline-block cursor-pointer rounded-md border border-slate-400 px-3 py-3 hover:bg-slate-50"
+                  className="inline-flex cursor-pointer items-center rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
-                  Profile Photo
+                  Choose photo
                 </label>
                 <input
                   id="image"
@@ -94,10 +95,14 @@ const Profile = () => {
                   name="image"
                   accept="image/*"
                   className="hidden"
-                  {...register("image")}
+                  {...register("image", {
+                    onChange: (e) => {
+                      setFileName(e.target.files?.[0]?.name || "");
+                    },
+                  })}
                 />
-                <p className="mt-1 text-sm text-slate-500">
-                  JPG, PNG or WEBP
+                <p className="px-2 mt-1 text-xs text-slate-500">
+                  {fileName || "JPG, PNG or WEBP"}
                 </p>{" "}
               </div>
 
@@ -106,7 +111,7 @@ const Profile = () => {
                 <button
                   disabled={isLoading}
                   type="submit"
-                  className="flex items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex min-w-32.5 items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isLoading ? (
                     <LoaderCircle className="animate-spin w-6 h-6" />
@@ -136,7 +141,7 @@ const Profile = () => {
                 className="h-20 w-20 rounded-full object-cover"
               />
             ) : (
-              <CircleUser className="h-15 w-15 text-gray-600" />
+              <CircleUser className="h-20 w-20 text-slate-400" />
             )}
 
             <div>
