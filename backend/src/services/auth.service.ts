@@ -12,6 +12,7 @@ import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
 import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service";
 import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts";
 import { fileService } from "./file.service";
+import { IUser } from "../types/express";
 
 export const register =
     async (data: RegisterDto, metadata: AuditMetadata) => {
@@ -530,34 +531,34 @@ export const changePassword =
     }
 
 export const profileUpdate =
-    async (data: ProfileSchemaDto, file: Express.Multer.File, userId: string, metadata: AuditMetadata) => {
+    async (data: ProfileSchemaDto, file: Express.Multer.File, userInfo: IUser, metadata: AuditMetadata) => {
         const { fullName, } = data;
 
-        const user = await User.findById(userId);
-
-        if (!user) {
-            throw new AppError("User not found", 404, "USER_NOT_FOUND");
-        }
-
-        const userImagePublicId = user.imagePublicId ?? null;
+        const userImagePublicId = userInfo.imagePublicId ?? null;
 
         const { imageUrl, imagePublicId } = await fileService(file, userImagePublicId);
 
-        const updatedUser = await User.updateOne({
-            _id: userId
-        }, {
-            $set: {
-                fullName,
-                imageUrl,
-                imagePublicId
-            }
-        });
+        const updatedUser = await User.findByIdAndUpdate(
+            userInfo._id,
+            {
+                $set: {
+                    fullName,
+                    imageUrl,
+                    imagePublicId
+                }
+            },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            throw new AppError("User not found", 404, "USER_NOT_FOUND");
+        }
 
         await AuditLog.create({
             action: AUDIT_ACTION.PROFILE_UPDATED,
-            user: user._id,
+            user: userInfo._id,
             resource: AUDIT_RESOURCE.USER,
-            resourceId: user._id,
+            resourceId: userInfo._id,
             ip: metadata.ipAddress,
             userAgent: metadata.userAgent,
         });
@@ -568,7 +569,7 @@ export const profileUpdate =
     }
 
 
-export function mapUserToUserResponse(user: any) {
+export function mapUserToUserResponse(user: IUser) {
     return {
         id: user._id,
         fullName: user.fullName,
@@ -578,6 +579,6 @@ export function mapUserToUserResponse(user: any) {
         isEmailVerified: user.isEmailVerified,
         isAccountActive: user.isAccountActive,
         createdAt: user.createdAt,
-        imageUrl: user.imageUrl
+        imageUrl: user.imageUrl ?? null,
     }
 }

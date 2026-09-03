@@ -84,7 +84,7 @@ const Profile = () => {
               <div>
                 <label
                   htmlFor="image"
-                  className="mb-2 block text-sm font-medium"
+                  className="inline-block cursor-pointer rounded-md border border-slate-400 px-3 py-3 hover:bg-slate-50"
                 >
                   Profile Photo
                 </label>
@@ -93,8 +93,12 @@ const Profile = () => {
                   type="file"
                   name="image"
                   accept="image/*"
+                  className="hidden"
                   {...register("image")}
                 />
+                <p className="mt-1 text-sm text-slate-500">
+                  JPG, PNG or WEBP
+                </p>{" "}
               </div>
 
               {/* Buttons */}
@@ -102,7 +106,7 @@ const Profile = () => {
                 <button
                   disabled={isLoading}
                   type="submit"
-                  className="flex w-32 items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isLoading ? (
                     <LoaderCircle className="animate-spin w-6 h-6" />

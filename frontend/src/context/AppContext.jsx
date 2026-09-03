@@ -63,11 +63,13 @@ export const AppContextProvider = ({ children }) => {
     };
   });
 
-  setAuthExpiredHandler(() => {
-    setUser(null);
-    clearToken();
-    navigate("/login");
-  });
+  useEffect(() => {
+    setAuthExpiredHandler(() => {
+      setUser(null);
+      clearToken();
+      navigate("/login");
+    });
+  }, [navigate]);
 
   // logout single devices
   const logout = useCallback(async () => {

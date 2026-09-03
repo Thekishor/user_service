@@ -159,7 +159,7 @@ export const logoutUserHandler =
 export const logoutAllHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = req.user?.id;
+            const userId = req.user?._id.toString();
 
             if (!userId) {
                 return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
@@ -237,7 +237,7 @@ export const resetPasswordHandler =
 export const changePasswordHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = req.user?.id;
+            const userId = req.user?._id.toString();
 
             if (!userId) {
                 return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
@@ -262,15 +262,19 @@ export const changePasswordHandler =
 export const updateProfileHandler =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = req.user?.id;
+            const userInfo = req.user;
 
-            if (!userId) {
+            if (!userInfo) {
                 return next(new AppError('Unauthorized', 401, "UNAUTHORIZED"));
             }
 
             const metadata = getRequestMetadata(req);
 
-            const { user } = await profileUpdate(req.body, req.file, userId, metadata);
+            if (!req.file) {
+                return next(new AppError('Profile picture is required', 400, "PROFILE_PICTURE_REQUIRED"));
+            }
+
+            const { user } = await profileUpdate(req.body, req.file, userInfo, metadata);
 
             return res.status(201).json({
                 message: 'User profile updated successfully',

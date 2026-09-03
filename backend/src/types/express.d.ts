@@ -1,12 +1,17 @@
 import "express-serve-static-core";
-interface UserInfo {
-    id: string;
+import { Types } from "mongoose";
+
+export interface IUser {
+    _id: Types.ObjectId;
+    fullName: string;
     email: string;
     phone: string;
     role: string;
-    fullName: string;
     isEmailVerified: boolean;
     isAccountActive: boolean;
+    imageUrl?: string | null;
+    imagePublicId?: string | null;
+    createdAt: Date;
 }
 
 interface RateLimit {
@@ -24,7 +29,7 @@ interface TokenInfo {
 
 declare module "express-serve-static-core" {
     interface Request {
-        user?: UserInfo,
+        user?: IUser,
         rateLimit?: RateLimit,
         tokenInfo?: TokenInfo
     }

@@ -52,13 +52,16 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
         }
 
         req.user = {
-            id: user.id,
+            _id: user._id,
             email: user.email,
             role: user.role,
             phone: user.phone,
             fullName: user.fullName,
             isEmailVerified: user.isEmailVerified,
-            isAccountActive: user.isAccountActive
+            isAccountActive: user.isAccountActive,
+            imageUrl: user.imageUrl ?? null,
+            imagePublicId: user.imagePublicId ?? null,
+            createdAt: user.createdAt,
         }
 
         req.tokenInfo = {
