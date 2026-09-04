@@ -4,7 +4,7 @@ import { EmailVerification } from "../models/emailverification.model";
 import { env } from "../config/env";
 import { sendEmail } from "../config/mail.config";
 import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
-import { IUser } from "../types/user.types";
+import { IUser } from "../types/express";
 import { PasswordReset } from "../models/passwordreset.model";
 
 export const sendVerificationEmail = async (user: IUser) => {

@@ -18,6 +18,7 @@ A production-ready full-stack user authentication system. This application consi
 - **Redis-Based Rate Limiting**: Uses Redis as a shared rate-limit store for consistent rate limiting across server instances.
 - **Helmet Security**: Uses Helmet to add security-related HTTP headers and improve the application's security posture.
 - **CORS Protection**: Restricts API access to trusted origins and helps prevent unauthorized cross-origin requests.
+- **Token Blacklisted**: Access token blacklisted in redis cloud till expiry.
 
 ### Email Workflows
 
