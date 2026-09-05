@@ -8,8 +8,12 @@ import Footer from "../components/home/Footer";
 const Home = () => {
   const { user } = useAuth();
 
-  if (user) {
+  if (user?.role("user")) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  if (user?.role("admin")) {
+    return <Navigate to="/admin" replace />;
   }
 
   return (

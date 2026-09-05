@@ -52,7 +52,7 @@ const Navbar = () => {
             ) : (
               <>
                 <Link
-                  to="/dashboard"
+                  to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
                   className="text-gray-600 hover:text-blue-600"
                 >
                   Dashboard

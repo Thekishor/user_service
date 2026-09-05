@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { clearToken, setToken } from "../services/token.manager";
 import { setAuthExpiredHandler } from "../services/axios.interceptors";
 import { authChannel } from "../services/authChannel";
+import { toast } from "sonner";
 
 const AppContext = createContext();
 
@@ -75,6 +76,7 @@ export const AppContextProvider = ({ children }) => {
   const logout = useCallback(async () => {
     try {
       await logoutUser();
+      toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -95,6 +97,7 @@ export const AppContextProvider = ({ children }) => {
   const logoutAll = useCallback(async () => {
     try {
       await logoutUserFromAllDevices();
+      toast.success("Logged out from all devices successfully");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {

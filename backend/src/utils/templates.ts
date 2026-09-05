@@ -1,6 +1,6 @@
 
 export const verifyEmailTemplate = (verifyUrl: string) => {
-    return `
+  return `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 32px 28px; color: #222; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 12px;">
 
       <h2 style="margin: 0 0 16px; font-size: 24px; text-align: center;">
@@ -37,7 +37,7 @@ export const verifyEmailTemplate = (verifyUrl: string) => {
       </p>
 
     </div>
-    `;  
+    `;
 };
 
 export const resetPasswordTemplate = (resetPasswordUrl: string) => {

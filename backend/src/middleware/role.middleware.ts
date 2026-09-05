@@ -1,23 +1,30 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/AppError";
+import { logError } from "../config/logger";
 
 export const roleMiddleware = (role: string) => {
     return (req: Request, _: Response, next: NextFunction) => {
-        
-        const user = req.user;
 
-        if (!user) {
-            throw new AppError("User not found", 404, "USER_NOT_FOUND");
+        try {
+            const user = req.user;
+
+            if (!user) {
+                throw new AppError("Unauthorized", 401, "UNAUTHORIZED");
+            }
+
+            if (user.role !== role) {
+                throw new AppError(
+                    "Access denied. Insufficient role",
+                    403,
+                    "ROLE_FORBIDDEN"
+                );
+            }
+
+            return next();
+
+        } catch (error) {
+            logError("Failed to verify role", error);
+            return next(error);
         }
-
-        if (user.role !== role) {
-            throw new AppError(
-                "You do not have permission to access this resources", 
-                403, 
-                "FORBIDDEN"
-            );
-        }
-
-        return next();
     }
 }
