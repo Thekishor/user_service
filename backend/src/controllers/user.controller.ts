@@ -7,23 +7,32 @@ export const getAllUser =
     async (_req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const users = await getUsersService();
+            const result = await getUsersService();
+
+            if (Array.isArray(result)) {
+                throw new AppError("Failed to retrieve users", 500, "USERS_RETRIEVAL_FAILED");
+            }
+
+            const { users, totalUsers, activeUsers, inactiveUsers, unverifiedUsers } = result;
 
             return res.status(200).json({
                 status: "success",
                 message: "Users retrieved successfully",
-                count: users.length,
-                users
+                users,
+                totalUsers,
+                activeUsers,
+                inactiveUsers,
+                unverifiedUsers
             });
 
         } catch (err) {
             logError("Failed to get all users", err);
-            return next(err);  
+            return next(err);
+        }
     }
-}
 
 export const getMe =
-    async (req: Request, res: Response, next: NextFunction) => { 
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = req.user;
 
@@ -40,8 +49,8 @@ export const getMe =
         } catch (err) {
             logError("Failed to get current user", err);
             return next(err);
-        }   
-} 
+        }
+    }
 
 export const deleteUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {

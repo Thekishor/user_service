@@ -80,3 +80,10 @@ export const profileUpdate = async (data) => {
         data
     );
 }
+
+export const getAllUsers = async () => {
+    return await axiosConfig.get(
+        API_ENDPOINTS.GET_ALL_USERS,
+        {}
+    );
+}

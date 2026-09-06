@@ -27,7 +27,7 @@ const Profile = () => {
     reValidateMode: "onChange",
     defaultValues: {
       fullName: user.fullName,
-      image: undefined,
+      image: "",
     },
   });
 
