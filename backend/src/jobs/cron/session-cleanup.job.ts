@@ -2,6 +2,7 @@ import corn from "node-cron";
 import logger, { logError } from "../../config/logger";
 import { Session } from "../../models/session.model";
 
+//runs at 1:5 pm every day
 corn.schedule('5 13 * * *', async () => {
     try {
         logger.info("Session cleanup job executed at:", new Date());
