@@ -20,7 +20,8 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: "/auth/forgot-password",
     AUDIT_LOGS: "/auth/audit-logs",
     PROFILE: "/auth/profile",
-    GET_ALL_USERS: "/admin/users"
+    GET_ALL_USERS: "/admin/users",
+    DELETE_USER: "/admin/users"
 }
 
 export default axiosConfig;

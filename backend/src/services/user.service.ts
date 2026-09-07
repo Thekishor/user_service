@@ -4,9 +4,7 @@ import { AppError } from "../utils/AppError";
 export const getUsersService = async () => {
 
     // getting all users with total
-    const allUsers = await User.find({
-        role: "user"
-    },
+    const allUsers = await User.find({},
         {
             fullName: 1,
             email: 1,

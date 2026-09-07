@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Loading from "../components/Loading";
-import { getAllUsers } from "../services/authService";
+import { getAllUsers, deleteUser } from "../services/authService";
 
 const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
@@ -32,6 +32,22 @@ const AdminUsers = () => {
     return <Loading />;
   }
 
+  const handleDeleteUser = async (userId) => {
+    try {
+      await deleteUser(userId);
+
+      setUsersData((prev) => ({
+        ...prev,
+        users: prev.users.filter((user) => user.id !== userId),
+        totalUsers: prev.totalUsers - 1,
+      }));
+
+      toast.success("User deleted successfully");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   return (
     <main className="bg-slate-100 p-6">
       <h1 className="mb-6 text-2xl font-bold">User Information</h1>
@@ -58,7 +74,79 @@ const AdminUsers = () => {
       </div>
 
       {/* Users table */}
-      <div className="mt-8 w-full overflow-x-auto rounded-lg bg-white shadow-md"></div>
+      <div className="mt-8 w-full overflow-x-auto rounded-lg bg-white shadow-md">
+        <table className="w-full text-left">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                User
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Email
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Phone
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Role
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Status
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Email Verified
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Joined
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-700">
+                Action
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {usersData.users?.map((user) => (
+              <tr
+                key={user.id}
+                className="border-t border-gray-100 hover:bg-slate-50"
+              >
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {user.fullName}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {user.email}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {user.phone}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">{user.role}</td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {user.isAccountActive ? "Active" : "Inactive"}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {user.isEmailVerified ? "Verified" : "Unverified"}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {new Date(user.createdAt).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  <button
+                    onClick={() => handleDeleteUser(user.id)}
+                    className="rounded-md bg-red-500 px-3 py-2 text-sm text-white hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </main>
   );
 };

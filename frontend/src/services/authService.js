@@ -87,3 +87,13 @@ export const getAllUsers = async () => {
         {}
     );
 }
+
+export const deleteUser = async (userId) => {
+
+    console.log("API ENDPOINT:", API_ENDPOINTS.DELETE_USER);
+  console.log("USER ID:", userId);
+
+    return await axiosConfig.delete(
+        `${API_ENDPOINTS.DELETE_USER}/${userId}`
+    );
+}
