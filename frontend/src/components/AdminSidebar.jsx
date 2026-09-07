@@ -10,12 +10,12 @@ const AdminSidebar = () => {
         <h1 className="text-2xl font-bold text-blue-600">KIKO</h1>
         <p className="mt-1 text-sm text-gray-500">Admin Dashboard</p>
       </div>
-      <nav className="space-y-1 px-3 py-5">
+      <nav className="px-3 py-5">
         <NavLink
           to="/admin/dashboard"
           end
           className={({ isActive }) =>
-            `block rounded-lg px-4 py-3 text-sm font-medium transition ${
+            `block rounded-xl px-4 py-4 text-base font-medium transition ${
               isActive
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -28,7 +28,7 @@ const AdminSidebar = () => {
         <NavLink
           to="/admin/dashboard/profile"
           className={({ isActive }) =>
-            `block rounded-lg px-4 py-3 text-sm font-medium transition ${
+            `block rounded-xl px-4 py-4 text-base font-medium transition ${
               isActive
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -41,7 +41,7 @@ const AdminSidebar = () => {
         <NavLink
           to="/admin/dashboard/users"
           className={({ isActive }) =>
-            `block rounded-lg px-4 py-3 text-sm font-medium transition ${
+            `block rounded-xl px-4 py-4 text-base font-medium transition ${
               isActive
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -54,7 +54,7 @@ const AdminSidebar = () => {
         <NavLink
           to="/admin/dashboard/change-password"
           className={({ isActive }) =>
-            `block rounded-lg px-4 py-3 text-sm font-medium transition ${
+            `block rounded-xl px-4 py-4 text-base font-medium transition ${
               isActive
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -67,7 +67,7 @@ const AdminSidebar = () => {
         <NavLink
           to="/admin/dashboard/audit-logs"
           className={({ isActive }) =>
-            `block rounded-lg px-4 py-3 font-medium transition ${
+            `block rounded-xl px-4 py-4 text-base font-medium transition ${
               isActive
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
