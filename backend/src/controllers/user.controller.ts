@@ -4,14 +4,16 @@ import { AppError } from "../utils/AppError";
 import { logError } from "../config/logger";
 
 export const getAllUser =
-    async (_req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         try {
 
-            const result = await getUsersService();
-
-            if (Array.isArray(result)) {
-                throw new AppError("Failed to retrieve users", 500, "USERS_RETRIEVAL_FAILED");
+            if (!req.user) {
+                return next(new AppError("Unauthorized", 401, "UNAUTHORIZED"));
             }
+
+            const userId = req.user._id.toString();
+
+            const result = await getUsersService(userId);
 
             const { users, totalUsers, activeUsers, inactiveUsers, unverifiedUsers } = result;
 

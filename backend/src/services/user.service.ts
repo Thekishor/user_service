@@ -1,7 +1,16 @@
 import { User } from "../models/user.model";
 import { AppError } from "../utils/AppError";
+import { redisOperation } from "../utils/redis.operation";
 
-export const getUsersService = async () => {
+export const getUsersService = async (userId: string) => {
+
+    // getting data from Redis
+    const key = `users:all:${userId}`;
+    const cached = await redisOperation.get(key);
+
+    if (cached) {
+        return JSON.parse(cached);
+    }
 
     // getting all users with total
     const allUsers = await User.find({},
@@ -33,21 +42,40 @@ export const getUsersService = async () => {
         return [];
     }
 
+    const users = allUsers.map(user => ({
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        isAccountActive: user.isAccountActive,
+        createdAt: user.createdAt
+    }));
+
+    const totalUsers = users.length;
+    const activeUsers = validUsers;
+    const inactiveUsers = invalidUsers;
+
+    //set data in Redis
+    await redisOperation.setEx(
+        key,
+        600,
+        JSON.stringify({
+            users,
+            totalUsers,
+            activeUsers,
+            inactiveUsers,
+            unverifiedUsers,
+        })
+    );
+
     return {
-        users: allUsers.map(user => ({
-            id: user.id,
-            fullName: user.fullName,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-            isEmailVerified: user.isEmailVerified,
-            isAccountActive: user.isAccountActive,
-            createdAt: user.createdAt
-        })),
-        totalUsers: allUsers.length,
-        activeUsers: validUsers,
-        inactiveUsers: invalidUsers,
-        unverifiedUsers: unverifiedUsers
+        users,
+        totalUsers,
+        activeUsers,
+        inactiveUsers,
+        unverifiedUsers,
     }
 };
 
