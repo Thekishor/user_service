@@ -9,6 +9,7 @@ import cors from "cors";
 import { env } from "./config/env";
 import logger from "./config/logger";
 import { createRateLimiters } from "./config/rate-limiter";
+import "./jobs/scheduler";
 
 export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) => {
 
