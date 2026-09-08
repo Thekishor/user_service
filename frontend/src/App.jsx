@@ -44,26 +44,26 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+        </Route>
 
-          {/* User dashboard*/}
-          <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="change-password" element={<ChangePassword />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="audit-logs" element={<UserActivity />} />
-            </Route>
+        {/* User dashboard*/}
+        <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="change-password" element={<ChangePassword />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="audit-logs" element={<UserActivity />} />
           </Route>
+        </Route>
 
-          {/* Admin Dashboard */}
-          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin/dashboard" element={<AdminLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="change-password" element={<ChangePassword />} />
-              <Route path="audit-logs" element={<UserActivity />} />
-            </Route>
+        {/* Admin Dashboard */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin/dashboard" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="change-password" element={<ChangePassword />} />
+            <Route path="audit-logs" element={<UserActivity />} />
           </Route>
         </Route>
 
