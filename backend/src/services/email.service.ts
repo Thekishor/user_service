@@ -1,11 +1,11 @@
-import { generateToken } from "../utils/jwt.tokens";
-import { hashToken } from "../utils/hash";
-import { EmailVerification } from "../models/emailverification.model";
-import { env } from "../config/env";
-import { sendEmail } from "../config/mail.config";
-import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
-import { IUser } from "../types/express";
-import { PasswordReset } from "../models/passwordreset.model";
+import { generateToken } from "../utils/jwt.tokens.js";
+import { hashToken } from "../utils/hash.js";
+import { EmailVerification } from "../models/emailverification.model.js";
+import { env } from "../config/env.js";
+import { sendEmail } from "../config/mail.config.js";
+import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates.js";
+import { IUser } from "../types/express.js";
+import { PasswordReset } from "../models/passwordreset.model.js";
 
 export const sendVerificationEmail = async (user: IUser) => {
     const rawToken = generateToken();

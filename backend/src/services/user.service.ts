@@ -1,6 +1,6 @@
-import { User } from "../models/user.model";
-import { AppError } from "../utils/AppError";
-import { redisOperation } from "../utils/redis.operation";
+import { User } from "../models/user.model.js";
+import { AppError } from "../utils/AppError.js";
+import { redisOperation } from "../utils/redis.operation.js";
 
 export const getUsersService = async (userId: string) => {
 

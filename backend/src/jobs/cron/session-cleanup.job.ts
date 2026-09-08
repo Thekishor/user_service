@@ -1,6 +1,6 @@
 import corn from "node-cron";
-import logger, { logError } from "../../config/logger";
-import { Session } from "../../models/session.model";
+import logger, { logError } from "../../config/logger.js";
+import { Session } from "../../models/session.model.js";
 
 //runs at 1:5 pm every day
 corn.schedule('5 13 * * *', async () => {

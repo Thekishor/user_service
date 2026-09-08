@@ -1,5 +1,5 @@
-import { AppError } from "../utils/AppError";
-import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary";
+import { AppError } from "../utils/AppError.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 export const fileService =
     async (file: Express.Multer.File, publicId: string | null) => {

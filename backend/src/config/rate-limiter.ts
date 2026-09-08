@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
-import { redis } from "./redis.config";
+import { redis } from "./redis.config.js";
 
 const createRateLimitHandler = (message: string) => {
     return (req: Request, res: Response) => {

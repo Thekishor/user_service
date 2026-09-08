@@ -1,11 +1,11 @@
 import { Resend } from 'resend';
 import { env } from './env';
-import logger, { logError } from './logger';
+import logger, { logError } from './logger.js';
 
-const resend = new Resend(env.RESEND_API_KEY);  
+const resend = new Resend(env.RESEND_API_KEY);
 
 export async function sendEmail(to: string, subject: string, html: string) {
-    
+
     try {
         const { data, error } = await resend.emails.send({
             from: env.DOMAIN,
@@ -19,10 +19,10 @@ export async function sendEmail(to: string, subject: string, html: string) {
             return { success: false };
         }
 
-        logger.info("Email sent successfully", {data});
+        logger.info("Email sent successfully", { data });
         return { success: true };
 
-    } catch(error) {
+    } catch (error) {
         logError("Failed to send email", error);
         return { success: false };
     }

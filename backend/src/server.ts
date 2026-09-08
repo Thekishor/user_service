@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 import { createServer } from "node:http";
-import { createApp } from "./app";
-import { env } from "./config/env";
-import logger, { logError } from "./config/logger";
-import { connectRedis, disconnectRedis } from "./config/redis.config";
-import { createRateLimiters } from "./config/rate-limiter";
-import { connectDB, disconnectDB } from "./config/database";
+import { createApp } from "./app.js";
+import { env } from "./config/env.js";
+import logger, { logError } from "./config/logger.js";
+import { connectRedis, disconnectRedis } from "./config/redis.config.js";
+import { createRateLimiters } from "./config/rate-limiter.js";
+import { connectDB, disconnectDB } from "./config/database.js";
 import dns from 'node:dns';
 
 dns.setServers(['8.8.8.8', '1.1.1.1']);

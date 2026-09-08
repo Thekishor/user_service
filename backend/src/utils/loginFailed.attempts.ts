@@ -1,5 +1,5 @@
-import { AppError } from "./AppError";
-import { redisOperation } from "./redis.operation";
+import { AppError } from "./AppError.js";
+import { redisOperation } from "./redis.operation.js";
 
 export const loginFailed = async (userId: string) => {
 

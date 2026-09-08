@@ -1,18 +1,18 @@
-import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto, ProfileSchemaDto } from "../schema/auth.schema";
-import { User } from "../models/user.model";
-import { comparePassword, hashPassword, hashToken } from "../utils/hash";
-import { env } from "../config/env";
-import { EmailVerification } from "../models/emailverification.model";
-import { createAccessToken, createRefreshToken, verifyJwtToken } from "../utils/jwt.tokens";
-import { PasswordReset } from "../models/passwordreset.model";
-import { AppError } from "../utils/AppError";
-import { Session } from "../models/session.model";
-import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model";
-import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
-import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service";
-import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts";
-import { fileService } from "./file.service";
-import { IUser } from "../types/express";
+import { LoginDto, RegisterDto, ResetPasswordDto, ChangePasswordDto, ProfileSchemaDto } from "../schema/auth.schema.js";
+import { User } from "../models/user.model.js";
+import { comparePassword, hashPassword, hashToken } from "../utils/hash.js";
+import { env } from "../config/env.js";
+import { EmailVerification } from "../models/emailverification.model.js";
+import { createAccessToken, createRefreshToken, verifyJwtToken } from "../utils/jwt.tokens.js";
+import { PasswordReset } from "../models/passwordreset.model.js";
+import { AppError } from "../utils/AppError.js";
+import { Session } from "../models/session.model.js";
+import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model.js";
+import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values.js";
+import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service.js";
+import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts.js";
+import { fileService } from "./file.service.js";
+import { IUser } from "../types/express.js";
 
 export const register =
     async (data: RegisterDto, metadata: AuditMetadata) => {

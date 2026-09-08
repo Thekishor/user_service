@@ -1,7 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "../config/env"
 import * as crypto from "node:crypto";
-import { AppError } from "./AppError";
+import { AppError } from "./AppError.js";
 
 export function createAccessToken(userId: string, role: string, tokenVersion: number) {
     const payload = { sub: userId, role, tokenVersion, jti: crypto.randomUUID().toString() };

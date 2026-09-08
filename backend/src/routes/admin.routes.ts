@@ -1,7 +1,7 @@
 import { Router } from "express";
-import verifyToken from "../middleware/auth.middleware";
-import { roleMiddleware } from "../middleware/role.middleware";
-import { deleteUserHandler, getAllUser } from "../controllers/user.controller";
+import verifyToken from "../middleware/auth.middleware.js";
+import { roleMiddleware } from "../middleware/role.middleware.js";
+import { deleteUserHandler, getAllUser } from "../controllers/user.controller.js";
 
 const adminRouter = Router();
 

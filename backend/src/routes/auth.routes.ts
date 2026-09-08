@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getMe } from "../controllers/user.controller";
+import { getMe } from "../controllers/user.controller.js";
 import {
     registerUserHandler,
     verifyUserEmailHandler,
@@ -11,13 +11,13 @@ import {
     changePasswordHandler,
     logoutAllHandler,
     updateProfileHandler
-} from "../controllers/auth.controller";
-import verifyToken from "../middleware/auth.middleware";
-import { validateRequest } from "../middleware/validate.middleware";
-import { changePasswordSchema, loginSchema, profileSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema";
-import { getAllAuditLogs } from "../controllers/auditLogs.controller";
-import { createRateLimiters } from "../config/rate-limiter";
-import { upload } from "../middleware/multer.middleware";
+} from "../controllers/auth.controller.js";
+import verifyToken from "../middleware/auth.middleware.js";
+import { validateRequest } from "../middleware/validate.middleware.js";
+import { changePasswordSchema, loginSchema, profileSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema.js";
+import { getAllAuditLogs } from "../controllers/auditLogs.controller.js";
+import { createRateLimiters } from "../config/rate-limiter.js";
+import { upload } from "../middleware/multer.middleware.js";
 
 export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) {
     const router = Router();

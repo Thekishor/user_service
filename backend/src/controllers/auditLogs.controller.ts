@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from "../utils/AppError";
-import { logError } from '../config/logger';
-import { getAllUserAuditLogs } from '../services/auditLogs.service';
+import { AppError } from "../utils/AppError.js";
+import { logError } from '../config/logger.js';
+import { getAllUserAuditLogs } from '../services/auditLogs.service.js';
 
 export const getAllAuditLogs =
     async (req: Request, res: Response, next: NextFunction) => {

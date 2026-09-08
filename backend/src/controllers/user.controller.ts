@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { getUsersService, deleteUser } from "../services/user.service";
-import { AppError } from "../utils/AppError";
-import { logError } from "../config/logger";
+import { getUsersService, deleteUser } from "../services/user.service.js";
+import { AppError } from "../utils/AppError.js";
+import { logError } from "../config/logger.js";
 
 export const getAllUser =
     async (req: Request, res: Response, next: NextFunction) => {

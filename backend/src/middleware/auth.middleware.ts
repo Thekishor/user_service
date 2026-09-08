@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyJwtToken } from "../utils/jwt.tokens";
-import { User } from "../models/user.model";
-import { AppError } from "../utils/AppError";
-import { logError } from "../config/logger";
-import { env } from "../config/env";
-import { redisOperation } from "../utils/redis.operation";
+import { verifyJwtToken } from "../utils/jwt.tokens.js";
+import { User } from "../models/user.model.js";
+import { AppError } from "../utils/AppError.js";
+import { logError } from "../config/logger.js";
+import { env } from "../config/env.js";
+import { redisOperation } from "../utils/redis.operation.js";
 
 const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 

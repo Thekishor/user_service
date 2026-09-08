@@ -10,10 +10,10 @@ import {
     logoutAll,
     changePassword,
     profileUpdate
-} from "../services/auth.service";
-import { AppError } from "../utils/AppError";
-import { logError } from '../config/logger';
-import { redisOperation } from '../utils/redis.operation';
+} from "../services/auth.service.js";
+import { AppError } from "../utils/AppError.js";
+import { logError } from '../config/logger.js';
+import { redisOperation } from '../utils/redis.operation.js';
 
 export const registerUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {

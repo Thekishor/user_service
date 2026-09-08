@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
+import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values.js";
 
 const auditLogSchema = new mongoose.Schema({
     user: {

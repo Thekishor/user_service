@@ -1,5 +1,5 @@
-import { AuditLog } from "../models/auditLogSchema.model";
-import { redisOperation } from "../utils/redis.operation";
+import { AuditLog } from "../models/auditLogSchema.model.js";
+import { redisOperation } from "../utils/redis.operation.js";
 
 export const getAllUserAuditLogs = async (userId: string) => {
 

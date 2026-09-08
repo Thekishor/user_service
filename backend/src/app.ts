@@ -1,15 +1,15 @@
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
-import { authRoutes } from "./routes/auth.routes";
-import { errorHandler } from "./middleware/errorHandler.middleware";
-import adminRouter from "./routes/admin.routes";
+import { authRoutes } from "./routes/auth.routes.js";
+import { errorHandler } from "./middleware/errorHandler.middleware.js";
+import adminRouter from "./routes/admin.routes.js";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
-import { env } from "./config/env";
-import logger from "./config/logger";
-import { createRateLimiters } from "./config/rate-limiter";
-import "./jobs/scheduler";
+import { env } from "./config/env.js";
+import logger from "./config/logger.js";
+import { createRateLimiters } from "./config/rate-limiter.js";
+import "./jobs/scheduler.js";
 
 export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) => {
 

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import { AppError } from "../utils/AppError";
+import { AppError } from "../utils/AppError.js";
 
-export const validateRequest = <T extends z.ZodType> (schema: T) =>
+export const validateRequest = <T extends z.ZodType>(schema: T) =>
     (req: Request, _: Response, next: NextFunction) => {
 
         const result = schema.safeParse(req.body);
@@ -19,4 +19,4 @@ export const validateRequest = <T extends z.ZodType> (schema: T) =>
         req.body = result.data;
 
         return next();
-}
+    }

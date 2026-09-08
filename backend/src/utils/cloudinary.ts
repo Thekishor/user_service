@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "node:fs/promises";
-import { logError } from "../config/logger";
+import { logError } from "../config/logger.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
