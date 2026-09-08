@@ -1,1 +1,1 @@
-import "./cron/session-cleanup.job"
+import "./cron/session-cleanup.job.js";
