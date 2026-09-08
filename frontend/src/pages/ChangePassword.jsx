@@ -49,8 +49,8 @@ const ChangePassword = () => {
   };
 
   return (
-    <main className="bg-slate-100 flex justify-center items-center px-4 py-8">
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
+    <main className="bg-slate-100 flex justify-center items-center px-4 py-6 sm:py-8">
+      <div className="w-full max-w-md rounded-xl bg-white p-6 sm:p-8 shadow-md">
         <h1 className="font-bold text-2xl text-center text-slate-600 mb-6">
           Change Password
         </h1>

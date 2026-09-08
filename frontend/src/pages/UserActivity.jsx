@@ -29,7 +29,7 @@ const UserActivity = () => {
   }
 
   return (
-    <main className="bg-slate-100 p-6">
+    <main className="bg-slate-100 p-4 sm:p-6">
       <h1 className="mb-6 text-2xl font-semibold text-gray-800">Audit Logs</h1>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         <table className="w-full text-left">

@@ -4,7 +4,7 @@ const Dashboard = () => {
   const { user } = useAuth();
 
   return (
-    <main className="p-8">
+    <main className="p-4 sm:p-8">
       <header>
         <h1 className="mb-2 text-2xl font-semibold text-gray-800">
           Welcome, {user.fullName}
@@ -12,7 +12,7 @@ const Dashboard = () => {
         <p className="mb-6 text-gray-500">Here is your account Information.</p>
       </header>
 
-      <section className="max-w-xl rounded-xl bg-white p-6 shadow-sm">
+      <section className="max-w-xl rounded-xl bg-white p-4 sm:p-6 shadow-sm">
         <h2 className="mb-5 text-lg font-semibold text-gray-800">
           Account Information
         </h2>

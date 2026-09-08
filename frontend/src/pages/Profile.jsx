@@ -57,83 +57,81 @@ const Profile = () => {
   };
 
   return (
-    <main className="p-6">
+    <main className="p-4 sm:p-6">
       <h1 className="mb-6 text-2xl font-semibold">Profile</h1>
 
       {isEditing ? (
-        <main className="p-6">
-          <div className="max-w-2xl rounded-lg border bg-white p-6">
-            <h2 className="mb-6 text-xl font-semibold">Edit Profile</h2>
-            {/* Error message */}
-            {errorResponse && (
-              <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
-                {errorResponse}
-              </div>
-            )}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <InputField
-                label="Full Name"
-                name="fullName"
-                register={register}
-                type="text"
-                placeholder="Full name"
-                autoComplete="name"
-                errors={errors}
+        <div className="max-w-2xl rounded-lg border bg-white p-4 sm:p-6">
+          <h2 className="mb-6 text-xl font-semibold">Edit Profile</h2>
+          {/* Error message */}
+          {errorResponse && (
+            <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
+              {errorResponse}
+            </div>
+          )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <InputField
+              label="Full Name"
+              name="fullName"
+              register={register}
+              type="text"
+              placeholder="Full name"
+              autoComplete="name"
+              errors={errors}
+            />
+
+            {/* Profile image */}
+            <div>
+              <label
+                htmlFor="image"
+                className="inline-flex cursor-pointer items-center rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                Choose photo
+              </label>
+              <input
+                id="image"
+                type="file"
+                name="image"
+                accept="image/*"
+                className="hidden"
+                {...register("image", {
+                  onChange: (e) => {
+                    setFileName(e.target.files?.[0]?.name || "");
+                  },
+                })}
               />
+              <p className="px-2 mt-1 text-xs text-slate-500">
+                {fileName || "JPG, PNG or WEBP"}
+              </p>{" "}
+            </div>
 
-              {/* Profile image */}
-              <div>
-                <label
-                  htmlFor="image"
-                  className="inline-flex cursor-pointer items-center rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Choose photo
-                </label>
-                <input
-                  id="image"
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  className="hidden"
-                  {...register("image", {
-                    onChange: (e) => {
-                      setFileName(e.target.files?.[0]?.name || "");
-                    },
-                  })}
-                />
-                <p className="px-2 mt-1 text-xs text-slate-500">
-                  {fileName || "JPG, PNG or WEBP"}
-                </p>{" "}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-2">
-                <button
-                  disabled={isLoading}
-                  type="submit"
-                  className="flex min-w-32.5 items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <LoaderCircle className="animate-spin w-6 h-6" />
-                  ) : (
-                    "Save Changes"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="rounded-md border px-4 py-2"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </main>
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button
+                disabled={isLoading}
+                type="submit"
+                className="flex min-w-32.5 items-center justify-center rounded-md bg-black px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <LoaderCircle className="animate-spin w-6 h-6" />
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="rounded-md border px-4 py-2"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       ) : (
-        <div className="max-w-2xl rounded-lg border bg-white p-6">
+        <div className="max-w-2xl rounded-lg border bg-white p-4 sm:p-6">
           {/* Profile Photo */}
-          <div className="mb-6 flex items-center gap-4">
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             {user.imageUrl ? (
               <img
                 src={user.imageUrl}
@@ -174,7 +172,7 @@ const Profile = () => {
 
           <button
             onClick={() => setIsEditing(true)}
-            className="mt-6 rounded-md bg-black px-4 py-2 text-white"
+            className="mt-6 w-full sm:w-auto rounded-md bg-black px-4 py-2 text-white"
           >
             Edit Profile
           </button>

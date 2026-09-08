@@ -77,32 +77,58 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {open && (
           <div className="flex flex-col gap-4 p-4 sm:hidden">
-            {!user && (
+            {!user ? (
               <>
-                <Link to="/" className="text-gray-600 hover:text-blue-600">
+                <Link
+                  to="/"
+                  onClick={() => setOpen(false)}
+                  className="text-gray-600 hover:text-blue-600"
+                >
                   Home
                 </Link>
 
-                <Link to="/about" className="text-gray-600 hover:text-blue-600">
+                <Link
+                  to="/about"
+                  onClick={() => setOpen(false)}
+                  className="text-gray-600 hover:text-blue-600"
+                >
                   About
                 </Link>
 
                 <Link
                   to="/contact"
+                  onClick={() => setOpen(false)}
                   className="text-gray-600 hover:text-blue-600"
                 >
                   Contact
                 </Link>
 
-                <Link to="/login" className="text-gray-600 hover:text-blue-600">
+                <Link
+                  to="/login"
+                  onClick={() => setOpen(false)}
+                  className="text-gray-600 hover:text-blue-600"
+                >
                   Login
                 </Link>
 
                 <Link
                   to="/register"
+                  onClick={() => setOpen(false)}
                   className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 >
                   Sign Up
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="text-gray-700">Welcome, {user.fullName}</span>
+
+                <Link
+                  to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+                  onClick={() => setOpen(false)}
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  Dashboard
                 </Link>
               </>
             )}

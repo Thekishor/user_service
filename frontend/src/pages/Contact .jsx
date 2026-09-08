@@ -1,6 +1,6 @@
 const Contact = () => {
   return (
-    <section className="min-h-screen bg-slate-100 px-6 py-20">
+    <section className="min-h-screen bg-slate-100 px-4 py-12 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-2xl">
         <h1 className="text-center text-3xl font-bold text-slate-800">
           Contact Us
@@ -10,7 +10,7 @@ const Contact = () => {
           Have a question or need help? Feel free to get in touch with us.
         </p>
 
-        <div className="mt-10 rounded-xl border bg-white p-8 shadow-sm">
+        <div className="mt-10 rounded-xl border bg-white p-6 shadow-sm sm:p-8">
           <div className="space-y-6">
             <div>
               <h2 className="text-sm font-semibold text-slate-500">Email</h2>

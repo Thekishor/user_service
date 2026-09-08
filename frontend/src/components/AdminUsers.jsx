@@ -51,7 +51,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <main className="bg-slate-100 p-6">
+    <main className="bg-slate-100 p-4 sm:p-6">
       <h1 className="mb-6 text-2xl font-bold">User Information</h1>
 
       {/* Statistics */}
@@ -150,7 +150,7 @@ const AdminUsers = () => {
         </table>
         {/* DELETE CONFIRMATION MODAL */}
         {selectedUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
               <h2 className="text-xl font-bold text-slate-900">Delete User</h2>
               <p className="mt-3 text-slate-600">
