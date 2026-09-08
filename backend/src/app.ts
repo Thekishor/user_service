@@ -17,8 +17,12 @@ export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) =
 
     app.disable("x-powered-by");
 
+    const isProduction = env.NODE_ENV === 'production';
+
     app.use(cors({
-        origin: [env.FRONTEND_URL],
+        origin: isProduction ?
+            "https://user-service-bay.vercel.app"
+            : "http://localhost:5173",
         credentials: true,
     }));
 
