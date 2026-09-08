@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2022",
     "module": "ESNext",
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "strict": true,
     "outDir": "dist",
