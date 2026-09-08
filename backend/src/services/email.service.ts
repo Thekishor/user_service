@@ -17,7 +17,9 @@ export const sendVerificationEmail = async (user: IUser) => {
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    const verifyUrl = `${env.FRONTEND_URL}/verify-email?token=${rawToken}`;
+    const verifyUrl = env.NODE_ENV === "development"
+        ? `${env.FRONTEND_URL}/verify-email?token=${rawToken}`
+        : `${env.FRONTEND_URL_PROD}/verify-email?token=${rawToken}`;
 
     const html = verifyEmailTemplate(verifyUrl);
 
@@ -39,7 +41,9 @@ export const sendResetPasswordEmail = async (user: IUser) => {
         expiresAt: new Date(Date.now() + 15 * 60 * 1000),
     });
 
-    const resetPasswordLink = `${env.FRONTEND_URL}/reset-password?token=${rawToken}`;
+    const resetPasswordLink = env.NODE_ENV === "development"
+        ? `${env.FRONTEND_URL}/reset-password?token=${rawToken}`
+        : `${env.FRONTEND_URL_PROD}/reset-password?token=${rawToken}`;
 
     const html = resetPasswordTemplate(resetPasswordLink);
 
