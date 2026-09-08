@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { env } from "../config/env"
+import { env } from "../config/env.js"
 import * as crypto from "node:crypto";
 import { AppError } from "./AppError.js";
 
