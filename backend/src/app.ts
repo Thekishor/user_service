@@ -6,7 +6,6 @@ import adminRouter from "./routes/admin.routes.js";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
-import { env } from "./config/env.js";
 import logger from "./config/logger.js";
 import { createRateLimiters } from "./config/rate-limiter.js";
 import "./jobs/scheduler.js";
@@ -17,12 +16,13 @@ export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) =
 
     app.disable("x-powered-by");
 
-    const isProduction = env.NODE_ENV === 'production';
+    const allowedOrigins = [
+        "http://localhost:5173",
+        "https://user-service-bay.vercel.app",
+    ];
 
     app.use(cors({
-        origin: isProduction ?
-            "https://user-service-bay.vercel.app"
-            : "http://localhost:5173",
+        origin: allowedOrigins,
         credentials: true,
     }));
 
