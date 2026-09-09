@@ -15,9 +15,11 @@ export const fileService =
             throw new AppError("Only image files are allowed", 400, "INVALID_FILE_TYPE");
         }
 
-        if (file?.path) {
+        if (file?.buffer) {
 
-            const uploadedFile = await uploadOnCloudinary(file.path);
+            const uploadedFile = await uploadOnCloudinary(
+                file.buffer
+            );
 
             if (uploadedFile) {
 

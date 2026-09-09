@@ -1,17 +1,6 @@
 import multer from "multer";
-import path from "node:path";
-import crypto from "node:crypto";
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.resolve("public/temp"));
-    },
-    filename: function (req, file, cb) {
-        // Use a cryptographically secure random suffix
-        const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}`;
-        cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
-    },
-});
+const storage = multer.memoryStorage();
 
 export const upload = multer({
     storage,
