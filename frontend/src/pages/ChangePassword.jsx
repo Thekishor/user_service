@@ -59,46 +59,51 @@ const ChangePassword = () => {
             {errorResponse}
           </div>
         )}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <InputField
-            label="Old Password"
-            name="oldPassword"
-            register={register}
-            type="password"
-            placeholder="Old Password"
-            autoComplete="current-password"
-            errors={errors}
-          />
-          <InputField
-            label="New Password"
-            name="newPassword"
-            register={register}
-            type="password"
-            placeholder="New Password"
-            autoComplete="new-password"
-            errors={errors}
-          />
-          <InputField
-            label="Confirm Password"
-            name="confirmPassword"
-            register={register}
-            type="password"
-            placeholder="Confirm Password"
-            autoComplete="new-password"
-            errors={errors}
-          />
-          <button
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <fieldset
             disabled={isLoading}
-            type="submit"
-            className="flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 
-          py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-70"
+            className="border-0 p-0 m-0 space-y-5 disabled:opacity-50"
           >
-            {isLoading ? (
-              <LoaderCircle className="animate-spin w-6 h-6" />
-            ) : (
-              "Update Password"
-            )}
-          </button>
+            <InputField
+              label="Old Password"
+              name="oldPassword"
+              register={register}
+              type="password"
+              placeholder="Old Password"
+              autoComplete="current-password"
+              errors={errors}
+            />
+            <InputField
+              label="New Password"
+              name="newPassword"
+              register={register}
+              type="password"
+              placeholder="New Password"
+              autoComplete="new-password"
+              errors={errors}
+            />
+            <InputField
+              label="Confirm Password"
+              name="confirmPassword"
+              register={register}
+              type="password"
+              placeholder="Confirm Password"
+              autoComplete="new-password"
+              errors={errors}
+            />
+            <button
+              disabled={isLoading}
+              type="submit"
+              className="flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 
+          py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isLoading ? (
+                <LoaderCircle className="animate-spin w-6 h-6" />
+              ) : (
+                "Update Password"
+              )}
+            </button>
+          </fieldset>
         </form>
       </div>
     </main>

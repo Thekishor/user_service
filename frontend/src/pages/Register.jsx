@@ -58,54 +58,59 @@ const Register = () => {
           {errorResponse}
         </div>
       )}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <InputField
-          label="Full Name"
-          name="fullName"
-          register={register}
-          type="text"
-          placeholder="Full name"
-          autoComplete="name"
-          errors={errors}
-        />
-        <InputField
-          label="Email"
-          name="email"
-          register={register}
-          type="email"
-          placeholder="Email address"
-          autoComplete="email"
-          errors={errors}
-        />
-        <InputField
-          label="Mobile"
-          name="phone"
-          register={register}
-          type="tel"
-          placeholder="Mobile number"
-          autoComplete="tel"
-          errors={errors}
-        />
-        <InputField
-          label="Password"
-          name="password"
-          register={register}
-          type="password"
-          placeholder="Password"
-          autoComplete="new-password"
-          errors={errors}
-        />
-        <button
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <fieldset
           disabled={isLoading}
-          type="submit"
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+          className="border-0 p-0 m-0 space-y-5 disabled:opacity-50"
         >
-          {isLoading ? (
-            <LoaderCircle className="animate-spin w-6 h-6" />
-          ) : (
-            "Sign Up"
-          )}
-        </button>
+          <InputField
+            label="Full Name"
+            name="fullName"
+            register={register}
+            type="text"
+            placeholder="Full name"
+            autoComplete="name"
+            errors={errors}
+          />
+          <InputField
+            label="Email"
+            name="email"
+            register={register}
+            type="email"
+            placeholder="Email address"
+            autoComplete="email"
+            errors={errors}
+          />
+          <InputField
+            label="Mobile"
+            name="phone"
+            register={register}
+            type="tel"
+            placeholder="Mobile number"
+            autoComplete="tel"
+            errors={errors}
+          />
+          <InputField
+            label="Password"
+            name="password"
+            register={register}
+            type="password"
+            placeholder="Password"
+            autoComplete="new-password"
+            errors={errors}
+          />
+          <button
+            disabled={isLoading}
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isLoading ? (
+              <LoaderCircle className="animate-spin w-6 h-6" />
+            ) : (
+              "Sign Up"
+            )}
+          </button>
+        </fieldset>
       </form>
       <p className="text-center text-sm text-slate-600 mt-6">
         Already have an account?{" "}

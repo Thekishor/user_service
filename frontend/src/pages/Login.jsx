@@ -71,49 +71,54 @@ const Login = () => {
           {errorResponse}
         </div>
       )}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <InputField
-          label="Username"
-          name="identifier"
-          register={register}
-          type="text"
-          placeholder="Email or phone number"
-          autoComplete="username"
-          errors={errors}
-        />
-        <InputField
-          label="Password"
-          name="password"
-          register={register}
-          type="password"
-          placeholder="Password"
-          autoComplete="current-password"
-          errors={errors}
-        />
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" {...register("rememberMe")} />
-            <span>Remember me</span>
-          </label>
-          <Link
-            to="/forgot-password"
-            className="text-sm font-medium text-blue-600 hover:text-blue-700"
-          >
-            Forgot password?
-          </Link>
-        </div>
-        <button
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <fieldset
           disabled={isLoading}
-          type="submit"
-          className="flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold 
-          hover:bg-blue-700 py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-70"
+          className="border-0 p-0 m-0 space-y-5 disabled:opacity-50"
         >
-          {isLoading ? (
-            <LoaderCircle className="animate-spin w-6 h-6" />
-          ) : (
-            "Login"
-          )}
-        </button>
+          <InputField
+            label="Username"
+            name="identifier"
+            register={register}
+            type="text"
+            placeholder="Email or phone number"
+            autoComplete="username"
+            errors={errors}
+          />
+          <InputField
+            label="Password"
+            name="password"
+            register={register}
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
+            errors={errors}
+          />
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" {...register("rememberMe")} />
+              <span>Remember me</span>
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Forgot password?
+            </Link>
+          </div>
+          <button
+            disabled={isLoading}
+            type="submit"
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold 
+          hover:bg-blue-700 py-3 rounded-lg w-full transition disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isLoading ? (
+              <LoaderCircle className="animate-spin w-6 h-6" />
+            ) : (
+              "Login"
+            )}
+          </button>
+        </fieldset>
       </form>
       <p className="text-center text-sm text-slate-600 mt-6">
         Don't have an account?{" "}
