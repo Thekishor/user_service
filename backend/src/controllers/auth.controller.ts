@@ -14,6 +14,7 @@ import {
 import { AppError } from "../utils/AppError.js";
 import { logError } from '../config/logger.js';
 import { redisOperation } from '../utils/redis.operation.js';
+import { env } from '../config/env.js';
 
 export const registerUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {
@@ -69,7 +70,7 @@ export const loginUserHandler =
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'strict',
+                sameSite: env.NODE_ENV === "production" ? "none" : "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
@@ -101,7 +102,7 @@ export const refreshTokenHandler =
             res.cookie("refreshToken", newRefreshToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'strict',
+                sameSite: env.NODE_ENV === "production" ? "none" : "strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
 
@@ -172,7 +173,7 @@ export const logoutAllHandler =
             res.clearCookie("refreshToken", {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'strict'
+                sameSite: env.NODE_ENV === "production" ? "none" : "strict",
             });
 
             return res.status(200).json({

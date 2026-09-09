@@ -33,7 +33,6 @@ export const AppContextProvider = ({ children }) => {
         // call token manager.js
         setToken(token);
         setUser(response.data.user);
-        console.log(response.data.user);
       } catch {
         setUser(null);
         clearToken();
