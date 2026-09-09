@@ -64,7 +64,7 @@ const ForgotPassword = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset
           disabled={isLoading}
-          className="border-0 p-0 m-0 space-y-5 disabled:opacity-50"
+          className="border-0 p-0 m-0 space-y-5 disabled:opacity-70"
         >
           <InputField
             label="Email"
