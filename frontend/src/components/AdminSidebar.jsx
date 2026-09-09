@@ -13,9 +13,11 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     <>
       {/* Mobile backdrop */}
       {isOpen && (
-        <div
+        <button
+          type="button"
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          className="fixed inset-0 z-40 border-0 bg-black/50 p-0 md:hidden"
+          aria-label="Close sidebar"
         />
       )}
 

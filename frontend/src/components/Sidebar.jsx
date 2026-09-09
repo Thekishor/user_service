@@ -13,7 +13,8 @@ const Sidebar = ({ isOpen, onClose }) => {
     <>
       {/* Mobile backdrop */}
       {isOpen && (
-        <div
+        <button
+          type="button"
           onClick={onClose}
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
         />
@@ -38,86 +39,86 @@ const Sidebar = ({ isOpen, onClose }) => {
             <X size={20} />
           </button>
         </div>
-      <nav className="px-3 py-5">
-        <NavLink
-          to="/dashboard"
-          end
-          onClick={handleLinkClick}
-          className={({ isActive }) =>
-            `block rounded-xl px-4 py-4 text-base font-medium transition ${
-              isActive
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`
-          }
-        >
-          Dashboard
-        </NavLink>
+        <nav className="px-3 py-5">
+          <NavLink
+            to="/dashboard"
+            end
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-4 text-base font-medium transition ${
+                isActive
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`
+            }
+          >
+            Dashboard
+          </NavLink>
 
-        <NavLink
-          to="/dashboard/profile"
-          onClick={handleLinkClick}
-          className={({ isActive }) =>
-            `block rounded-xl px-4 py-4 text-base font-medium transition ${
-              isActive
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`
-          }
-        >
-          Profile
-        </NavLink>
+          <NavLink
+            to="/dashboard/profile"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-4 text-base font-medium transition ${
+                isActive
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`
+            }
+          >
+            Profile
+          </NavLink>
 
-        <NavLink
-          to="/dashboard/change-password"
-          onClick={handleLinkClick}
-          className={({ isActive }) =>
-            `block rounded-xl px-4 py-4 text-base font-medium transition ${
-              isActive
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`
-          }
-        >
-          Change Password
-        </NavLink>
+          <NavLink
+            to="/dashboard/change-password"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-4 text-base font-medium transition ${
+                isActive
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`
+            }
+          >
+            Change Password
+          </NavLink>
 
-        <NavLink
-          to="/dashboard/audit-logs"
-          onClick={handleLinkClick}
-          className={({ isActive }) =>
-            `block rounded-xl px-4 py-4 text-base font-medium transition ${
-              isActive
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`
-          }
-        >
-          User Activity
-        </NavLink>
+          <NavLink
+            to="/dashboard/audit-logs"
+            onClick={handleLinkClick}
+            className={({ isActive }) =>
+              `block rounded-xl px-4 py-4 text-base font-medium transition ${
+                isActive
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`
+            }
+          >
+            User Activity
+          </NavLink>
 
-        <button
-          type="button"
-          onClick={() => {
-            handleLinkClick();
-            logout();
-          }}
-          className="block w-full rounded-lg px-4 py-2.5 text-left text-gray-700 hover:bg-gray-100"
-        >
-          Logout
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            handleLinkClick();
-            logoutAll();
-          }}
-          className="block w-full rounded-lg px-4 py-2.5 text-left text-gray-700 hover:bg-gray-100"
-        >
-          Log out all
-        </button>
-      </nav>
-    </aside>
+          <button
+            type="button"
+            onClick={() => {
+              handleLinkClick();
+              logout();
+            }}
+            className="block w-full rounded-lg px-4 py-2.5 text-left text-gray-700 hover:bg-gray-100"
+          >
+            Logout
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              handleLinkClick();
+              logoutAll();
+            }}
+            className="block w-full rounded-lg px-4 py-2.5 text-left text-gray-700 hover:bg-gray-100"
+          >
+            Log out all
+          </button>
+        </nav>
+      </aside>
     </>
   );
 };
