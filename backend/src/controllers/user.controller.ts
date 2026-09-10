@@ -11,9 +11,9 @@ export const getAllUser =
                 return next(new AppError("Unauthorized", 401, "UNAUTHORIZED"));
             }
 
-            const userId = req.user._id.toString();
+            const adminId = req.user._id.toString();
 
-            const result = await getUsersService(userId);
+            const result = await getUsersService(adminId);
 
             const { users, totalUsers, activeUsers, inactiveUsers, unverifiedUsers } = result;
 
@@ -58,8 +58,15 @@ export const deleteUserHandler =
     async (req: Request, res: Response, next: NextFunction) => {
 
         try {
+
+            if (!req.user) {
+                return next(new AppError("Unauthorized", 401, "UNAUTHORIZED"));
+            }
+
+            const adminId = req.user._id.toString();
+
             const userId = req.params.id;
-            await deleteUser(userId);
+            await deleteUser(userId, adminId);
 
             return res.status(200).json({
                 status: "success",

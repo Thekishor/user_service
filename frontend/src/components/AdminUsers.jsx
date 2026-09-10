@@ -44,6 +44,8 @@ const AdminUsers = () => {
         totalUsers: prev.totalUsers - 1,
       }));
 
+      setSelectedUser(null);
+
       toast.success("User deleted successfully");
     } catch (error) {
       toast.error(error.message);

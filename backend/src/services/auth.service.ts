@@ -13,6 +13,7 @@ import { sendResetPasswordEmail, sendVerificationEmail } from "./email.service.j
 import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed.attempts.js";
 import { fileService } from "./file.service.js";
 import { IUser } from "../types/express.js";
+import { redisOperation } from "../utils/redis.operation.js";
 
 export const register =
     async (data: RegisterDto, metadata: AuditMetadata) => {
@@ -64,6 +65,10 @@ export const register =
         });
 
         await sendVerificationEmail(user);
+
+        //delete cached data 
+        const key = `users:all:*`;
+        await redisOperation.del(key);
 
         return {
             user: mapUserToUserResponse(user)
@@ -127,6 +132,10 @@ export const verifyEmail =
             ip: metadata.ipAddress,
             userAgent: metadata.userAgent
         });
+
+        //delete cached data 
+        const key = `users:all:*`;
+        await redisOperation.del(key);
 
         return {
             user: mapUserToUserResponse(updatedUser)
@@ -562,6 +571,10 @@ export const profileUpdate =
             ip: metadata.ipAddress,
             userAgent: metadata.userAgent,
         });
+
+        //delete cached data 
+        const key = `users:all:*`;
+        await redisOperation.del(key);
 
         return {
             user: mapUserToUserResponse(updatedUser),

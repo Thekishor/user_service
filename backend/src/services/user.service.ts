@@ -1,11 +1,12 @@
+import { Session } from "../models/session.model.js";
 import { User } from "../models/user.model.js";
 import { AppError } from "../utils/AppError.js";
 import { redisOperation } from "../utils/redis.operation.js";
 
-export const getUsersService = async (userId: string) => {
+export const getUsersService = async (adminId: string) => {
 
     // getting data from Redis
-    const key = `users:all:${userId}`;
+    const key = `users:all:${adminId}`;
     const cached = await redisOperation.get(key);
 
     if (cached) {
@@ -80,7 +81,7 @@ export const getUsersService = async (userId: string) => {
 };
 
 export const deleteUser =
-    async (userId: string) => {
+    async (userId: string, adminId: string) => {
 
         const user = await User.findById(userId);
 
@@ -88,5 +89,14 @@ export const deleteUser =
             throw new AppError("User not found", 404, "USER_NOT_FOUND");
         }
 
+        await Session.deleteMany({
+            user: userId,
+        });
+
         await User.deleteOne({ _id: userId });
+
+        //delete cached data 
+        const key = `users:all:${adminId}`;
+        await redisOperation.del(key);
+
     }
