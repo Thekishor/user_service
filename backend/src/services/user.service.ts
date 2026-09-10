@@ -1,9 +1,11 @@
+import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model.js";
 import { Session } from "../models/session.model.js";
 import { User } from "../models/user.model.js";
 import { AppError } from "../utils/AppError.js";
+import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values.js";
 import { redisOperation } from "../utils/redis.operation.js";
 
-export const getUsersService = async (adminId: string) => {
+export const getUsersService = async (adminId: string, metadata: AuditMetadata) => {
 
     // getting data from Redis
     const key = `users:all:${adminId}`;
@@ -54,6 +56,15 @@ export const getUsersService = async (adminId: string) => {
         createdAt: user.createdAt
     }));
 
+    await AuditLog.create({
+        action: AUDIT_ACTION.GET_USERS,
+        user: adminId,
+        resource: AUDIT_RESOURCE.USER,
+        resourceId: adminId,
+        ip: metadata.ipAddress,
+        userAgent: metadata.userAgent
+    });
+
     const totalUsers = users.length;
     const activeUsers = validUsers;
     const inactiveUsers = invalidUsers;
@@ -81,7 +92,7 @@ export const getUsersService = async (adminId: string) => {
 };
 
 export const deleteUser =
-    async (userId: string, adminId: string) => {
+    async (userId: string, adminId: string, metadata: AuditMetadata) => {
 
         const user = await User.findById(userId);
 
@@ -94,6 +105,15 @@ export const deleteUser =
         });
 
         await User.deleteOne({ _id: userId });
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.DELETE_USER,
+            user: adminId,
+            resource: AUDIT_RESOURCE.USER,
+            resourceId: adminId,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent
+        });
 
         //delete cached data 
         const key = `users:all:${adminId}`;

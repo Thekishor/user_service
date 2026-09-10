@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { getUsersService, deleteUser } from "../services/user.service.js";
 import { AppError } from "../utils/AppError.js";
 import { logError } from "../config/logger.js";
+import { getRequestMetadata } from "./auth.controller.js";
 
 export const getAllUser =
     async (req: Request, res: Response, next: NextFunction) => {
@@ -12,8 +13,8 @@ export const getAllUser =
             }
 
             const adminId = req.user._id.toString();
-
-            const result = await getUsersService(adminId);
+            const metadata = getRequestMetadata(req);
+            const result = await getUsersService(adminId, metadata);
 
             const { users, totalUsers, activeUsers, inactiveUsers, unverifiedUsers } = result;
 
@@ -64,9 +65,9 @@ export const deleteUserHandler =
             }
 
             const adminId = req.user._id.toString();
-
+            const metadata = getRequestMetadata(req);
             const userId = req.params.id;
-            await deleteUser(userId, adminId);
+            await deleteUser(userId, adminId, metadata);
 
             return res.status(200).json({
                 status: "success",
