@@ -18,7 +18,7 @@ const FeaturesSection = () => {
             return (
               <div
                 key={feature.title}
-                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                className="rounded-xl border border-slate-200 bg-slate-100 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md hover:bg-slate-200"
               >
                 <Icon className="mb-4 h-6 w-6 text-slate-700" />
 

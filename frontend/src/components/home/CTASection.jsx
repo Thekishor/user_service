@@ -15,7 +15,7 @@ const CTASection = () => {
 
         <Link
           to="/register"
-          className="mt-7 inline-flex items-center rounded-lg bg-slate-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md"
+          className="mt-7 inline-flex items-center rounded-lg bg-slate-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md hover:-translate-y-1"
         >
           Get Started
         </Link>
