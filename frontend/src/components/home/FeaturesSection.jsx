@@ -13,19 +13,25 @@ const FeaturesSection = () => {
           </p>
         </div>
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-            >
-              <h3 className="text-lg font-semibold text-slate-800">
-                {feature.title}
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                {feature.description}
-              </p>
-            </div>
-          ))}
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.title}
+                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <Icon className="mb-4 h-6 w-6 text-slate-700" />
+
+                <h3 className="text-lg font-semibold text-slate-800">
+                  {feature.title}
+                </h3>
+
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  {feature.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
