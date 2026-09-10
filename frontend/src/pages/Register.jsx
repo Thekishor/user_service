@@ -50,9 +50,12 @@ const Register = () => {
 
   return (
     <AuthLayout>
-      <h1 className="font-bold text-2xl text-center text-slate-600 mb-5">
+      <h1 className="text-2xl font-bold text-center text-slate-800">
         Register
       </h1>
+      <p className="mt-1 mb-6 text-center text-sm text-slate-500">
+        Create an account to get started
+      </p>
       {errorResponse && (
         <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
           {errorResponse}
@@ -61,7 +64,7 @@ const Register = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset
           disabled={isLoading}
-          className="border-0 p-0 m-0 space-y-5 disabled:opacity-70"
+          className="border-0 p-0 m-0 space-y-4 disabled:opacity-70"
         >
           <InputField
             label="Full Name"
