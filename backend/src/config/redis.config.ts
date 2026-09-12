@@ -1,7 +1,9 @@
 import { createClient } from "redis";
+import Redis from "ioredis";
 import logger, { logError } from "./logger.js";
 import { env } from "./env.js";
 
+// redis config
 export const redis = createClient({
     url: env.REDIS_URL,
     // If Redis is disconnected, commands aren't queued in Node.js waiting for Redis to come back.
@@ -12,6 +14,11 @@ export const redis = createClient({
             return Math.min(retries * 200, 5000);
         }
     }
+});
+
+// io redis config for BullMQ 
+export const bullmqRedis = new Redis(env.REDIS_URL, {
+    maxRetriesPerRequest: null,
 });
 
 redis.on("error", (err) => {
