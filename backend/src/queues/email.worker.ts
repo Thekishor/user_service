@@ -1,8 +1,8 @@
 import { Worker } from "bullmq";
 import { redis } from "../config/redis.config.js";
-import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates";
-import { sendEmail } from "../config/mail.config";
-import logger, { logError } from "../config/logger";
+import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates.js";
+import { sendEmail } from "../config/mail.config.js";
+import logger, { logError } from "../config/logger.js";
 
 const worker = new Worker(
     "email",
