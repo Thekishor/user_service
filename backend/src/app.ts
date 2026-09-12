@@ -14,6 +14,7 @@ export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) =
 
     const app = express();
 
+    app.set("trust proxy", 1);
     app.disable("x-powered-by");
 
     const allowedOrigins = [
