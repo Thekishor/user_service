@@ -28,13 +28,22 @@ export const sendVerificationEmail = async (user: IUser) => {
         await emailQueue.add("send-verification-email", {
             email: user.email,
             verifyUrl
-        }, {
-            attempts: 3,
-            backoff: {
-                type: "exponential",
-                delay: 5000,
-            },
-        });
+        },
+            {
+                removeOnComplete: {
+                    age: 60,
+                },
+                removeOnFail: {
+                    age: 300,
+                },
+                attempts: 3,
+                backoff: {
+                    type: "exponential",
+                    delay: 5000,
+                },
+            }
+        );
+
     } catch (error) {
         logError("Failed to queue verification email:", error);
 
@@ -67,6 +76,12 @@ export const sendResetPasswordEmail = async (user: IUser) => {
             email: user.email,
             resetPasswordLink
         }, {
+            removeOnComplete: {
+                age: 60,
+            },
+            removeOnFail: {
+                age: 300,
+            },
             attempts: 3,
             backoff: {
                 type: "exponential",
