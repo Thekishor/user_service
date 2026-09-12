@@ -55,6 +55,8 @@ export const register =
             password: passwordHash
         });
 
+        await sendVerificationEmail(user);
+
         await AuditLog.create({
             action: AUDIT_ACTION.REGISTER,
             user: user._id,
@@ -63,8 +65,6 @@ export const register =
             ip: metadata.ipAddress,
             userAgent: metadata.userAgent
         });
-
-        await sendVerificationEmail(user);
 
         //delete cached data 
         const key = `users:all:*`;

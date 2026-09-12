@@ -2,10 +2,11 @@ import { generateToken } from "../utils/jwt.tokens.js";
 import { hashToken } from "../utils/hash.js";
 import { EmailVerification } from "../models/emailverification.model.js";
 import { env } from "../config/env.js";
-import { sendEmail } from "../config/mail.config.js";
-import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates.js";
 import { IUser } from "../types/express.js";
 import { PasswordReset } from "../models/passwordreset.model.js";
+import { emailQueue } from "../queues/email.queue.js";
+import { logError } from "../config/logger.js";
+import { AppError } from "../utils/AppError.js";
 
 export const sendVerificationEmail = async (user: IUser) => {
     const rawToken = generateToken();
@@ -21,13 +22,28 @@ export const sendVerificationEmail = async (user: IUser) => {
         ? `${env.FRONTEND_URL}/verify-email?token=${rawToken}`
         : `${env.FRONTEND_URL_PROD}/verify-email?token=${rawToken}`;
 
-    const html = verifyEmailTemplate(verifyUrl);
+    // job name define inside the email queue
+    // exponential means the delay increases after each failure. like 5s, 10s, 15s
+    try {
+        await emailQueue.add("send-verification-email", {
+            email: user.email,
+            verifyUrl
+        }, {
+            attempts: 3,
+            backoff: {
+                type: "exponential",
+                delay: 5000,
+            },
+        });
+    } catch (error) {
+        logError("Failed to queue verification email:", error);
 
-    await sendEmail(
-        user.email,
-        "Verify Your Email Address",
-        html,
-    );
+        throw new AppError(
+            "Unable to process verification email. Please try again.",
+            503,
+            "EMAIL_QUEUE_ERROR"
+        );
+    }
 }
 
 export const sendResetPasswordEmail = async (user: IUser) => {
@@ -45,11 +61,25 @@ export const sendResetPasswordEmail = async (user: IUser) => {
         ? `${env.FRONTEND_URL}/reset-password?token=${rawToken}`
         : `${env.FRONTEND_URL_PROD}/reset-password?token=${rawToken}`;
 
-    const html = resetPasswordTemplate(resetPasswordLink);
+    // job name define inside the email queue
+    try {
+        await emailQueue.add("send-reset-password-email", {
+            email: user.email,
+            resetPasswordLink
+        }, {
+            attempts: 3,
+            backoff: {
+                type: "exponential",
+                delay: 5000,
+            },
+        });
+    } catch (error) {
+        logError("Failed to queue reset password email:", error);
 
-    await sendEmail(
-        user.email,
-        "Reset Password",
-        html
-    );
+        throw new AppError(
+            "Unable to process reset password email. Please try again.",
+            503,
+            "EMAIL_QUEUE_ERROR"
+        );
+    };
 }

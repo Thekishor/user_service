@@ -48,6 +48,7 @@ const Profile = () => {
       setUser(response.data.user);
       toast.success(response.data.message);
       setIsEditing(false);
+      setFileName("");
     } catch (error) {
       const errors = handleApiError(error, setError);
       setErrorResponse(errors);
