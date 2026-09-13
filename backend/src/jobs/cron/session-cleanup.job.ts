@@ -16,6 +16,8 @@ corn.schedule('5 13 * * *', async () => {
             }
         });
 
+        logger.info("Session cleanup job executed successfully");
+
     } catch (error) {
         logError("Failed to delete revoked/expired sessions", error);
     }

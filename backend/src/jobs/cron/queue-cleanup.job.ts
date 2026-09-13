@@ -15,4 +15,6 @@ cron.schedule("0 * * * *", async () => {
     } catch (error) {
         logError("Failed to clean email queue:", error);
     }
+}, {
+    timezone: 'Asia/Kathmandu'
 })

@@ -53,8 +53,8 @@ const ForgotPassword = () => {
       <h1 className="font-bold text-2xl text-center text-slate-600 mb-4">
         Forgot Password
       </h1>
-      <p className="mb-6 text-center text-sm text-slate-600">
-        Enter your email to receive a password reset link.
+      <p className="mb-6 text-center text-sm text-slate-500">
+        Enter your email address to receive a password reset link.
       </p>
       {errorResponse && (
         <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-600">
