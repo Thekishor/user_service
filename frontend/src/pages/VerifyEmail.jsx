@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { verifyEmail } from "../services/authService";
 import AuthLayout from "../layouts/AuthLayout";
+import { Check, X } from "lucide-react";
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
@@ -46,7 +47,7 @@ const VerifyEmail = () => {
         {/* verifying email */}
         {status === "verifying" && (
           <>
-            <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+            <div className="mx-auto mb-5 h-8 w-8 animate-spin rounded-full border-3 border-slate-200 border-t-blue-600" />
 
             <h1 className="text-2xl font-bold text-slate-700">
               Verifying your email...
@@ -58,7 +59,7 @@ const VerifyEmail = () => {
         {status === "success" && (
           <>
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600">
-              ✓
+              <Check size={32} strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-bold text-slate-700">
               Email Verified!
@@ -78,7 +79,7 @@ const VerifyEmail = () => {
         {status === "error" && (
           <>
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-3xl text-red-600">
-              ✕
+              <X size={32} strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-bold text-slate-700">
               Verification Failed

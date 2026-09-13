@@ -23,7 +23,7 @@ export const sendVerificationEmail = async (user: IUser) => {
         : `${env.FRONTEND_URL_PROD}/verify-email?token=${rawToken}`;
 
     // job name define inside the email queue
-    // exponential means the delay increases after each failure. like 5s, 10s, 15s
+    // exponential means the delay increases after each failure. like 5s (5000), 10s(10000), 15s (15000)
     try {
         await emailQueue.add("send-verification-email", {
             email: user.email,
@@ -31,7 +31,7 @@ export const sendVerificationEmail = async (user: IUser) => {
         },
             {
                 removeOnComplete: {
-                    age: 60,
+                    age: 300,
                 },
                 removeOnFail: {
                     age: 300,
@@ -77,7 +77,7 @@ export const sendResetPasswordEmail = async (user: IUser) => {
             resetPasswordLink
         }, {
             removeOnComplete: {
-                age: 60,
+                age: 300,
             },
             removeOnFail: {
                 age: 300,
