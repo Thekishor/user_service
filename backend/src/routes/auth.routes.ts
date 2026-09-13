@@ -22,15 +22,15 @@ import { upload } from "../middleware/multer.middleware.js";
 export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) {
     const router = Router();
 
-    router.post("/register", validateRequest(registerSchema), registerUserHandler);
+    router.post("/register", rateLimiters.registerRateLimiter, validateRequest(registerSchema), registerUserHandler);
     router.post("/login", rateLimiters.loginRateLimiter, validateRequest(loginSchema), loginUserHandler);
     router.get("/verify-email", verifyUserEmailHandler);
     router.post("/refresh-token", refreshTokenHandler);
     router.post("/logout", verifyToken, logoutUserHandler);
     router.post("/logout-all", verifyToken, logoutAllHandler);
-    router.post("/forgot-password", forgotPasswordHandler);
+    router.post("/forgot-password", rateLimiters.forgotPasswordRateLimiter, forgotPasswordHandler);
     router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
-    router.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
+    router.post("/change-password", rateLimiters.changePasswordRateLimiter, verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
     router.put("/profile", verifyToken, upload.single("image"), validateRequest(profileSchema), updateProfileHandler);
     router.get("/me", verifyToken, getMe);
     router.get("/audit-logs", verifyToken, getAllAuditLogs);

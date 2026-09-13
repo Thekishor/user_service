@@ -11,10 +11,19 @@ const createRateLimitHandler = (message: string) => {
             Math.ceil((resetTime.getTime() - Date.now()) / 1000)
             : 60;
 
-        const retryAfterMin = Math.ceil(retryAfterSec / 60);
+        const hours = Math.floor(retryAfterSec / 3600);
+        const minutes = Math.ceil((retryAfterSec % 3600) / 60);
+
+        let retryMessage;
+
+        if (hours > 0) {
+            retryMessage = `Please try again in ${hours}h ${minutes}m.`;
+        } else {
+            retryMessage = `Please try again in ${minutes} minute${minutes > 1 ? "s" : ""}.`;
+        }
 
         return res.status(429).json({
-            message: `${message} Please try again in ${retryAfterMin} minute${retryAfterMin > 1 ? "s" : ""}.`,
+            message: `${message} ${retryMessage}`,
         });
     }
 };
@@ -38,7 +47,7 @@ export function createRateLimiters() {
         // login rate limiter
         loginRateLimiter: rateLimit({
             windowMs: 15 * 60 * 1000,
-            max: 100,
+            max: 20,
             validate: { singleCount: false },
             standardHeaders: true,
             legacyHeaders: false,
@@ -48,6 +57,54 @@ export function createRateLimiters() {
             }),
             handler: createRateLimitHandler(
                 "Too many login attempts.",
+            ),
+        }),
+
+        // register rate limiting
+        registerRateLimiter: rateLimit({
+            windowMs: 15 * 60 * 1000,
+            max: 5,
+            validate: { singleCount: false },
+            standardHeaders: true,
+            legacyHeaders: false,
+            store: new RedisStore({
+                sendCommand: (...args: string[]) => redis.sendCommand(args),
+                prefix: "rl:register:",
+            }),
+            handler: createRateLimitHandler(
+                "Too many register attempts.",
+            ),
+        }),
+
+        // change password rate limiting
+        changePasswordRateLimiter: rateLimit({
+            windowMs: 24 * 60 * 60 * 1000,
+            max: 2,
+            validate: { singleCount: false },
+            standardHeaders: true,
+            legacyHeaders: false,
+            store: new RedisStore({
+                sendCommand: (...args: string[]) => redis.sendCommand(args),
+                prefix: "rl:changePassword:",
+            }),
+            handler: createRateLimitHandler(
+                "Too many password change attempts.",
+            ),
+        }),
+
+        // forgot password rate limiting
+        forgotPasswordRateLimiter: rateLimit({
+            windowMs: 24 * 60 * 60 * 1000,
+            max: 2,
+            validate: { singleCount: false },
+            standardHeaders: true,
+            legacyHeaders: false,
+            store: new RedisStore({
+                sendCommand: (...args: string[]) => redis.sendCommand(args),
+                prefix: "rl:forgotPassword:",
+            }),
+            handler: createRateLimitHandler(
+                "Too many password reset requests.",
             ),
         }),
     }
