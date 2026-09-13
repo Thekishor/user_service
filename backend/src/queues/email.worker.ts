@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { redis } from "../config/redis.config.js";
+import { bullmqRedis } from "../config/redis.config.js";
 import { resetPasswordTemplate, verifyEmailTemplate } from "../utils/templates.js";
 import { sendEmail } from "../config/mail.config.js";
 import logger, { logError } from "../config/logger.js";
@@ -34,7 +34,7 @@ const worker = new Worker(
         }
     },
     {
-        connection: redis,
+        connection: bullmqRedis,
     },
 );
 
