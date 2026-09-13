@@ -201,7 +201,7 @@ export const forgotPasswordHandler =
 
             return res.status(200).json({
                 status: "success",
-                message: "Password reset link sent to your email"
+                message: "If an account exists with this email, you will receive a password reset link."
             })
         } catch (err) {
             logError("Failed to send password reset link", err);

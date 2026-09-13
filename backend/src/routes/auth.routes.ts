@@ -30,8 +30,8 @@ export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) 
     router.post("/logout-all", verifyToken, logoutAllHandler);
     router.post("/forgot-password", rateLimiters.forgotPasswordRateLimiter, forgotPasswordHandler);
     router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
-    router.post("/change-password", rateLimiters.changePasswordRateLimiter, verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
-    router.put("/profile", verifyToken, upload.single("image"), validateRequest(profileSchema), updateProfileHandler);
+    router.post("/change-password", verifyToken, rateLimiters.changePasswordRateLimiter, validateRequest(changePasswordSchema), changePasswordHandler);
+    router.put("/profile", verifyToken, rateLimiters.updateProfileRateLimiter, upload.single("image"), validateRequest(profileSchema), updateProfileHandler);
     router.get("/me", verifyToken, getMe);
     router.get("/audit-logs", verifyToken, getAllAuditLogs);
 

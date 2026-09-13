@@ -362,10 +362,10 @@ export const forgotPassword =
 
         const user = await User.findOne({
             email: normalizedEmail,
-        })
+        });
 
         if (!user) {
-            throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
+            return;
         }
 
         if (!user.isEmailVerified) {
