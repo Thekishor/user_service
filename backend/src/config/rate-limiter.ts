@@ -75,53 +75,5 @@ export function createRateLimiters() {
                 "Too many register attempts.",
             ),
         }),
-
-        // change password rate limiting
-        changePasswordRateLimiter: rateLimit({
-            windowMs: 24 * 60 * 60 * 1000,
-            max: 2,
-            validate: { singleCount: false },
-            standardHeaders: true,
-            legacyHeaders: false,
-            store: new RedisStore({
-                sendCommand: (...args: string[]) => redis.sendCommand(args),
-                prefix: "rl:changePassword:",
-            }),
-            handler: createRateLimitHandler(
-                "Too many password change attempts.",
-            ),
-        }),
-
-        // forgot password rate limiting
-        forgotPasswordRateLimiter: rateLimit({
-            windowMs: 24 * 60 * 60 * 1000,
-            max: 2,
-            validate: { singleCount: false },
-            standardHeaders: true,
-            legacyHeaders: false,
-            store: new RedisStore({
-                sendCommand: (...args: string[]) => redis.sendCommand(args),
-                prefix: "rl:forgotPassword:",
-            }),
-            handler: createRateLimitHandler(
-                "Too many password reset requests.",
-            ),
-        }),
-
-        // update profile rate limiting
-        updateProfileRateLimiter: rateLimit({
-            windowMs: 24 * 60 * 60 * 1000,
-            max: 2,
-            validate: { singleCount: false },
-            standardHeaders: true,
-            legacyHeaders: false,
-            store: new RedisStore({
-                sendCommand: (...args: string[]) => redis.sendCommand(args),
-                prefix: "rl:updateProfile:",
-            }),
-            handler: createRateLimitHandler(
-                "Too many profile update requests.",
-            ),
-        }),
     }
 }

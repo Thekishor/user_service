@@ -26,10 +26,17 @@ const App = () => {
         position="top-right"
         richColors
         closeButton
-        duration={4000}
+        duration={6000}
         expand={false}
         visibleToasts={3}
         gap={8}
+        toastOptions={{
+          classNames: {
+            toast: "text-sm",
+            title: "text-sm font-medium",
+            description: "text-sm",
+          },
+        }}
       />
       <Routes>
         {/* authentication pages - no navbar */}
