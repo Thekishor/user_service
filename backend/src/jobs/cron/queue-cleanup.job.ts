@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { emailQueue } from "../../queues/email.queue.js";
 import logger, { logError } from "../../config/logger.js";
 
-cron.schedule("0 * * * *", async () => {
+cron.schedule("*/2 * * * *", async () => {
     try {
 
         // Delete up to 100 completed jobs that finished more than 60 seconds ago.
