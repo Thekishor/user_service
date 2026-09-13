@@ -38,6 +38,10 @@ const worker = new Worker(
     },
 );
 
+worker.on("ready", () => {
+    logger.info(`Email worker is ready`);
+})
+
 worker.on("completed", (job) => {
     logger.info(`Job ${job.id} completed`);
 });
@@ -45,3 +49,7 @@ worker.on("completed", (job) => {
 worker.on("failed", (job, error) => {
     logError(`Job ${job?.id} failed:`, error);
 });
+
+worker.on("error", (error) => {
+    logError(`Worker error:`, error);
+})

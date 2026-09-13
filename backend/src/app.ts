@@ -9,6 +9,7 @@ import cors from "cors";
 import logger from "./config/logger.js";
 import { createRateLimiters } from "./config/rate-limiter.js";
 import "./jobs/scheduler.js";
+import "./queues/email.worker.js";
 
 export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) => {
 

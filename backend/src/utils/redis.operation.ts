@@ -1,4 +1,4 @@
-import { logError } from "../config/logger.js"
+import { logError } from "../config/logger.js";
 import { redis } from "../config/redis.config.js";
 
 export const redisOperation = {
@@ -25,14 +25,19 @@ export const redisOperation = {
     // delete from Redis
     async del(pattern: string) {
         try {
-            for await (const key of redis.scanIterator({
+            for await (const keys of redis.scanIterator({
                 MATCH: pattern,
                 COUNT: 100,
             })) {
-                await redis.del(key);
+                if (keys.length > 0) {
+                    await redis.del(keys);
+                }
             }
+
+            return true;
         } catch (error) {
             logError("Failed to delete data from redis", error);
+            return false;
         }
     },
 
