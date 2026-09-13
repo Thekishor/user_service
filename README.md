@@ -81,8 +81,10 @@ user-service/
 - **Framework**: Express (with TypeScript compilation via `tsx`)
 - **Database**: MongoDB (via Mongoose ORM), Redis Cloud
 - **File Storage**: Cloudinary
+- **BullMQ**: Queue operations
 - **Emails**: Resend API
 - **Logging**: Winston & Winston Daily Rotate File
+- **Render**: Deployment
 
 ### Frontend
 
@@ -93,6 +95,7 @@ user-service/
 - **Routing**: React Router DOM
 - **UI Feedback**: Sonner (toasts)
 - **HTTP Client**: Axios
+- **Vercel**: Deployment
 
 ---
 
@@ -202,3 +205,15 @@ user-service/
 - **Token Rotation**: On refresh requests, the backend reissues a short-lived access token, preventing session hijacking.
 - **Revocation**: The server stores a `tokenVersion` counter inside the user's DB model. Every time a refresh token is verified, its encoded version is compared against the database. Incrementing this counter automatically invalidates all existing refresh tokens.
 - **Input Validation**: Strict Zod rules validate types, lengths, and patterns for registration, logins, and settings updates to protect against injection.
+
+## Deployment
+
+- **Backend**: Render
+- **Email Service**: Resend
+- **Frontend**: Vercel
+
+## Frontend Deployed
+
+The UI is deployed on Vercel and is accessible at:
+
+**[User Service](https://user-service-bay.vercel.app/)**
