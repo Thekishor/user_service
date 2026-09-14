@@ -21,7 +21,10 @@ const AdminLayout = () => {
         </button>
       </div>
 
-      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <AdminSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       <main className="ml-0 md:ml-64 p-4 sm:p-6">
         <Outlet />
       </main>

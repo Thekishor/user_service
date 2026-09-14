@@ -402,6 +402,9 @@ export const forgotPassword =
 
         await sendResetPasswordEmail(user);
 
+        const userKey = `LOGIN_ATTEMPTS:${user._id}`;
+        await redisOperation.del(userKey);
+
         await AuditLog.create({
             action: AUDIT_ACTION.FORGOT_PASSWORD,
             user: user._id,
