@@ -53,18 +53,21 @@ const Register = () => {
       <h1 className="text-2xl font-bold text-center text-slate-800">
         Register
       </h1>
+
       <p className="mt-1 mb-6 text-center text-sm text-slate-500">
         Create an account to get started
       </p>
+
       {errorResponse && (
-        <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
+        <div className="mb-5 rounded-lg bg-red-50 px-4 py-3 text-center text-sm text-red-700">
           {errorResponse}
         </div>
       )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset
           disabled={isLoading}
-          className="border-0 p-0 m-0 space-y-4 disabled:opacity-70"
+          className="space-y-4 disabled:opacity-70"
         >
           <InputField
             label="Full Name"
@@ -105,21 +108,23 @@ const Register = () => {
           <button
             disabled={isLoading}
             type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 
+                       font-semibold text-white transition duration-200 hover:bg-blue-700 
+                       disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isLoading ? (
-              <LoaderCircle className="animate-spin w-6 h-6" />
+              <LoaderCircle className="h-6 w-6 animate-spin" />
             ) : (
               "Sign Up"
             )}
           </button>
         </fieldset>
       </form>
-      <p className="text-center text-sm text-slate-600 mt-6">
-        Already have an account?{" "}
+      <p className="mt-2 border-t border-slate-100 pt-5 text-center text-sm text-slate-500">
+        Already have an account?
         <Link
           to="/login"
-          className="font-medium text-blue-600 hover:text-blue-700"
+          className="font-medium text-blue-600 transition hover:text-blue-700"
         >
           Login
         </Link>
