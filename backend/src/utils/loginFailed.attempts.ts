@@ -61,7 +61,7 @@ export const isUserLockedOut = async (userId: string) => {
 
     if (parseLoginAttempt >= 5) {
         throw new AppError(
-            `Your account is locked due to too many failed login attempts. Please try again after ${minute} ${minute > 1 ? "minutes" : "minute"}.`,
+            `Your account is temporarily locked due to too many failed login attempts. Please try again after ${minute} ${minute > 1 ? "minutes" : "minute"}.`,
             429,
             "TOO_MANY_FAILED_ATTEMPTS"
         );
