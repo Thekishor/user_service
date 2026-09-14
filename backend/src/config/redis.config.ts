@@ -3,7 +3,7 @@ import Redis from "ioredis";
 import logger, { logError } from "./logger.js";
 import { env } from "./env.js";
 
-// redis config
+// redis cloud config
 export const redis = createClient({
     url: env.REDIS_URL,
     // If Redis is disconnected, commands aren't queued in Node.js waiting for Redis to come back.
@@ -33,8 +33,8 @@ export const connectRedis = async () => {
     try {
         if (!redis.isOpen) {
             await redis.connect();
+            logger.info("Redis connected successfully");
         }
-        logger.info("Redis connected successfully");
     } catch (error) {
         logError("Redis failed to connect...", error);
     }

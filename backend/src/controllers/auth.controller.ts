@@ -29,9 +29,9 @@ export const registerUserHandler =
                 user
             });
 
-        } catch (err) {
-            logError("Failed to register an account", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to register an account", error);
+            return next(error);
         }
     }
 
@@ -53,9 +53,9 @@ export const verifyUserEmailHandler =
                 user
             });
 
-        } catch (err) {
-            logError("Failed to verify account", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to verify account", error);
+            return next(error);
         }
 
     }
@@ -81,9 +81,9 @@ export const loginUserHandler =
                 token: accessToken
             });
 
-        } catch (err) {
-            logError("Failed to login user", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to login user", error);
+            return next(error);
         }
     }
 
@@ -113,9 +113,9 @@ export const refreshTokenHandler =
                 token: newAccessToken,
             });
 
-        } catch (err) {
-            logError("Failed to generate new token", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to generate new token", error);
+            return next(error);
         }
     }
 
@@ -151,9 +151,9 @@ export const logoutUserHandler =
                 message: 'User logged out successfully'
             });
 
-        } catch (err) {
-            logError("Failed to logout user", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to logout user", error);
+            return next(error);
         }
     }
 
@@ -181,9 +181,9 @@ export const logoutAllHandler =
                 message: "Logged out from all devices successfully",
             });
 
-        } catch (err) {
-            logError("Failed to logout from all devices", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to logout from all devices", error);
+            return next(error);
         }
     }
 
@@ -203,9 +203,9 @@ export const forgotPasswordHandler =
                 status: "success",
                 message: "If an account exists with this email, you will receive a password reset link."
             })
-        } catch (err) {
-            logError("Failed to send password reset link", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to send password reset link", error);
+            return next(error);
         }
 
     }
@@ -229,9 +229,9 @@ export const resetPasswordHandler =
                 message: "Password reset successfully. Please log in again.",
             });
 
-        } catch (err) {
-            logError("Failed to reset password", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to reset password", error);
+            return next(error);
         }
     }
 
@@ -254,9 +254,9 @@ export const changePasswordHandler =
                 message: "Password changed successfully. Please log in again.",
             });
 
-        } catch (err) {
-            logError("Failed to change password", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to change password", error);
+            return next(error);
         }
     }
 
@@ -283,9 +283,9 @@ export const updateProfileHandler =
                 user,
             });
 
-        } catch (err) {
-            logError("Failed to update user profile", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to update user profile", error);
+            return next(error);
         }
     }
 

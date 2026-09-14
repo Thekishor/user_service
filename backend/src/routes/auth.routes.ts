@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { getMe } from "../controllers/user.controller.js";
 import {
     registerUserHandler,
     verifyUserEmailHandler,
@@ -32,7 +31,6 @@ export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) 
     router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
     router.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
     router.put("/profile", verifyToken, upload.single("image"), validateRequest(profileSchema), updateProfileHandler);
-    router.get("/me", verifyToken, getMe);
     router.get("/audit-logs", verifyToken, getAllAuditLogs);
 
     return router;

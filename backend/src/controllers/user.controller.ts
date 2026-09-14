@@ -28,30 +28,9 @@ export const getAllUser =
                 unverifiedUsers
             });
 
-        } catch (err) {
-            logError("Failed to get all users", err);
-            return next(err);
-        }
-    }
-
-export const getMe =
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const user = req.user;
-
-            if (!user) {
-                throw new AppError("User not found", 404, "USER_NOT_FOUND");
-            }
-
-            return res.status(200).json({
-                status: "success",
-                message: "User retrieved successfully",
-                user
-            });
-
-        } catch (err) {
-            logError("Failed to get current user", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to get all users", error);
+            return next(error);
         }
     }
 
@@ -73,8 +52,8 @@ export const deleteUserHandler =
                 status: "success",
                 message: "User deleted successfully",
             })
-        } catch (err) {
-            logError("Failed to delete user", err);
-            return next(err);
+        } catch (error) {
+            logError("Failed to delete user", error);
+            return next(error);
         }
     }

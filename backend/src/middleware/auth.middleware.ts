@@ -10,13 +10,13 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
 
     if (!req.headers.authorization) {
         logError("Token is missing", null);
-        return next(new AppError("Token is missing", 401, "TOKEN_MISSING"));
+        return next(new AppError("Token is missing in request header", 401, "TOKEN_MISSING"));
     }
 
     const authHeader = req.headers.authorization;
 
     if (!authHeader.startsWith("Bearer ")) {
-        throw new AppError("Invalid Token", 401, "INVALID_TOKEN");
+        return next(new AppError("Invalid Token", 401, "INVALID_TOKEN"));
     }
 
     const token = authHeader.split(" ")[1];
