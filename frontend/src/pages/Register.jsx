@@ -59,7 +59,7 @@ const Register = () => {
       </p>
 
       {errorResponse && (
-        <div className="mb-5 rounded-lg bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+        <div className="mb-5 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
           {errorResponse}
         </div>
       )}
@@ -120,7 +120,7 @@ const Register = () => {
           </button>
         </fieldset>
       </form>
-      <p className="mt-2 border-t border-slate-100 pt-5 text-center text-sm text-slate-500">
+      <p className="mt-3 border-t border-slate-100 pt-5 text-center text-sm text-slate-500">
         Already have an account?
         <Link
           to="/login"

@@ -62,7 +62,7 @@ const ChangePassword = () => {
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           {errorResponse && (
-            <div className="mb-5 rounded-md bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">
+            <div className="mb-5 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
               {errorResponse}
             </div>
           )}

@@ -43,15 +43,21 @@ const VerifyEmail = () => {
 
   return (
     <AuthLayout>
-      <div className="py-8 text-center">
+      <div className="py-6 text-center">
         {/* verifying email */}
         {status === "verifying" && (
           <>
-            <div className="mx-auto mb-5 h-8 w-8 animate-spin rounded-full border-3 border-slate-200 border-t-blue-600" />
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+              <div className="h-8 w-8 animate-spin rounded-full border-3 border-blue-100 border-t-blue-600" />
+            </div>
 
-            <h1 className="text-2xl font-bold text-slate-700">
+            <h1 className="text-2xl font-bold text-slate-800">
               Verifying your email...
             </h1>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Please wait while we confirm your email address.
+            </p>
           </>
         )}
 
@@ -61,16 +67,16 @@ const VerifyEmail = () => {
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600">
               <Check size={32} strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold text-slate-700">
+            <h1 className="text-2xl font-bold text-slate-800">
               Email Verified!
             </h1>
             <p className="mt-2 text-sm text-slate-500">{message}</p>
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="mt-6 w-full rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700"
+              className="mt-6 w-full rounded-lg bg-blue-600 py-3 font-semibold text-white shadow-sm transition duration-200 hover:bg-blue-700 hover:shadow-md active:scale-[0.99]"
             >
-              Go to Login →
+              Go to Login
             </button>
           </>
         )}
@@ -81,14 +87,14 @@ const VerifyEmail = () => {
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-3xl text-red-600">
               <X size={32} strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold text-slate-700">
+            <h1 className="text-2xl font-bold text-slate-800">
               Verification Failed
             </h1>
             <p className="mt-2 text-sm text-slate-500">{message}</p>
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="mt-6 w-full rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700"
+              className="mt-6 w-full rounded-lg bg-blue-600 py-3 font-semibold text-white shadow-sm transition duration-200 hover:bg-blue-700 hover:shadow-md active:scale-[0.99]"
             >
               Back to Login
             </button>

@@ -2,7 +2,7 @@ import { features } from "../../services/features.js";
 
 const FeaturesSection = () => {
   return (
-    <section className="px-6 py-10">
+    <section className="px-6 py-12">
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-slate-800">
@@ -18,9 +18,11 @@ const FeaturesSection = () => {
             return (
               <div
                 key={feature.title}
-                className="rounded-xl border border-slate-200 bg-slate-100 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md hover:bg-slate-200"
+                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md"
               >
-                <Icon className="mb-4 h-6 w-6 text-slate-700" />
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50">
+                  <Icon className="h-6 w-6 text-blue-600" />
+                </div>
 
                 <h3 className="text-lg font-semibold text-slate-800">
                   {feature.title}
