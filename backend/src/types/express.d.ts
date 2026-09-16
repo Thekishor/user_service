@@ -12,6 +12,7 @@ export interface IUser {
     imageUrl?: string | null;
     imagePublicId?: string | null;
     createdAt: Date;
+    updatedAt: Date,
 }
 
 interface RateLimit {
