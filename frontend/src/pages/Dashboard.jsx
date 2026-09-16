@@ -59,10 +59,7 @@ const Dashboard = () => {
 
           <p className="text-sm text-gray-500">Member Since</p>
           <p className="mt-1 text-xl font-semibold text-gray-800">
-            {new Date(user.createdAt).toLocaleString("en-US", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
+            {new Date(user.createdAt).toLocaleDateString()}
           </p>
         </div>
       </section>
@@ -97,7 +94,7 @@ const Dashboard = () => {
           </div>
 
           <div className="rounded-lg bg-slate-50 p-4 transition duration-200 hover:-translate-y-1 hover:shadow-sm">
-            <p className="text-sm text-gray-500">Last Update At</p>
+            <p className="text-sm text-gray-500">Last Update</p>
             <p className="mt-1 font-medium text-gray-800">
               {new Date(user.updatedAt).toLocaleString("en-US", {
                 dateStyle: "medium",
