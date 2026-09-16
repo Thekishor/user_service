@@ -62,6 +62,7 @@ const verifyToken = async (req: Request, _: Response, next: NextFunction) => {
             imageUrl: user.imageUrl ?? null,
             imagePublicId: user.imagePublicId ?? null,
             createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
         }
 
         req.tokenInfo = {
