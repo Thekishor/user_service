@@ -2,7 +2,7 @@ import { useAuth } from "../context/AppContext";
 import { useState } from "react";
 import { InputField } from "../components/InputField";
 import { useForm } from "react-hook-form";
-import { CircleUser, LoaderCircle } from "lucide-react";
+import { User, LoaderCircle } from "lucide-react";
 import { profileUpdate } from "../services/authService";
 import { handleApiError } from "../utils/handleApiError";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -140,7 +140,7 @@ const Profile = () => {
                 className="h-20 w-20 rounded-full object-cover"
               />
             ) : (
-              <CircleUser className="h-20 w-20 text-slate-400" />
+              <User className="h-20 w-20 text-slate-400" />
             )}
 
             <div>
