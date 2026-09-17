@@ -1,13 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AppContext";
-import {
-  LayoutDashboard,
-  User,
-  Lock,
-  Activity,
-  LogOut,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, User, Lock, Activity, LogOut, X } from "lucide-react";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { logout, logoutAll } = useAuth();
