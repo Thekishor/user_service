@@ -38,7 +38,7 @@ const About = () => {
               Key Features
             </h2>
 
-            <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+            <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 "User registration and login",
                 "Email verification",
@@ -80,6 +80,7 @@ const About = () => {
                 "Redis",
                 "BullMQ",
                 "Cloudinary",
+                "Resend",
               ].map((tech) => (
                 <span
                   key={tech}
@@ -101,8 +102,8 @@ const About = () => {
             <p className="mt-3 leading-7 text-slate-600">
               The project was built to demonstrate practical full-stack
               development, including REST API development, authentication,
-              database management, background jobs, caching, security, and
-              deployment.
+              authorization, database management, background jobs, caching,
+              rate-limiting, security, and deployment.
             </p>
           </div>
         </div>

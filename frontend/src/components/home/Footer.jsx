@@ -1,18 +1,134 @@
+import { Mail } from "lucide-react";
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
-    <footer className="border-t border-slate-200 bg-white px-6 py-10">
-      <div className="mx-auto max-w-6xl text-center">
-        <h2 className="text-lg font-bold tracking-wide text-slate-800">KIKO</h2>
+    <footer className="border-t border-slate-200 bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Brand */}
+          <div>
+            <Link to="/" className="flex items-center gap-2">
+              <div
+                className="flex h-9 w-9 items-center justify-center
+                           rounded-lg bg-blue-600 text-sm font-bold
+                           text-white shadow-sm"
+              >
+                K
+              </div>
 
-        <p className="mt-2 text-sm text-slate-500">
-          Simple and secure account management.
-        </p>
+              <span className="text-xl font-bold tracking-tight text-slate-800">
+                KIKO
+              </span>
+            </Link>
 
-        <div className="mx-auto mt-6 h-px w-16 bg-blue-600" />
+            <p className="mt-4 max-w-xs text-sm leading-6 text-slate-500">
+              A simple and secure user management system built for reliable
+              account and profile management.
+            </p>
+          </div>
 
-        <p className="mt-5 text-xs text-slate-400">
-          © 2026 KIKO. All rights reserved.
-        </p>
+          {/* Navigation */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800">Navigation</h3>
+
+            <div className="mt-4 flex flex-col gap-3">
+              <Link
+                to="/"
+                className="w-fit text-sm text-slate-500 transition hover:text-blue-600"
+              >
+                Home
+              </Link>
+
+              <Link
+                to="/about"
+                className="w-fit text-sm text-slate-500 transition hover:text-blue-600"
+              >
+                About
+              </Link>
+
+              <Link
+                to="/contact"
+                className="w-fit text-sm text-slate-500 transition hover:text-blue-600"
+              >
+                Contact
+              </Link>
+            </div>
+          </div>
+
+          {/* Account */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800">Account</h3>
+
+            <div className="mt-4 flex flex-col gap-3">
+              <Link
+                to="/login"
+                className="w-fit text-sm text-slate-500 transition hover:text-blue-600"
+              >
+                Login
+              </Link>
+
+              <Link
+                to="/register"
+                className="w-fit text-sm text-slate-500 transition hover:text-blue-600"
+              >
+                Create Account
+              </Link>
+            </div>
+          </div>
+
+          {/* Connect */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800">Connect</h3>
+
+            <div className="mt-4 flex flex-col gap-3">
+              <a
+                href="mailto:kishorpandey981@gmail.com"
+                className="flex w-fit items-center gap-2 text-sm
+                           text-slate-500 transition hover:text-blue-600"
+              >
+                <Mail className="h-4 w-4" />
+                Email
+              </a>
+
+              <a
+                href="YOUR_GITHUB_URL"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-fit items-center gap-2 text-sm
+                           text-slate-500 transition hover:text-slate-900"
+              >
+                GitHub
+              </a>
+
+              <a
+                href="YOUR_LINKEDIN_URL"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-fit items-center gap-2 text-sm
+                           text-slate-500 transition hover:text-blue-600"
+              >
+                LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom */}
+        <div className="mt-10 border-t border-slate-200 pt-6">
+          <div
+            className="flex flex-col items-center justify-between gap-3
+                          text-center sm:flex-row sm:text-left"
+          >
+            <p className="text-xs text-slate-400">
+              © 2026 KIKO. All rights reserved.
+            </p>
+
+            <p className="text-xs text-slate-400">
+              Built with modern web technologies.
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   );

@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { InputField } from "../components/InputField";
 import { loginSchema } from "../schema/loginSchema";
 import AuthLayout from "../layouts/AuthLayout";
-import { toast } from "sonner";
 import { useAuth } from "../context/AppContext";
 import { loginUser } from "../services/authService";
 import { LoaderCircle } from "lucide-react";
@@ -46,7 +45,6 @@ const Login = () => {
       setToken(token);
 
       if (response.status === 200) {
-        toast.success(response.data.message);
         navigate(
           response.data.user.role === "admin"
             ? "/admin/dashboard"
