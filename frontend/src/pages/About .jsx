@@ -38,7 +38,7 @@ const About = () => {
               Key Features
             </h2>
 
-            <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-4 grid gap-4 sm:grid-cols-2">
               {[
                 "User registration and login",
                 "Email verification",

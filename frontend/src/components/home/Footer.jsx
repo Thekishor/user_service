@@ -1,5 +1,5 @@
-import { Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -83,31 +83,24 @@ const Footer = () => {
 
             <div className="mt-4 flex flex-col gap-3">
               <a
-                href="mailto:kishorpandey981@gmail.com"
-                className="flex w-fit items-center gap-2 text-sm
-                           text-slate-500 transition hover:text-blue-600"
-              >
-                <Mail className="h-4 w-4" />
-                Email
-              </a>
-
-              <a
-                href="YOUR_GITHUB_URL"
+                href="https://github.com/Thekishor"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-fit items-center gap-2 text-sm
-                           text-slate-500 transition hover:text-slate-900"
+                aria-label="GitHub"
+                className="flex w-fit items-center gap-2 text-sm text-slate-500 transition hover:text-slate-900"
               >
+                <FaGithub className="h-5 w-5" />
                 GitHub
               </a>
 
               <a
-                href="YOUR_LINKEDIN_URL"
+                href="https://www.linkedin.com/in/kishor-pandey-209a9323b/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-fit items-center gap-2 text-sm
-                           text-slate-500 transition hover:text-blue-600"
+                aria-label="LinkedIn"
+                className="flex w-fit items-center gap-2 text-sm text-slate-500 transition hover:text-blue-600"
               >
+                <FaLinkedin className="h-5 w-5" />
                 LinkedIn
               </a>
             </div>
