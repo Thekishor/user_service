@@ -19,11 +19,24 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   };
 
   const navLinks = [
-    { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
+    {
+      to: "/admin/dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      end: true,
+    },
     { to: "/admin/dashboard/profile", label: "Profile", icon: User },
     { to: "/admin/dashboard/users", label: "Users", icon: Users },
-    { to: "/admin/dashboard/change-password", label: "Change Password", icon: Lock },
-    { to: "/admin/dashboard/audit-logs", label: "Admin Activity", icon: Activity },
+    {
+      to: "/admin/dashboard/change-password",
+      label: "Change Password",
+      icon: Lock,
+    },
+    {
+      to: "/admin/dashboard/audit-logs",
+      label: "Admin Activity",
+      icon: Activity,
+    },
   ];
 
   return (
@@ -47,7 +60,16 @@ const AdminSidebar = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b border-gray-200 px-5">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-blue-600">KIKO</h1>
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg
+               bg-blue-600 text-sm font-bold text-white shadow-sm"
+            >
+              K
+            </div>
+
+            <span className="text-xl font-bold tracking-tight text-slate-800">
+              KIKO
+            </span>
             <span className="flex items-center gap-1 rounded-md bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-700 border border-purple-100">
               <ShieldCheck size={12} />
               Admin

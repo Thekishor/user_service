@@ -6,16 +6,18 @@ import { useState } from "react";
 const Navbar = () => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  let logoPath = "/";
+
+  if (user) {
+    logoPath = user.role === "admin" ? "/admin/dashboard" : "/dashboard";
+  }
 
   return (
     <nav className="border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link
-            to={user ? "/dashboard" : "/"}
-            className="flex items-center gap-2"
-          >
+          <Link to={logoPath} className="flex items-center gap-2">
             <div
               className="flex h-9 w-9 items-center justify-center rounded-lg
                      bg-blue-600 text-sm font-bold text-white shadow-sm

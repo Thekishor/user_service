@@ -37,7 +37,17 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b border-gray-200 px-5">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-blue-600">KIKO</h1>
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg
+               bg-blue-600 text-sm font-bold text-white shadow-sm"
+            >
+              K
+            </div>
+
+            <span className="text-xl font-bold tracking-tight text-slate-800">
+              KIKO
+            </span>
+
             <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">
               User
             </span>
