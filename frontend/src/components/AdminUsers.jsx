@@ -64,28 +64,28 @@ const AdminUsers = () => {
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
           <p className="text-sm font-medium text-slate-500">Total Users</p>
           <p className="mt-2 text-3xl font-bold text-slate-900">
-            {usersData.totalUsers}
+            {Math.max(usersData.totalUsers, 0)}
           </p>
         </div>
         {/* Active Users */}
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
           <p className="text-sm font-medium text-slate-500">Active Users</p>
           <p className="mt-2 text-3xl font-bold text-green-600">
-            {usersData.activeUsers}
+            {Math.max(usersData.activeUsers, 0)}
           </p>
         </div>
         {/* Inactive Users */}
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
           <p className="text-sm font-medium text-slate-500">Inactive Users</p>
           <p className="mt-2 text-3xl font-bold text-red-600">
-            {usersData.inactiveUsers}
+            {Math.max(usersData.inactiveUsers, 0)}
           </p>
         </div>
         {/* Unverified Users */}
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
           <p className="text-sm font-medium text-slate-500">Unverified Users</p>
           <p className="mt-2 text-3xl font-bold text-orange-500">
-            {usersData.unverifiedUsers}
+            {Math.max(usersData.unverifiedUsers, 0)}
           </p>
         </div>
       </div>

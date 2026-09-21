@@ -16,7 +16,9 @@ export const getUsersService = async (adminId: string, metadata: AuditMetadata) 
     }
 
     // getting all users with total
-    const allUsers = await User.find({},
+    const allUsers = await User.find({
+        role: "user",
+    },
         {
             fullName: 1,
             email: 1,
@@ -29,13 +31,13 @@ export const getUsersService = async (adminId: string, metadata: AuditMetadata) 
     ).sort({ createdAt: -1 });
 
     // getting active users count
-    const validUsers = await User.countDocuments({ isAccountActive: true });
+    const validUsers = await User.countDocuments({ role: "user", isAccountActive: true });
 
     // getting inactive users count
-    const invalidUsers = await User.countDocuments({ isAccountActive: false });
+    const invalidUsers = await User.countDocuments({ role: "user", isAccountActive: false });
 
     // email unverified users count
-    const unverifiedUsers = await User.countDocuments({ isEmailVerified: false });
+    const unverifiedUsers = await User.countDocuments({ role: "user", isEmailVerified: false });
 
     if (!allUsers || allUsers.length === 0) {
         return [];
