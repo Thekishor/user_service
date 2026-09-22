@@ -304,13 +304,9 @@ export const logout =
             throw new AppError("Invalid session", 401, "INVALID_SESSION");
         }
 
-        await Session.updateOne({
-            refreshTokenHash
-        }, {
-            $set: {
-                revoked: true,
-                revokedAt: new Date(),
-            }
+        await Session.deleteOne({
+            _id: payload.sid,
+            user: payload.sub,
         });
 
         await AuditLog.create({
@@ -326,14 +322,8 @@ export const logout =
 
 export const logoutAll = async (userId: string, metadata: AuditMetadata) => {
 
-    await Session.updateMany({
-        user: userId,
-        revoked: false,
-    }, {
-        $set: {
-            revoked: true,
-            revokedAt: new Date(),
-        }
+    await Session.deleteMany({
+        user: userId
     });
 
     await User.updateOne({
