@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { changePasswordSchema } from "../schema/changePasswordSchema";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
 import { changePassword } from "../services/authService";
 import { handleApiError } from "../utils/handleApiError";
+import PasswordRequirements from "../layouts/PasswordRequirements";
 
 const ChangePassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +17,7 @@ const ChangePassword = () => {
 
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors },
@@ -27,6 +29,12 @@ const ChangePassword = () => {
       newPassword: "",
       confirmPassword: "",
     },
+  });
+
+  const newPassword = useWatch({
+    control,
+    name: "newPassword",
+    defaultValue: "",
   });
 
   const onSubmit = async (data) => {
@@ -88,8 +96,11 @@ const ChangePassword = () => {
                 type="password"
                 placeholder="New Password"
                 autoComplete="new-password"
-                errors={errors}
+                errors={""}
               />
+
+              <PasswordRequirements password={newPassword} />
+
               <InputField
                 label="Confirm Password"
                 name="confirmPassword"

@@ -4,7 +4,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react";
 const CTASection = () => {
   return (
     <section className="px-4 py-20 sm:px-6">
-      <div className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-slate-200 bg-slate-300 px-6 py-14 text-center shadow-sm sm:px-10 sm:py-16">
+      <div className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 px-6 py-14 text-center shadow-sm sm:px-10 sm:py-16">
         <div className="relative">
           {/* Icon */}
           <div

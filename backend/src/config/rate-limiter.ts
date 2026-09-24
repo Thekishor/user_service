@@ -39,7 +39,8 @@ export function createRateLimiters() {
             standardHeaders: true,
             legacyHeaders: false,
             store: new RedisStore({
-                sendCommand: (...args: string[]) => redis.sendCommand(args)
+                sendCommand: (...args: string[]) => redis.sendCommand(args),
+                prefix: "rl:global:",
             }),
             handler: createRateLimitHandler("Too many requests."),
         }),

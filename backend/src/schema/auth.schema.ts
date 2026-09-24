@@ -54,7 +54,7 @@ export const resetPasswordSchema = z.object({
     newPassword: passwordField,
     confirmPassword: z.string().min(1, "Confirm password is required"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Passwords does not match",
     path: ["confirmPassword"]
 });
 
@@ -63,7 +63,7 @@ export const changePasswordSchema = z.object({
     newPassword: passwordField,
     confirmPassword: z.string()
 }).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Password do not match",
+    message: "Password does not match",
     path: ["confirmPassword"]
 })
 

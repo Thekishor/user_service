@@ -6,6 +6,6 @@ export const resetPasswordSchema = z.object({
             .max(20, "Password must not exceed 20 characters"),
     confirmPassword: z.string().min(1, "Confirm password is required"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-        message: "Password do not match",
+        message: "Password does not match",
         path: ["confirmPassword"]
     })

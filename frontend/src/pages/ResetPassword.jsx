@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { InputField } from "../components/InputField";
 import AuthLayout from "../layouts/AuthLayout";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { LoaderCircle } from "lucide-react";
 import { resetPassword } from "../services/authService";
 import { resetPasswordSchema } from "../schema/resetPasswordSchema";
 import { handleApiError } from "../utils/handleApiError";
+import PasswordRequirements from "../layouts/PasswordRequirements";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,7 @@ const ResetPassword = () => {
   const {
     register,
     handleSubmit,
+    control,
     setError,
     formState: { errors },
   } = useForm({
@@ -31,6 +33,12 @@ const ResetPassword = () => {
       newPassword: "",
       confirmPassword: "",
     },
+  });
+
+  const newPassword = useWatch({
+    control,
+    name: "newPassword",
+    defaultValue: "",
   });
 
   const onSubmit = async (data) => {
@@ -79,8 +87,11 @@ const ResetPassword = () => {
             type="password"
             placeholder="New Password"
             autoComplete="new-password"
-            errors={errors}
+            errors={""}
           />
+
+          <PasswordRequirements password={newPassword} />
+
           <InputField
             label="Confirm Password"
             name="confirmPassword"
