@@ -54,7 +54,7 @@ const AdminUsers = () => {
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 sm:p-6">
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">
+      <h1 className="mb-6 text-2xl font-bold text-slate-900 transition duration-150 group-hover:text-slate-900">
         User Information
       </h1>
 

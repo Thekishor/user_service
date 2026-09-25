@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { features } from "../services/about.features";
 
 const About = () => {
   return (
@@ -14,8 +14,8 @@ const About = () => {
 
         <div className="mt-10 space-y-6">
           {/* About */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-xl font-semibold text-slate-800">
+          <div className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 transition duration-150 hover:-translate-y-0.5 hover:shadow-md">
+            <h2 className="text-xl font-semibold text-slate-800 transition duration-150 group-hover:text-slate-900">
               What is this application?
             </h2>
 
@@ -33,31 +33,48 @@ const About = () => {
           </div>
 
           {/* Features */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-xl font-semibold text-slate-800">
-              Key Features
-            </h2>
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6 shadow-lg sm:p-10">
+            <div className="mb-8">
+              <span className="text-sm font-semibold uppercase tracking-wider text-indigo-600">
+                What it offers
+              </span>
 
-            <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-              {[
-                "User registration and login",
-                "Email verification",
-                "Password recovery",
-                "Profile management",
-                "Secure authentication",
-                "Admin user management",
-                "Audit log tracking",
-                "Rate limiting and security controls",
-              ].map((feature) => (
-                <li
-                  key={feature}
-                  className="flex items-center gap-3 rounded-lg border border-slate-200
-                 bg-slate-50 px-4 py-3 text-sm text-slate-700"
-                >
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
-                  <span>{feature}</span>
-                </li>
-              ))}
+              <h2 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
+                Key Features
+              </h2>
+
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
+                Everything needed to build a secure and reliable user management
+                system.
+              </p>
+            </div>
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature) => {
+                const Icon = feature.icon;
+
+                return (
+                  <li
+                    key={feature.title}
+                    className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl"
+                  >
+                    <div
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl ${feature.bg}`}
+                    >
+                      <Icon
+                        className={`h-6 w-6 ${feature.color} transition duration-200 group-hover:scale-110`}
+                      />
+                    </div>
+
+                    <h3 className="mt-5 text-lg font-semibold text-slate-900">
+                      {feature.title}
+                    </h3>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {feature.description}
+                    </p>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -84,8 +101,10 @@ const About = () => {
               ].map((tech) => (
                 <span
                   key={tech}
-                  className="rounded-full bg-slate-100 px-3 py-1.5 text-sm
-                         font-medium text-slate-700"
+                  className="rounded-full border border-transparent bg-slate-100 px-3 py-1.5
+                            text-sm font-medium text-slate-700
+                            transition duration-200
+                          hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
                 >
                   {tech}
                 </span>
