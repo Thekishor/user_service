@@ -7,7 +7,6 @@ export const loginFailed = async (userId: string) => {
 
     // getting from redis
     const loginAttempt = await redisOperation.get(userKey);
-    let parseLoginAttempt = null;
 
     if (!loginAttempt) {
         await redisOperation.setEx(
@@ -15,23 +14,20 @@ export const loginFailed = async (userId: string) => {
             900,
             "1"
         );
-    } else {
-        parseLoginAttempt = JSON.parse(loginAttempt);
-        await redisOperation.setEx(
-            userKey,
-            900,
-            (parseLoginAttempt + 1).toString()
-        );
+
+        return 1;
     }
 
-    if (parseLoginAttempt && parseLoginAttempt >= 5) {
+    const parseLoginAttempt = Number(loginAttempt);
+    const nextAttempt = parseLoginAttempt + 1;
 
-        await redisOperation.setEx(
-            userKey,
-            900,
-            JSON.stringify(parseLoginAttempt + 1)
-        )
+    await redisOperation.setEx(
+        userKey,
+        900,
+        nextAttempt.toString()
+    );
 
+    if (nextAttempt >= 5) {
         throw new AppError(
             `Too many failed login attempts. Please try again after 15 minutes.`,
             429,
@@ -39,7 +35,7 @@ export const loginFailed = async (userId: string) => {
         );
     }
 
-    return false;
+    return nextAttempt;
 }
 
 export const loginSuccess = async (userId: string) => {

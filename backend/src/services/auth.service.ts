@@ -181,8 +181,22 @@ export const login =
 
         if (!isValidPassword) {
             //login failed attempts
-            await loginFailed(user._id.toString());
-            throw new AppError("Invalid credentials", 401, "INVALID_CREDENTIALS");
+            const attempts = await loginFailed(user._id.toString());
+            const remaining = 5 - Number(attempts);
+
+            if (attempts === 1) {
+                throw new AppError(
+                    "Invalid credentials",
+                    401,
+                    "INVALID_CREDENTIALS"
+                );
+            }
+
+            throw new AppError(
+                `Invalid credentials. You have ${remaining} ${remaining > 1 ? "attempts" : "attempt"} remaining.`,
+                401,
+                "INVALID_CREDENTIALS"
+            );
         }
 
         //del from redis after login success
