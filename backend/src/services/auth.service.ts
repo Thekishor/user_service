@@ -86,7 +86,7 @@ export const verifyEmail =
         });
 
         if (!emailVerificationToken) {
-            throw new AppError("Invalid or expired verification link", 401, "INVALID_TOKEN");
+            throw new AppError("Invalid or expired verification link", 400, "INVALID_TOKEN");
         }
 
         const user = await User.findById(emailVerificationToken.user);
@@ -96,7 +96,7 @@ export const verifyEmail =
         }
 
         if (user.isEmailVerified) {
-            throw new AppError("Email already verified", 409, "ALREADY_VERIFIED");
+            throw new AppError("Email already verified. Please login to your account.", 409, "EMAIL_ALREADY_VERIFIED");
         }
 
         if (emailVerificationToken.expiresAt <= new Date()) {
@@ -160,7 +160,7 @@ export const login =
 
         if (!user.isEmailVerified) {
             throw new AppError(
-                "Please verify your email to activate your account",
+                "Please verify your email address to activate your account",
                 403,
                 "EMAIL_NOT_VERIFIED"
             );
@@ -374,7 +374,7 @@ export const forgotPassword =
 
         if (!user.isEmailVerified) {
             throw new AppError(
-                "Please verify your email to activate your account",
+                "Please verify your email address to activate your account",
                 403,
                 "EMAIL_NOT_VERIFIED"
             );
@@ -432,7 +432,7 @@ export const resetPassword =
         if (!passwordResetToken) {
             throw new AppError(
                 "Invalid or expired reset password link",
-                401,
+                400,
                 "INVALID_OR_EXPIRED_RESET_PASSWORD_LINK"
             );
         }
@@ -458,8 +458,8 @@ export const resetPassword =
             });
 
             throw new AppError(
-                "Your reset password link has expired",
-                401,
+                "Your reset password link has expired. Please request a new password reset link.",
+                400,
                 "EXPIRED_RESET_PASSWORD_LINK"
             );
         }

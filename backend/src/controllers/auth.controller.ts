@@ -54,7 +54,7 @@ export const verifyUserEmailHandler =
             });
 
         } catch (error) {
-            logError("Failed to verify account", error);
+            logError("Failed to verify user email/account", error);
             return next(error);
         }
 

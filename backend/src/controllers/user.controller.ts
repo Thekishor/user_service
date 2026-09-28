@@ -51,7 +51,8 @@ export const deleteUserHandler =
             return res.status(200).json({
                 status: "success",
                 message: "User deleted successfully",
-            })
+            });
+
         } catch (error) {
             logError("Failed to delete user", error);
             return next(error);
