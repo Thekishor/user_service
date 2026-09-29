@@ -73,8 +73,18 @@ export const profileSchema = z.object({
         .max(50, "Full name must be 50 characters or less"),
 })
 
+// Pagination schema
+export const paginationSchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(10).default(10),
+    search: z.string().trim().default(""),
+    sortBy: z.string().default("createdAt"),
+    sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type LoginDto = z.infer<typeof loginSchema>;
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordDto = z.infer<typeof changePasswordSchema>;
 export type ProfileSchemaDto = z.infer<typeof profileSchema>;
+export type PaginationQuery = z.infer<typeof paginationSchema>;

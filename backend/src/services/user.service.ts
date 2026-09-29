@@ -5,19 +5,37 @@ import { AppError } from "../utils/AppError.js";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values.js";
 import { redisOperation } from "../utils/redis.operation.js";
 
-export const getUsersService = async (adminId: string, metadata: AuditMetadata) => {
+export const getUsersService = async (
+    adminId: string,
+    metadata: AuditMetadata,
+    skip: number,
+    limit: number,
+    search: string,
+    orderBy: Record<string, 1 | -1>
+) => {
 
     // getting data from Redis
-    const key = `users:all:${adminId}`;
+    const key = `users:all:${adminId}:${skip}:${limit}:${search}:${JSON.stringify(orderBy)}`;
     const cached = await redisOperation.get(key);
 
     if (cached) {
         return JSON.parse(cached);
     }
 
+    const filter = {
+        role: "user",
+        ...(search && {
+            $or: [
+                { fullName: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+                { phone: { $regex: search, $options: "i" } },
+            ]
+        })
+    };
+
     // getting all users with total
     const allUsers = await User.find({
-        role: "user",
+        filter,
     },
         {
             fullName: 1,
@@ -28,7 +46,10 @@ export const getUsersService = async (adminId: string, metadata: AuditMetadata) 
             isAccountActive: 1,
             createdAt: 1
         }
-    ).sort({ createdAt: -1 });
+    )
+        .sort(orderBy)
+        .skip(skip)
+        .limit(limit);
 
     // getting active users count
     const validUsers = await User.countDocuments({ role: "user", isAccountActive: true });

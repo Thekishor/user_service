@@ -3,6 +3,9 @@ import { getUsersService, deleteUser } from "../services/user.service.js";
 import { AppError } from "../utils/AppError.js";
 import { logError } from "../config/logger.js";
 import { getRequestMetadata } from "./auth.controller.js";
+import { paginationSchema } from "../schema/auth.schema.js";
+import z from "zod";
+import { parseQuery } from "../utils/query.js";
 
 export const getAllUser =
     async (req: Request, res: Response, next: NextFunction) => {
@@ -14,9 +17,26 @@ export const getAllUser =
 
             const adminId = req.user._id.toString();
             const metadata = getRequestMetadata(req);
-            const result = await getUsersService(adminId, metadata);
+            const result = paginationSchema.safeParse(req.query);
 
-            const { users, totalUsers, activeUsers, inactiveUsers, unverifiedUsers } = result;
+            if (!result.success) {
+                throw new AppError(
+                    "Validation failed",
+                    400,
+                    "VALIDATION_ERROR",
+                    z.flattenError(result.error).fieldErrors
+                );
+            }
+
+            const { skip, limit, search, orderBy } = parseQuery(result.data);
+
+            const {
+                users,
+                totalUsers,
+                activeUsers,
+                inactiveUsers,
+                unverifiedUsers
+            } = await getUsersService(adminId, metadata, skip, limit, search, orderBy);
 
             return res.status(200).json({
                 status: "success",
