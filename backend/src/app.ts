@@ -10,6 +10,7 @@ import logger from "./config/logger.js";
 import { createRateLimiters } from "./config/rate-limiter.js";
 import "./jobs/scheduler.js";
 import "./queues/email.worker.js";
+import { AppError } from "./utils/AppError.js";
 
 export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) => {
 
@@ -18,15 +19,29 @@ export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) =
     app.set("trust proxy", 1);
     app.disable("x-powered-by");
 
-    const allowedOrigins = [
+    const allowedOrigins = new Set([
         "http://localhost:5173",
         "https://user-service-bay.vercel.app",
-    ];
+    ]);
 
-    app.use(cors({
-        origin: allowedOrigins,
-        credentials: true,
-    }));
+    app.use(
+        cors({
+            origin(origin, callback) {
+                if (!origin || allowedOrigins.has(origin)) {
+                    return callback(null, true);
+                }
+
+                callback(
+                    new AppError(
+                        `Origin ${origin} is not allowed by CORS`,
+                        403,
+                        "CORS_ERROR",
+                    ),
+                );
+            },
+            credentials: true,
+        }),
+    );
 
     // helmet after cors so it doesn't interfere with CORS headers
     app.use(helmet());

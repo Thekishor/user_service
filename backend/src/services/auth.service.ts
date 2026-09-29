@@ -14,6 +14,7 @@ import { isUserLockedOut, loginFailed, loginSuccess } from "../utils/loginFailed
 import { fileService } from "./file.service.js";
 import { IUser } from "../types/express.js";
 import { redisOperation } from "../utils/redis.operation.js";
+import { getIO } from "../socket/socket.js";
 
 export const register =
     async (data: RegisterDto, metadata: AuditMetadata) => {
@@ -347,6 +348,10 @@ export const logoutAll = async (userId: string, metadata: AuditMetadata) => {
             tokenVersion: 1
         },
     });
+
+    // socket events
+    const io = getIO();
+    io.to(`user:${userId}`).emit("logout-all");
 
     await AuditLog.create({
         action: AUDIT_ACTION.LOGOUT_ALL,

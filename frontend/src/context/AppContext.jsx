@@ -11,8 +11,9 @@ import {
   logoutUserFromAllDevices,
   refreshToken,
 } from "../services/authService";
+import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
-import { clearToken, setToken } from "../services/token.manager";
+import { clearToken, getToken, setToken } from "../services/token.manager";
 import { setAuthExpiredHandler } from "../services/axios.interceptors";
 import { authChannel } from "../services/authChannel";
 import { toast } from "sonner";
@@ -44,13 +45,17 @@ export const AppContextProvider = ({ children }) => {
     restoreSession();
   }, []);
 
+  const clearAuth = useCallback(() => {
+    setUser(null);
+    clearToken();
+    navigate("/login");
+  }, [navigate]);
+
   // event listener setup
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.data?.type === "LOGOUT") {
-        setUser(null);
-        clearToken();
-        navigate("/login");
+        clearAuth();
       }
     };
 
@@ -79,18 +84,13 @@ export const AppContextProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      setUser(null);
-      // call token manager.js
-      clearToken();
+      clearAuth();
 
-      //tell others tabs
       authChannel.postMessage({
         type: "LOGOUT",
       });
-
-      navigate("/login");
     }
-  }, [navigate]);
+  }, [clearAuth]);
 
   // logout all devices
   const logoutAll = useCallback(async () => {
@@ -100,12 +100,40 @@ export const AppContextProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      setUser(null);
-      // call token manager.js
-      clearToken();
-      navigate("/login");
+      clearAuth();
     }
-  }, [navigate]);
+  }, [clearAuth]);
+
+  //socket.io logout from all devices
+  useEffect(() => {
+    const token = getToken();
+
+    if (!token) return;
+
+    const socket = io(import.meta.env.VITE_API_URL, {
+      auth: {
+        token,
+      },
+    });
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error.message);
+    });
+
+    socket.on("logout-all", () => {
+      console.log("Received LOGOUT-ALL event");
+
+      clearAuth();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [clearAuth]);
 
   const value = useMemo(
     () => ({

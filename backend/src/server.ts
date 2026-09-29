@@ -7,6 +7,8 @@ import { connectRedis, disconnectRedis } from "./config/redis.config.js";
 import { createRateLimiters } from "./config/rate-limiter.js";
 import { connectDB, disconnectDB } from "./config/database.js";
 import dns from 'node:dns';
+import { initializeSocket } from "./socket/socket.js";
+import { SocketHandler } from "./socket/SocketHandler.js";
 
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
@@ -17,8 +19,9 @@ await connectRedis();
 
 const rateLimiters = createRateLimiters();
 const app = createApp(rateLimiters);
-
 const httpServer = createServer(app);
+const io = initializeSocket(httpServer);
+SocketHandler.register(io);
 
 const PORT = env.PORT || 5000;
 
