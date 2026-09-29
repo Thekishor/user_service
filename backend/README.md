@@ -23,10 +23,11 @@ email based workflow and token management.
 
 - Cookie based Authentication
 - JWT (Access Token, Refresh Token)
+- Blacklisted Access Token after logout till expiry
 - Role-Based Access Control
 - Custom Error handler for better error handling and debugging
 - JWT Auth with session revocation
-- Logout and Logout from all devices (Using tokenversion for security)
+- Logout and Logout from all devices (using socket.io with room)
 
 ### Database
 

@@ -23,7 +23,7 @@ export const getUsersService = async (
     }
 
     const filter = {
-        role: "user",
+        role: "user" as const,
         ...(search && {
             $or: [
                 { fullName: { $regex: search, $options: "i" } },
@@ -34,9 +34,8 @@ export const getUsersService = async (
     };
 
     // getting all users with total
-    const allUsers = await User.find({
+    const allUsers = await User.find(
         filter,
-    },
         {
             fullName: 1,
             email: 1,

@@ -17,7 +17,7 @@ export const getAllUserAuditLogs = async (
     }
 
     const filter = {
-        role: "user",
+        user: userId,
         ...(search && {
             $or: [
                 { action: { $regex: search, $options: "i" } },
@@ -26,10 +26,8 @@ export const getAllUserAuditLogs = async (
         })
     };
 
-    const userLogs = await AuditLog.find({
-        user: userId,
-        filter
-    },
+    const userLogs = await AuditLog.find(
+        filter,
         {
             _id: 1,
             action: 1,

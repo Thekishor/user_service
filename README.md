@@ -85,6 +85,7 @@ user-service/
 - **Emails**: Resend API
 - **Logging**: Winston & Winston Daily Rotate File
 - **Render**: Deployment
+- **Websocket**: Socket.io
 
 ### Frontend
 
@@ -96,6 +97,7 @@ user-service/
 - **UI Feedback**: Sonner (toasts)
 - **HTTP Client**: Axios
 - **Vercel**: Deployment
+- **Websocket**: Socket.io
 
 ---
 

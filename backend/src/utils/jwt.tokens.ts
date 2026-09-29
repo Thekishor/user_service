@@ -6,7 +6,7 @@ import { AppError } from "./AppError.js";
 export function createAccessToken(userId: string, role: string, tokenVersion: number) {
     const payload = { sub: userId, role, tokenVersion, jti: crypto.randomUUID().toString() };
     return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-        expiresIn: "15m"
+        expiresIn: "10m"
     })
 }
 
