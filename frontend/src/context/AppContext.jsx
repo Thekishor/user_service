@@ -122,6 +122,7 @@ export const AppContextProvider = ({ children }) => {
 
     socket.on("logout-all", handleForceLogout);
     socket.on("password-changed", handleForceLogout);
+    socket.on("password-reset", handleForceLogout);
 
     return () => {
       socket.disconnect();

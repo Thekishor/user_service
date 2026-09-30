@@ -492,6 +492,10 @@ export const resetPassword =
             }
         });
 
+        // socket io to send events
+        const io = getIO();
+        io.to(`user:${user._id}`).emit("password-reset");
+
         await AuditLog.create({
             action: AUDIT_ACTION.RESET_PASSWORD,
             user: user._id,

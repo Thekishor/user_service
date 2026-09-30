@@ -114,13 +114,13 @@ export const getUsersService = async (
 };
 
 export const deleteUser =
-    async (userId: string, adminId: string, metadata: AuditMetadata) => {
+    async (userId: string, adminId: string) => {
 
         const user = await User.findById(userId);
 
         if (!user) {
             throw new AppError("User not found", 404, "USER_NOT_FOUND");
-        }
+        };
 
         await Session.deleteMany({
             user: userId,
@@ -128,13 +128,8 @@ export const deleteUser =
 
         await User.deleteOne({ _id: userId });
 
-        await AuditLog.create({
-            action: AUDIT_ACTION.DELETE_USER,
-            user: adminId,
-            resource: AUDIT_RESOURCE.USER,
-            resourceId: adminId,
-            ip: metadata.ipAddress,
-            userAgent: metadata.userAgent
+        await AuditLog.deleteMany({
+            user: userId
         });
 
         //delete cached data 

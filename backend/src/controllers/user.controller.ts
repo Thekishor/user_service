@@ -64,9 +64,8 @@ export const deleteUserHandler =
             }
 
             const adminId = req.user._id.toString();
-            const metadata = getRequestMetadata(req);
             const userId = req.params.id;
-            await deleteUser(userId, adminId, metadata);
+            await deleteUser(userId, adminId);
 
             return res.status(200).json({
                 status: "success",
