@@ -349,7 +349,7 @@ export const logoutAll = async (userId: string, metadata: AuditMetadata) => {
         },
     });
 
-    // socket events
+    // socket events to notify all connected devices
     const io = getIO();
     io.to(`user:${userId}`).emit("logout-all");
 
@@ -539,6 +539,10 @@ export const changePassword =
                 revokedAt: new Date(),
             }
         });
+
+        // Notify all connected devices
+        const io = getIO();
+        io.to(`user:${userId}`).emit("password-changed");
 
         await AuditLog.create({
             action: AUDIT_ACTION.PASSWORD_CHANGED,

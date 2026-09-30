@@ -42,13 +42,13 @@ export const AppContextProvider = ({ children }) => {
       }
     };
 
-    restoreSession();
+    void restoreSession();
   }, []);
 
   const clearAuth = useCallback(() => {
     setUser(null);
     clearToken();
-    navigate("/login");
+    void navigate("/login");
   }, [navigate]);
 
   // event listener setup
@@ -72,7 +72,7 @@ export const AppContextProvider = ({ children }) => {
     setAuthExpiredHandler(() => {
       setUser(null);
       clearToken();
-      navigate("/login");
+      void navigate("/login");
     });
   }, [navigate]);
 
@@ -116,19 +116,12 @@ export const AppContextProvider = ({ children }) => {
       },
     });
 
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-
-    socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error.message);
-    });
-
-    socket.on("logout-all", () => {
-      console.log("Received LOGOUT-ALL event");
-
+    const handleForceLogout = () => {
       clearAuth();
-    });
+    };
+
+    socket.on("logout-all", handleForceLogout);
+    socket.on("password-changed", handleForceLogout);
 
     return () => {
       socket.disconnect();
