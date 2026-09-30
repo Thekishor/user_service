@@ -148,6 +148,14 @@ export const login =
 
         const { identifier, password } = data;
 
+        const userId = identifier.includes("@")
+            ? await redisOperation.get(`user:login:email:${identifier}`)
+            : await redisOperation.get(`user:login:phone:${identifier}`);
+
+        if (userId) {
+            await isUserLockedOut(userId);
+        }
+
         const user = await User.findOne({
             $or: [
                 { email: identifier },
@@ -175,8 +183,18 @@ export const login =
             );
         }
 
-        // Is user already locked out due to too many failed login attempts
-        await isUserLockedOut(user._id.toString());
+        // store both identifiers → userId
+        await redisOperation.setEx(
+            `user:login:email:${user.email}`,
+            86400,
+            user._id.toString(),
+        );
+
+        await redisOperation.setEx(
+            `user:login:phone:${user.phone}`,
+            86400,
+            user._id.toString(),
+        );
 
         const isValidPassword = await comparePassword(password, user.password);
 
@@ -201,7 +219,7 @@ export const login =
         }
 
         //del from redis after login success
-        await loginSuccess(user._id.toString());
+        await loginSuccess(user._id.toString(), user.email, user.phone);
 
         const session = new Session({
             user: user._id,

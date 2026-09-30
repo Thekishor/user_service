@@ -29,7 +29,7 @@ export const loginFailed = async (userId: string) => {
 
     if (nextAttempt >= 5) {
         throw new AppError(
-            `Too many failed login attempts. Please try again after 15 minutes.`,
+            `You have been temporarily locked out due to too many failed login attempts. Please try again after 15 minutes.`,
             429,
             "TOO_MANY_FAILED_ATTEMPTS"
         );
@@ -38,9 +38,11 @@ export const loginFailed = async (userId: string) => {
     return nextAttempt;
 }
 
-export const loginSuccess = async (userId: string) => {
+export const loginSuccess = async (userId: string, email: string, phone: string) => {
     const userKey = `LOGIN_ATTEMPTS:${userId}`;
     await redisOperation.del(userKey);
+    await redisOperation.del(`user:login:email:${email}`);
+    await redisOperation.del(`user:login:phone:${phone}`);
 };
 
 export const isUserLockedOut = async (userId: string) => {
@@ -57,7 +59,7 @@ export const isUserLockedOut = async (userId: string) => {
 
     if (parseLoginAttempt >= 5) {
         throw new AppError(
-            `Too many failed login attempts. Please try again after ${minute} ${minute > 1 ? "minutes" : "minute"}.`,
+            `You have been temporarily locked out due to too many failed login attempts. Please try again after ${minute} ${minute > 1 ? "minutes" : "minute"}.`,
             429,
             "TOO_MANY_FAILED_ATTEMPTS"
         );
