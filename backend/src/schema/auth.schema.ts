@@ -79,7 +79,7 @@ export const paginationSchema = z.object({
     limit: z.coerce.number().int().min(1).max(10).default(10),
     search: z.string().trim().default(""),
     sortBy: z.string().default("createdAt"),
-    sortOrder: z.enum(["asc", "desc"]).default("desc"),
+    sortOrder: z.enum(["1", "-1"]).default("-1"),
 });
 
 export type RegisterDto = z.infer<typeof registerSchema>;
