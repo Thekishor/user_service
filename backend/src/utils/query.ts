@@ -6,7 +6,7 @@ export function parseQuery(query: PaginationQuery) {
         limit: query.limit,
         search: query.search,
         orderBy: {
-            [query.sortBy]: query.sortOrder === "asc" ? 1 : -1,
+            [query.sortBy]: query.sortOrder === "1" ? 1 : -1,
         } as Record<string, 1 | -1>
     }
 }
