@@ -22,16 +22,24 @@ const UserActivity = () => {
       }
     };
 
-    fetchLogs();
+    void fetchLogs();
   }, []);
 
   // Helper for clean, color-coded action badges
   const getActionBadgeStyle = (action = "") => {
     const act = action.toLowerCase();
-    if (act.includes("login") || act.includes("verify") || act.includes("register")) {
+    if (
+      act.includes("login") ||
+      act.includes("verify") ||
+      act.includes("register")
+    ) {
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     }
-    if (act.includes("password") || act.includes("profile") || act.includes("update")) {
+    if (
+      act.includes("password") ||
+      act.includes("profile") ||
+      act.includes("update")
+    ) {
       return "bg-blue-50 text-blue-700 border-blue-200";
     }
     if (act.includes("logout")) {
@@ -69,7 +77,8 @@ const UserActivity = () => {
         <div className="flex items-center gap-2 self-start rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 shadow-xs sm:self-auto">
           <span className="h-2 w-2 rounded-full bg-blue-600"></span>
           <span>
-            {logs?.length || 0} {logs?.length === 1 ? "Event" : "Events"} recorded
+            {logs?.length || 0} {logs?.length === 1 ? "Event" : "Events"}{" "}
+            recorded
           </span>
         </div>
       </div>
@@ -82,7 +91,9 @@ const UserActivity = () => {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold text-gray-900">{user?.fullName}</p>
+            <p className="truncate font-semibold text-gray-900">
+              {user?.fullName}
+            </p>
             <p className="truncate text-sm text-gray-500">{user?.email}</p>
           </div>
 
@@ -128,7 +139,7 @@ const UserActivity = () => {
                   <div className="mb-2.5 flex items-center justify-between gap-2">
                     <span
                       className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${getActionBadgeStyle(
-                        log.action
+                        log.action,
                       )}`}
                     >
                       {log.action}
@@ -140,7 +151,9 @@ const UserActivity = () => {
                   </div>
 
                   <div className="mb-2 text-xs text-gray-600">
-                    <span className="font-medium text-gray-500">Resource: </span>
+                    <span className="font-medium text-gray-500">
+                      Resource:{" "}
+                    </span>
                     <span className="rounded bg-gray-200/70 px-1.5 py-0.5 font-mono text-gray-800">
                       {log.resource}
                     </span>
@@ -181,7 +194,7 @@ const UserActivity = () => {
                       <td className="whitespace-nowrap px-6 py-4">
                         <span
                           className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getActionBadgeStyle(
-                            log.action
+                            log.action,
                           )}`}
                         >
                           {log.action}
@@ -198,19 +211,25 @@ const UserActivity = () => {
                       {/* Date & Time Column */}
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="text-sm font-medium text-gray-800">
-                          {new Date(log.createdAt).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {new Date(log.createdAt).toLocaleDateString(
+                            undefined,
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )}
                         </div>
                         <div className="mt-0.5 flex items-center gap-1 text-xs text-gray-400">
                           <Clock className="h-3 w-3" />
                           <span>
-                            {new Date(log.createdAt).toLocaleTimeString(undefined, {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {new Date(log.createdAt).toLocaleTimeString(
+                              undefined,
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
                           </span>
                         </div>
                       </td>

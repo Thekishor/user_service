@@ -38,7 +38,7 @@ const VerifyEmail = () => {
       }
     };
 
-    verify();
+    void verify();
   }, [token]);
 
   return (

@@ -16,6 +16,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorResponse, setErrorResponse] = useState("");
   const navigate = useNavigate();
+  const isNavigationDisabled = isLoading;
 
   const {
     register,
@@ -45,7 +46,7 @@ const Login = () => {
       setToken(token);
 
       if (response.status === 200) {
-        navigate(
+        void navigate(
           response.data.user.role === "admin"
             ? "/admin/dashboard"
             : "/dashboard",
@@ -111,6 +112,9 @@ const Login = () => {
 
             <Link
               to="/forgot-password"
+              onClick={(e) => {
+                if (isNavigationDisabled) e.preventDefault();
+              }}
               className="text-sm font-medium text-blue-600 transition hover:text-blue-700"
             >
               Forgot password?
@@ -138,6 +142,9 @@ const Login = () => {
           Don't have an account?
           <Link
             to="/register"
+            onClick={(e) => {
+              if (isNavigationDisabled) e.preventDefault();
+            }}
             className="font-semibold text-blue-600 transition hover:text-blue-700"
           >
             Sign Up

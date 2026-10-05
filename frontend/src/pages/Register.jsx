@@ -14,6 +14,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorResponse, setErrorResponse] = useState("");
   const navigate = useNavigate();
+  const isNavigationDisabled = isLoading;
 
   const {
     register,
@@ -39,7 +40,7 @@ const Register = () => {
     try {
       const response = await registerUser(data);
       toast.success(response.data.message);
-      navigate("/login");
+      void navigate("/login");
     } catch (error) {
       const errors = handleApiError(error, setError);
       setErrorResponse(errors);
@@ -124,6 +125,9 @@ const Register = () => {
         Already have an account?
         <Link
           to="/login"
+          onClick={(e) => {
+            if (isNavigationDisabled) e.preventDefault();
+          }}
           className="font-medium text-blue-600 transition hover:text-blue-700"
         >
           Login

@@ -46,7 +46,7 @@ const ChangePassword = () => {
 
       if (response.status === 200) {
         toast.success(response.data.message);
-        navigate("/login");
+        void navigate("/login");
       }
     } catch (error) {
       const errors = handleApiError(error, setError);

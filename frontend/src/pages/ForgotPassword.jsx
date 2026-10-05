@@ -14,6 +14,7 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorResponse, setErrorResponse] = useState("");
   const navigate = useNavigate();
+  const isNavigationDisabled = isLoading;
 
   const {
     register,
@@ -38,7 +39,7 @@ const ForgotPassword = () => {
 
       if (response.status === 200) {
         toast.success(response.data.message);
-        navigate("/login");
+        void navigate("/login");
       }
     } catch (error) {
       const errors = handleApiError(error, setError);
@@ -92,6 +93,9 @@ const ForgotPassword = () => {
         Remember your password?{" "}
         <Link
           to="/login"
+          onClick={(e) => {
+            if (isNavigationDisabled) e.preventDefault();
+          }}
           className="font-medium text-blue-600 hover:text-blue-700"
         >
           Login
