@@ -12,8 +12,8 @@ import {
     updateProfileHandler
 } from "../controllers/auth.controller.js";
 import verifyToken from "../middleware/auth.middleware.js";
-import { validateRequest } from "../middleware/validate.middleware.js";
-import { changePasswordSchema, loginSchema, profileSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema.js";
+import { validateQuery, validateRequest } from "../middleware/validate.middleware.js";
+import { changePasswordSchema, loginSchema, paginationSchema, profileSchema, registerSchema, resetPasswordSchema } from "../schema/auth.schema.js";
 import { getAllAuditLogs } from "../controllers/auditLogs.controller.js";
 import { createRateLimiters } from "../config/rate-limiter.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -31,7 +31,7 @@ export function authRoutes(rateLimiters: ReturnType<typeof createRateLimiters>) 
     router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordHandler);
     router.post("/change-password", verifyToken, validateRequest(changePasswordSchema), changePasswordHandler);
     router.put("/profile", verifyToken, upload.single("image"), validateRequest(profileSchema), updateProfileHandler);
-    router.get("/audit-logs", verifyToken, getAllAuditLogs);
+    router.get("/audit-logs", verifyToken, validateQuery(paginationSchema), getAllAuditLogs);
 
     return router;
 };

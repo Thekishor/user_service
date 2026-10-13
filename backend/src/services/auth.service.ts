@@ -16,66 +16,65 @@ import { IUser } from "../types/express.js";
 import { redisOperation } from "../utils/redis.operation.js";
 import { getIO } from "../socket/socket.js";
 
-export const register =
-    async (data: RegisterDto, metadata: AuditMetadata) => {
+export const register = async (data: RegisterDto, metadata: AuditMetadata) => {
 
-        const { fullName, phone, email, password } = data;
+    const { fullName, phone, email, password } = data;
 
-        const existingUser = await User.findOne({
-            $or: [
-                { email },
-                { phone }
-            ]
-        });
+    const existingUser = await User.findOne({
+        $or: [
+            { email },
+            { phone }
+        ]
+    });
 
-        if (existingUser) {
+    if (existingUser) {
 
-            if (existingUser.email === email) {
-                throw new AppError(
-                    "An account with this email already exists!",
-                    409,
-                    "EMAIL_ALREADY_EXISTS"
-                );
-            }
-
-            if (existingUser.phone === phone) {
-                throw new AppError(
-                    "An account with this phone number already exists!",
-                    409,
-                    "PHONE_ALREADY_EXISTS"
-                );
-            }
+        if (existingUser.email === email) {
+            throw new AppError(
+                "An account with this email already exists.",
+                409,
+                "EMAIL_ALREADY_EXISTS"
+            );
         }
 
-        const passwordHash = await hashPassword(password);
-
-        const user = await User.create({
-            fullName,
-            phone,
-            email,
-            password: passwordHash
-        });
-
-        await sendVerificationEmail(user);
-
-        await AuditLog.create({
-            action: AUDIT_ACTION.REGISTER,
-            user: user._id,
-            resource: AUDIT_RESOURCE.USER,
-            resourceId: user._id,
-            ip: metadata.ipAddress,
-            userAgent: metadata.userAgent
-        });
-
-        //delete cached data 
-        const key = `users:all:*`;
-        await redisOperation.del(key);
-
-        return {
-            user: mapUserToUserResponse(user)
-        };
-
+        if (existingUser.phone === phone) {
+            throw new AppError(
+                "An account with this phone number already exists.",
+                409,
+                "PHONE_ALREADY_EXISTS"
+            );
+        }
     }
+
+    const passwordHash = await hashPassword(password);
+
+    const user = await User.create({
+        fullName,
+        phone,
+        email,
+        password: passwordHash
+    });
+
+    await sendVerificationEmail(user);
+
+    await AuditLog.create({
+        action: AUDIT_ACTION.REGISTER,
+        user: user._id,
+        resource: AUDIT_RESOURCE.USER,
+        resourceId: user._id,
+        ip: metadata.ipAddress,
+        userAgent: metadata.userAgent
+    });
+
+    //delete cached data 
+    const key = `users:all:*`;
+    await redisOperation.del(key);
+
+    return {
+        user: mapUserToUserResponse(user)
+    };
+
+}
 
 export const verifyEmail =
     async (token: string, metadata: AuditMetadata) => {

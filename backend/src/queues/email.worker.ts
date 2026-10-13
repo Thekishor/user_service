@@ -14,7 +14,7 @@ const worker = new Worker(
 
             await sendEmail(
                 job.data.email,
-                "Verify Your Email Address",
+                "Verify Email Address",
                 html,
             );
 

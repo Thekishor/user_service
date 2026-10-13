@@ -133,7 +133,7 @@ export const deleteUser =
         });
 
         //delete cached data 
-        const key = `users:all:${adminId}`;
+        const key = `users:all:${adminId}:*`;
         await redisOperation.del(key);
 
     }
