@@ -1,9 +1,12 @@
+import mongoose from "mongoose";
 import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model.js";
 import { Session } from "../models/session.model.js";
 import { User } from "../models/user.model.js";
 import { AppError } from "../utils/AppError.js";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values.js";
 import { redisOperation } from "../utils/redis.operation.js";
+import { EmailVerification } from "../models/emailverification.model.js";
+import { PasswordReset } from "../models/passwordreset.model.js";
 
 export const getUsersService = async (
     adminId: string,
@@ -113,27 +116,33 @@ export const getUsersService = async (
     }
 };
 
-export const deleteUser =
-    async (userId: string, adminId: string) => {
+export const deleteUser = async (userId: string, adminId: string) => {
 
-        const user = await User.findById(userId);
+    const session = await mongoose.startSession();
 
-        if (!user) {
-            throw new AppError("User not found", 404, "USER_NOT_FOUND");
-        };
+    try {
 
-        await Session.deleteMany({
-            user: userId,
+        await session.withTransaction(async () => {
+
+            const user = await User.findById(userId).session(session);
+
+            if (!user) {
+                throw new AppError("User not found", 404, "USER_NOT_FOUND");
+            };
+
+            await AuditLog.deleteMany({ userId }).session(session);
+            await EmailVerification.deleteOne({ userId }).session(session);
+            await PasswordReset.deleteOne({ userId }).session(session);
+            await Session.deleteMany({ userId }).session(session);
+            await User.deleteOne({ _id: userId }).session(session);
         });
 
-        await User.deleteOne({ _id: userId });
-
-        await AuditLog.deleteMany({
-            user: userId
-        });
-
-        //delete cached data 
+        // Invalidate Redis cache after successful transaction
         const key = `users:all:${adminId}:*`;
         await redisOperation.del(key);
 
+    } finally {
+        await session.endSession();
     }
+
+}

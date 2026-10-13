@@ -15,6 +15,7 @@ import { fileService } from "./file.service.js";
 import { IUser } from "../types/express.js";
 import { redisOperation } from "../utils/redis.operation.js";
 import { getIO } from "../socket/socket.js";
+import mongoose from "mongoose";
 
 export const register = async (data: RegisterDto, metadata: AuditMetadata) => {
 
@@ -48,30 +49,47 @@ export const register = async (data: RegisterDto, metadata: AuditMetadata) => {
 
     const passwordHash = await hashPassword(password);
 
-    const user = await User.create({
-        fullName,
-        phone,
-        email,
-        password: passwordHash
-    });
+    const session = await mongoose.startSession();
+    let createdUser: IUser | undefined;
 
-    await sendVerificationEmail(user);
+    try {
 
-    await AuditLog.create({
-        action: AUDIT_ACTION.REGISTER,
-        user: user._id,
-        resource: AUDIT_RESOURCE.USER,
-        resourceId: user._id,
-        ip: metadata.ipAddress,
-        userAgent: metadata.userAgent
-    });
+        await session.withTransaction(async () => {
+
+            [createdUser] = await User.create([{
+                fullName,
+                phone,
+                email,
+                password: passwordHash
+            }], { session });
+
+            await AuditLog.create([{
+                action: AUDIT_ACTION.REGISTER,
+                user: createdUser._id,
+                resource: AUDIT_RESOURCE.USER,
+                resourceId: createdUser._id,
+                ip: metadata.ipAddress,
+                userAgent: metadata.userAgent
+            }], { session });
+        });
+
+    } finally {
+        await session.endSession();
+    }
+
+    if (!createdUser) {
+        throw new AppError("Something went wrong during registration", 500, "REGISTRATION_FAILED");
+    }
+
+    // Send email only after the transaction succeeds
+    await sendVerificationEmail(createdUser);
 
     //delete cached data 
     const key = `users:all:*`;
     await redisOperation.del(key);
 
     return {
-        user: mapUserToUserResponse(user)
+        user: mapUserToUserResponse(createdUser)
     };
 
 }
