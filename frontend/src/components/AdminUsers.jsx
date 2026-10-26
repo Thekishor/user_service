@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Loading from "../components/Loading";
+import { LoaderCircle } from "lucide-react";
 import { getAllUsers, deleteUser } from "../services/authService";
 
 const AdminUsers = () => {
@@ -13,6 +14,7 @@ const AdminUsers = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("-1");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [usersData, setUsersData] = useState({
     users: [],
@@ -61,6 +63,7 @@ const AdminUsers = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
+      setIsDeleting(true);
       await deleteUser(userId);
 
       setUsersData((prev) => ({
@@ -74,6 +77,8 @@ const AdminUsers = () => {
       toast.success("User deleted successfully");
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -319,10 +324,18 @@ const AdminUsers = () => {
               </button>
 
               <button
-                onClick={() => handleDeleteUser(selectedUser?.id)}
-                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600 hover:shadow-md active:scale-95"
+                onClick={() => {
+                  if (selectedUser?.id) {
+                    void handleDeleteUser(selectedUser.id);
+                  }
+                }}
+                disabled={isDeleting}
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Delete
+                {isDeleting && (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                )}
+                {isDeleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
