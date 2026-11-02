@@ -26,6 +26,7 @@ const AdminUsers = () => {
 
   // Calculate number of pages
   const totalPages = Math.ceil(usersData.totalUsers / limit);
+  const totalUsers = usersData?.totalUsers ?? 0;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -255,11 +256,9 @@ const AdminUsers = () => {
         <div className="flex flex-col gap-4 border-t border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Showing information */}
           <p className="text-sm text-slate-500">
-            Showing {usersData.totalUsers === 0 ? 0 : (page - 1) * limit + 1} to{" "}
-            {Math.min(page * limit, usersData.totalUsers)} of{" "}
-            {usersData.totalUsers} users
+            Showing {totalUsers === 0 ? 0 : (page - 1) * limit + 1} to{" "}
+            {Math.min(page * limit, totalUsers)} of {totalUsers} users
           </p>
-
           {/* Page controls */}
           <div className="flex items-center gap-1">
             {/* Previous */}
