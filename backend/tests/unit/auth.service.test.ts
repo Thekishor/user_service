@@ -1,7 +1,6 @@
 import { jest } from "@jest/globals";
 import { beforeEach } from "node:test";
 import { describe, expect, it } from "@jest/globals";
-import { AuditLog } from "../../src/models/auditLogSchema.model.js";
 
 // create mocks before importing the modules under test.
 const userCreateMock = jest.fn<() => Promise<{
@@ -11,6 +10,7 @@ const userCreateMock = jest.fn<() => Promise<{
     phone: string;
     password: string;
 }[]>>();
+
 const auditLogCreateMock = jest.fn<() => Promise<unknown[]>>();
 const sendVerificationEmailMock = jest.fn<() => Promise<void>>();
 
@@ -18,10 +18,16 @@ const endSessionMock = jest.fn<() => Promise<void>>();
 const withTransactionMock = jest.fn<
     (callback: () => Promise<unknown>) => Promise<void>
 >();
+
 const startSessionMock = jest.fn<() => Promise<{
     withTransaction: typeof withTransactionMock;
     endSession: typeof endSessionMock;
 }>>();
+
+// Import after registering the ESM mocks.
+const { register } = await import(
+    "../../src/services/auth.service.js"
+);
 
 jest.unstable_mockModule("../../src/models/user.model.js", () => ({
     default: {
@@ -40,12 +46,8 @@ jest.unstable_mockModule("../../src/services/email.service.js", () => ({
 }));
 
 
-// Import after registering the ESM mocks.
-const { register } = await import(
-    "../../src/services/auth.service.js"
-);
-
 describe("registerUser", () => {
+
     beforeEach(() => {
         jest.clearAllMocks();
 
