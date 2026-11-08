@@ -73,6 +73,14 @@ export const profileSchema = z.object({
         .max(50, "Full name must be 50 characters or less"),
 })
 
+// Create note schema
+export const noteSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(150, "Title cannot exceed 150 characters"),
+  content: z.string().trim().min(1, "Content is required"),
+  color: z.enum(["default", "yellow", "blue", "green", "pink", "purple"]).default("default"),
+  tags: z.array(z.string().trim().min(1).max(30)).max(10, "Maximum 10 tags allowed").default([]),
+});
+
 // Pagination schema
 export const paginationSchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
@@ -88,3 +96,4 @@ export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordDto = z.infer<typeof changePasswordSchema>;
 export type ProfileSchemaDto = z.infer<typeof profileSchema>;
 export type PaginationQuery = z.infer<typeof paginationSchema>;
+export type NoteDto = z.infer<typeof noteSchema>;
