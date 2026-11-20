@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import { authRoutes } from "./routes/auth.routes.js";
+import notesRoute from "./routes/notes.routes.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 import adminRouter from "./routes/admin.routes.js";
 import helmet from "helmet";
@@ -76,6 +77,7 @@ export const createApp = (rateLimiters: ReturnType<typeof createRateLimiters>) =
 
     app.use("/api/v1/auth", authRoutes(rateLimiters));
     app.use("/api/v1/admin", adminRouter);
+    app.use("/api/v1", notesRoute);
 
     app.use(errorHandler);
 

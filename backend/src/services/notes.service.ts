@@ -1,10 +1,11 @@
-import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model";
-import { Note } from "../models/note.model";
-import { NoteDto } from "../schema/auth.schema";
+import { AuditLog, AuditMetadata } from "../models/auditLogSchema.model.js";
+import { Note } from "../models/note.model.js";
+import { NoteDto } from "../schema/auth.schema.js";
 import mongoose from "mongoose";
-import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values";
+import { AUDIT_ACTION, AUDIT_RESOURCE } from "../utils/enum.values.js";
 import { INotes } from "../types/express";
 import { AppError } from "../utils/AppError.js";
+import { redisOperation } from "../utils/redis.operation.js";
 
 export const createNoteService =
     async (data: NoteDto, metadata: AuditMetadata, userId: string) => {
@@ -43,11 +44,102 @@ export const createNoteService =
             throw new AppError("Failed to create note", 500, "NOTE_CREATION_FAILED");
         }
 
+        // Invalidate cached notes for this user
+        await redisOperation.del(`notes:all:${userId}:*`);
+
         return {
             notes: mapNotesToNoteResponse(createdNotes)
-        }
+        };
 
+    };
+
+export const getAllNotesService = async (
+    userId: string,
+    metadata: AuditMetadata,
+    skip: number,
+    limit: number,
+    search: string,
+    orderBy: Record<string, 1 | -1>,
+) => {
+    const key = `notes:all:${userId}:${skip}:${limit}:${search}:${JSON.stringify(orderBy)}`;
+    const cached = await redisOperation.get(key);
+
+    if (cached) {
+        return JSON.parse(cached);
     }
+
+    const filter = {
+        userId,
+        ...(search && {
+            $or: [
+                { title: { $regex: search, $options: "i" } },
+                { content: { $regex: search, $options: "i" } },
+                { tags: { $in: [new RegExp(search, "i")] } },
+            ],
+        }),
+    };
+
+    const [allNotes, totalNotes] = await Promise.all([
+
+        // find all
+        Note.find(filter)
+            .sort(orderBy)
+            .skip(skip)
+            .limit(limit),
+
+        // count
+        Note.countDocuments(filter),
+    ]);
+
+    if (totalNotes === 0) {
+        return {
+            notes: [],
+            totalNotes: 0,
+            totalPages: 0,
+        };
+    }
+
+    const mappedNotes = allNotes.map((note) =>
+        mapNotesToNoteResponse(note)
+    );
+
+    const response = {
+        notes: mappedNotes,
+        totalNotes,
+        totalPages: Math.ceil(totalNotes / limit),
+    };
+
+    await redisOperation.setEx(key, 300, JSON.stringify(response));
+
+    return response;
+};
+
+export const getNoteByIdService = async (noteId: string, userId: string) => {
+    if (!mongoose.Types.ObjectId.isValid(noteId)) {
+        throw new AppError("Invalid note ID format", 400, "INVALID_NOTE_ID");
+    }
+
+    const key = `notes:single:${userId}:${noteId}`;
+    const cached = await redisOperation.get(key);
+
+    if (cached) {
+        return JSON.parse(cached);
+    }
+
+    const note = await Note.findOne({ _id: noteId, userId });
+
+    if (!note) {
+        throw new AppError("Note not found", 404, "NOTE_NOT_FOUND");
+    }
+
+    const response = {
+        note: mapNotesToNoteResponse(note as unknown as INotes),
+    };
+
+    await redisOperation.setEx(key, 300, JSON.stringify(response));
+
+    return response;
+};
 
 export function mapNotesToNoteResponse(notes: INotes) {
     return {
@@ -61,5 +153,5 @@ export function mapNotesToNoteResponse(notes: INotes) {
         isArchived: notes.isArchived,
         createdAt: notes.createdAt,
         updatedAt: notes.updatedAt
-    }
+    };
 }
