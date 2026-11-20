@@ -15,15 +15,15 @@ export async function sendEmail(to: string, subject: string, html: string) {
         });
 
         if (error) {
-            logError("Failed to send email", error);
+            logError("Failed to send email to user", error);
             return { success: false };
         }
 
-        logger.info("Email sent successfully", { data });
+        logger.info("Email sent successfully to user", { data });
         return { success: true };
 
     } catch (error) {
-        logError("Failed to send email", error);
+        logError("Fail to send email to user", error);
         return { success: false };
     }
 }

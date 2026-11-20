@@ -15,6 +15,19 @@ export interface IUser {
     updatedAt: Date;
 }
 
+export interface INotes {
+    _id: Types.ObjectId;
+    title: string;
+    userId: Types.ObjectId | string;
+    content: string;
+    color: string;
+    tags: string[];
+    isPinned: boolean;
+    isArchived: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 interface RateLimit {
     limit: number;
     used: number;

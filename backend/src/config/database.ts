@@ -5,7 +5,7 @@ import logger, { logError } from "./logger.js";
 const connectDB = async () => {
     try {
         await mongoose.connect(env.MONGO_URI);
-        logger.info("DB Connected via prisma");
+        logger.info("DB Conned via mongoose");
     } catch (error) {
         logError("Database Connection error:", error);
         process.exit(1);
