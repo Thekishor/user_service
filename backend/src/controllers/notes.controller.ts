@@ -45,7 +45,7 @@ export const getAllNotesHandler =
             const query = res.locals.query as PaginationQuery;
             const { skip, limit, search, orderBy } = parseQuery(query);
 
-            const { response } = await getAllNotesService(
+            const { result } = await getAllNotesService(
                 userId,
                 metadata,
                 skip,
@@ -57,9 +57,9 @@ export const getAllNotesHandler =
             return res.status(200).json({
                 status: "success",
                 message: "Notes retrieved successfully",
-                notes: response.notes,
-                totalNotes: response.totalNotes,
-                totalPages: response.totalPages
+                notes: result.notes,
+                totalNotes: result.totalNotes,
+                totalPages: result.totalPages
             });
         } catch (error) {
             logError("Failed to retrieve notes", error);
@@ -75,21 +75,18 @@ export const getNoteByIdHandler =
             }
 
             const userId = req.user._id.toString();
+            const metadata = getRequestMetadata(req);
             const noteId = req.params.id;
 
-            const result = await getNoteByIdService(noteId, userId);
+            const { noteResponse } = await getNoteByIdService(noteId, metadata, userId);
 
             return res.status(200).json({
                 status: "success",
                 message: "Note retrieved successfully",
-                ...result,
+                note: noteResponse,
             });
         } catch (error) {
             logError("Failed to retrieve note by ID", error);
             return next(error);
         }
     };
-
-// Export aliases
-export const getAllNotes = getAllNotesHandler;
-export const getNotesById = getNoteByIdHandler;

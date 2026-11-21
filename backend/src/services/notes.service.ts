@@ -92,10 +92,22 @@ export const getAllNotesService = async (
     ]);
 
     if (totalNotes === 0) {
+
+        await AuditLog.create({
+            action: AUDIT_ACTION.GET_NOTES,
+            user: userId,
+            resource: AUDIT_RESOURCE.NOTE,
+            resourceId: userId,
+            ip: metadata.ipAddress,
+            userAgent: metadata.userAgent,
+        });
+
         return {
-            notes: [],
-            totalNotes: 0,
-            totalPages: 0,
+            response: {
+                notes: [],
+                totalNotes: 0,
+                totalPages: 0,
+            }
         };
     }
 
@@ -103,18 +115,31 @@ export const getAllNotesService = async (
         mapNotesToNoteResponse(note)
     );
 
-    const response = {
+    await AuditLog.create({
+        action: AUDIT_ACTION.GET_NOTES,
+        user: userId,
+        resource: AUDIT_RESOURCE.NOTE,
+        resourceId: userId,
+        ip: metadata.ipAddress,
+        userAgent: metadata.userAgent,
+    });
+
+    const result = {
         notes: mappedNotes,
         totalNotes,
         totalPages: Math.ceil(totalNotes / limit),
     };
 
-    await redisOperation.setEx(key, 300, JSON.stringify(response));
+    await redisOperation.setEx(key, 300, JSON.stringify(result));
 
-    return response;
+    return result;
 };
 
-export const getNoteByIdService = async (noteId: string, userId: string) => {
+export const getNoteByIdService = async (
+    noteId: string,
+    metadata: AuditMetadata,
+    userId: string
+) => {
     if (!mongoose.Types.ObjectId.isValid(noteId)) {
         throw new AppError("Invalid note ID format", 400, "INVALID_NOTE_ID");
     }
@@ -132,13 +157,22 @@ export const getNoteByIdService = async (noteId: string, userId: string) => {
         throw new AppError("Note not found", 404, "NOTE_NOT_FOUND");
     }
 
-    const response = {
-        note: mapNotesToNoteResponse(note as unknown as INotes),
+    await AuditLog.create({
+        action: AUDIT_ACTION.GET_NOTE_BY_ID,
+        user: userId,
+        resource: AUDIT_RESOURCE.NOTE,
+        resourceId: note._id,
+        ip: metadata.ipAddress,
+        userAgent: metadata.userAgent,
+    });
+
+    const result = {
+        noteResponse: mapNotesToNoteResponse(note),
     };
 
-    await redisOperation.setEx(key, 300, JSON.stringify(response));
+    await redisOperation.setEx(key, 300, JSON.stringify(result));
 
-    return response;
+    return result;
 };
 
 export function mapNotesToNoteResponse(notes: INotes) {
